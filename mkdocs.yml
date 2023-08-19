@@ -1,0 +1,34 @@
+site_name: Digital Image Processing Notes
+site_url: https://tonyfu97.github.io/Digital-Image-Processing/
+site_description: Study Notes for Digital Image Processing
+site_author: Tony Fu
+
+repo_url: https://github.com/tonyfu97/Digital-Image-Processing
+edit_uri: blob/master/docs/
+
+theme:
+    name: readthedocs
+    locale: en
+    analytics: {gtag: 'G-274394082'}
+    highlightjs: true
+    hljs_languages:
+        - yaml
+        - django
+    features:
+      - content.codehilite
+      - content.code.copy
+
+nav:
+    - Home: index.md
+    - 1. Getting Started: 01_getting_started.md
+    - 2. Block Decomposition: 02_block_decomposition.md
+    - 3. Point Processing Transformations: 03_point_processing.md
+
+
+copyright: Copyright &copy; 2023 Tony Fu
+
+extra_javascript:
+  - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML
+
+markdown_extensions:
+  - mdx_math
