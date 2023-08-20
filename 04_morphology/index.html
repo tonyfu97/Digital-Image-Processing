@@ -70,6 +70,22 @@
                 <li class="toctree-l1 current"><a class="reference internal current" href="./">4. Morphology</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#1-erosion-and-dilation">1. Erosion and Dilation</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#binary-images">Binary Images</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#gray-level-images">Gray-Level Images</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#2-opening-and-closing">2. Opening and Closing</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#3-kramer-bruckner-filter">3. Kramer-Bruckner Filter</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#4-alternating-sequential-filters-asf">4. Alternating Sequential Filters (ASF):</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#5-morphological-gradient">5. Morphological Gradient</a>
+    </li>
+        </ul>
     </li>
     </ul>
                 </li>
@@ -109,6 +125,35 @@
 <strong>Reference</strong>: Chapter 4 <a href="https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538"><em>Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library</em> by Tschumperlé, Tilmant, Barra</a></p>
 <h2 id="1-erosion-and-dilation">1. Erosion and Dilation</h2>
 <p>I found the book's explanation of erosion and dilation to be a bit confusing. I would recommend watching <a href="https://youtu.be/rP1KZb3llCY">this video</a> for a more intuitive explanation of the concepts.</p>
+<p>Mathematical morphology operations have a straightforward definition when dealing with binary images. For grayscale images, the definitions become more complex:</p>
+<h3 id="binary-images">Binary Images</h3>
+<p>For binary images <script type="math/tex">A</script> and a structuring element <script type="math/tex">B</script>, the operations can be defined as follows:</p>
+<ol>
+<li>
+<p><strong>Dilation</strong>:
+   <script type="math/tex; mode=display"> (A \oplus B)(x,y) = \max \{ A(x-i, y-j) \cdot B(i,j) : (i,j) \in \text{{domain of }} B \} </script>
+</p>
+</li>
+<li>
+<p><strong>Erosion</strong>:
+   <script type="math/tex; mode=display"> (A \ominus B)(x,y) = \min \{ A(x+i, y+j) \cdot B(i,j) : (i,j) \in \text{{domain of }} B \} </script>
+</p>
+</li>
+</ol>
+<h3 id="gray-level-images">Gray-Level Images</h3>
+<p>For grayscale images <script type="math/tex">A</script> and a structuring element <script type="math/tex">B</script>, the definitions change slightly:</p>
+<ol>
+<li><strong>Dilation</strong>:
+   <script type="math/tex; mode=display"> (A \oplus B)(x,y) = \max \{ A(x-i, y-j) + B(i,j) : (i,j) \in \text{{domain of }} B \} </script>
+</li>
+</ol>
+<p>Dilation causes bright regions to expand and dark regions to contract.</p>
+<ol>
+<li><strong>Erosion</strong>:
+   <script type="math/tex; mode=display"> (A \ominus B)(x,y) = \min \{ A(x+i, y+j) - B(i,j) : (i,j) \in \text{{domain of }} B \} </script>
+</li>
+</ol>
+<p>Erosion causes bright regions to contract and dark regions to expand.</p>
 <p>In CImg, we can perform erosion and dilation using the <code>erode()</code> and <code>dilate()</code> functions. Both functions take a structuring element <code>B</code> as an argument.</p>
 <pre><code class="language-cpp">CImg&lt;unsigned char&gt; img(&quot;coins.png&quot;);
 CImg&lt;&gt; lum = img.get_norm().blur(0.75f);
@@ -135,6 +180,88 @@ CImg&lt;unsigned char&gt;
 <li><strong>... or Dilation</strong>: </li>
 </ul>
 <p><img alt="dilation" src="../results/04/coins_dilation.png" /></p>
+<h2 id="2-opening-and-closing">2. Opening and Closing</h2>
+<p>The opening and closing operations are defined as follows (works for both binary and grayscale images):</p>
+<ol>
+<li>
+<p><strong>Opening</strong>:
+   <script type="math/tex; mode=display"> A \circ B = (A \ominus B) \oplus B </script>
+</p>
+</li>
+<li>
+<p><strong>Closing</strong>:
+   <script type="math/tex; mode=display"> A \bullet B = (A \oplus B) \ominus B </script>
+</p>
+</li>
+</ol>
+<pre><code class="language-cpp">CImg&lt;unsigned char&gt; B = CImg&lt;unsigned char&gt;(3, 3).fill(1);
+CImg&lt;unsigned char&gt;
+    imgErode = lum.get_erode(B),   // Erosion
+    imgDilate = lum.get_dilate(B), // Dilation&quot;
+    imgOpen = imgErode.get_dilate(B), // Opening
+    imgClose = imgDilate.get_erode(B); // Closing
+</code></pre>
+<ul>
+<li><strong>Opening</strong>: Erode, then dilate (removes small objects and smooths larger ones)</li>
+</ul>
+<p><img alt="opening" src="../results/04/coins_opening.png" /></p>
+<ul>
+<li><strong>Closing</strong>: Dilate, then erode (closes small holes and joins nearby objects)</li>
+</ul>
+<p><img alt="closing" src="../results/04/coins_closing.png" /></p>
+<h2 id="3-kramer-bruckner-filter">3. Kramer-Bruckner Filter</h2>
+<p>The Kramer-Bruckner filter is a specific morphological filter used to enhance contrast and reduce noise in an image. It performs a combination of dilation and erosion, typically using a circular structuring element. In math, it can be expressed as the following two formulas:</p>
+<ol>
+<li>
+<p>Compute the mid-value <script type="math/tex"> M </script> for each pixel:
+   <script type="math/tex; mode=display">
+   M(x,y) = 0.5 \times \left( (A \ominus B)(x,y) + (A \oplus B)(x,y) \right)
+   </script>
+</p>
+</li>
+<li>
+<p>Assign the output image values based on the input image and mid-value:
+   <script type="math/tex; mode=display">
+   A_{\text{out}}(x,y) = \begin{cases} 
+      (A \ominus B)(x,y) & \text{if } A(x,y) \leq M(x,y) \\
+      (A \oplus B)(x,y) & \text{if } A(x,y) > M(x,y) 
+   \end{cases}
+   </script>
+</p>
+</li>
+</ol>
+<p>Here, <script type="math/tex"> A </script> is the input image, <script type="math/tex"> B </script> is the structuring element, <script type="math/tex"> \ominus </script> denotes erosion, and <script type="math/tex"> \oplus </script> denotes dilation.</p>
+<pre><code class="language-cpp">CImg&lt;&gt; KramerBruckner(CImg&lt;&gt; &amp;imgIn, int n)
+{
+    CImg&lt;&gt;
+        imgOut(imgIn),
+        mask = CImg&lt;&gt;(n, n).fill(1),
+        imgErode = imgIn.get_erode(mask),
+        imgDilate = imgIn.get_dilate(mask); // Dilation
+    cimg_forXY(imgOut, x, y)
+    {
+        float M = 0.5f * (imgErode(x, y) + imgDilate(x, y));
+        imgOut(x, y) = (imgIn(x, y) &lt;= M ? imgErode(x, y) : imgDilate(x, y));
+    }
+    return imgOut;
+}
+</code></pre>
+<p><img alt="kramer-bruckner" src="../results/04/coins_kramer_bruckner.png" /></p>
+<h2 id="4-alternating-sequential-filters-asf">4. Alternating Sequential Filters (ASF):</h2>
+<p>Alternating Sequential Filters are a series of morphological operations that are applied sequentially, often involving both erosions and dilations with increasing sizes of structuring elements.</p>
+<ul>
+<li><strong>ASF (n = 1)</strong>: Erosion, then dilation</li>
+</ul>
+<p><img alt="asf1" src="../results/04/coins_sa_filtering1.png" /></p>
+<ul>
+<li><strong>ASF (n = 3)</strong>: (Erosion, then dilation) * 3</li>
+</ul>
+<p><img alt="asf3" src="../results/04/coins_sa_filtering3.png" /></p>
+<ul>
+<li><strong>ASF (n = 11)</strong>:</li>
+</ul>
+<p><img alt="asf7" src="../results/04/coins_sa_filtering11.png" /></p>
+<h3 id="5-morphological-gradient">5. Morphological Gradient</h3>
               
             </div>
           </div><footer>
