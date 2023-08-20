@@ -1,4 +1,4 @@
-# Digital Image Processing Study Notes
+# Digital Image Processing with C++ : Study Notes
 
 This website includes my study notes for the book [*Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library*](https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538) by Tschumperlé, Tilmant, and Barra.
 
@@ -6,6 +6,8 @@ Please note that this website does not include the book's content, except for th
 
 ## Disclaimer
 All intellectual property rights related to the book, including content, images, and related materials, are owned by the authors and publisher. The information provided on this website is intended for educational purposes and personal use only, and should not be considered a substitute for purchasing the book.
+
+![cover](./images/cover.png)
 
 ## Introduction
 I relied on OpenCV for my image processing needs. Though powerful, setting it up on a new machine was always cumbersome, requiring complex installation and linking processes. Plus, OpenCV's extensive set of features often felt overwhelming, making it difficult to manage and understand specific algorithm implementations.
