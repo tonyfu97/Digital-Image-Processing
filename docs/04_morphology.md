@@ -37,3 +37,23 @@ CImg<unsigned char>
 
 ![dilation](results/04/coins_dilation.png)
 
+
+## 2. Opening and Closing
+
+```cpp
+CImg<unsigned char> B = CImg<unsigned char>(3, 3).fill(1);
+CImg<unsigned char>
+    imgErode = lum.get_erode(B),   // Erosion
+    imgDilate = lum.get_dilate(B), // Dilation"
+    imgOpen = imgErode.get_dilate(B), // Opening
+    imgClose = imgDilate.get_erode(B); // Closing
+```
+
+- **Opening**: Erode, then dilate (removes small objects and smooths larger ones)
+
+![opening](results/04/coins_opening.png)
+
+- **Closing**: Dilate, then erode (closes small holes and joins nearby objects)
+
+![closing](results/04/coins_closing.png)
+
