@@ -2,22 +2,27 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://tonyfu97.github.io/Digital-Image-Processing/</loc>
-         <lastmod>2023-08-19</lastmod>
+         <lastmod>2023-08-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/Digital-Image-Processing/01_getting_started/</loc>
-         <lastmod>2023-08-19</lastmod>
+         <lastmod>2023-08-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/Digital-Image-Processing/02_block_decomposition/</loc>
-         <lastmod>2023-08-19</lastmod>
+         <lastmod>2023-08-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/Digital-Image-Processing/03_point_processing/</loc>
-         <lastmod>2023-08-19</lastmod>
+         <lastmod>2023-08-20</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://tonyfu97.github.io/Digital-Image-Processing/appendix_1/</loc>
+         <lastmod>2023-08-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>

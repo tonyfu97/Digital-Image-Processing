@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/Digital-Image-Processing/appendix_1/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Appendix 1 - Math Expressions in CImg's Fill Method - Digital Image Processing Notes</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Appendix 1 - Math Expressions in CImg\u0027s Fill Method";
+        var mkdocs_page_input_path = "appendix_1.md";
+        var mkdocs_page_url = "/Digital-Image-Processing/appendix_1/";
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/django.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-274394082"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-274394082');
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Digital Image Processing Notes
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../01_getting_started/">1. Getting Started</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../02_block_decomposition/">2. Block Decomposition</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../03_point_processing/">3. Point Processing Transformations</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Appendix 1 - Math Expressions in CImg's Fill Method</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#syntax-and-operators">Syntax and Operators</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#variables">Variables</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#constants">Constants</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#conditional-expressions">Conditional Expressions</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#boolean-logic">Boolean Logic</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#0-original-image">0. Original Image</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#1-doubling-the-intensity-of-an-image">1. Doubling the Intensity of an Image</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-inverting-an-image">2. Inverting an Image</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-spiral-effect">3. Spiral Effect</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#4-conditional-operations">4. Conditional Operations</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Digital Image Processing Notes</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
+      <li>Appendix 1 - Math Expressions in CImg's Fill Method</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tonyfu97/Digital-Image-Processing/blob/master/docs/appendix_1.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="math-expressions-in-cimgs-fill-method">Math Expressions in CImg's Fill Method</h1>
+<p>This page provides a guide to using mathematical expressions within the <code>CImg&lt;unsigned char&gt;::fill()</code> method of the CImg library.</p>
+<h2 id="syntax-and-operators">Syntax and Operators</h2>
+<p>Mathematical expressions can include the following:</p>
+<ul>
+<li>Basic arithmetic: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code></li>
+<li>Trigonometric functions: <code>sin</code>, <code>cos</code>, <code>tan</code>, etc.</li>
+<li>Logarithmic functions: <code>log</code>, <code>exp</code>, etc.</li>
+</ul>
+<h2 id="variables">Variables</h2>
+<ul>
+<li><code>I</code>: Represents the current pixel value. For example, <code>I*2</code> would double the intensity of every pixel.</li>
+<li><code>J(x, y)</code>: Refers to the neighboring pixel values at relative coordinates <code>(x, y)</code></li>
+<li><code>x</code>, <code>y</code>, <code>z</code>, <code>c</code>: Represents the coordinates of the current pixel.</li>
+</ul>
+<h2 id="constants">Constants</h2>
+<ul>
+<li><code>pi</code></li>
+</ul>
+<h2 id="conditional-expressions">Conditional Expressions</h2>
+<p>You can use conditional expressions like <code>condition ? value_if_true : value_if_false</code>.</p>
+<h2 id="boolean-logic">Boolean Logic</h2>
+<p>Use logical operators like <code>&amp;&amp;</code> (AND), <code>||</code> (OR), and <code>!</code> (NOT) for conditional logic, and comparison operators (<code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>) are also available.</p>
+<h2 id="examples">Examples</h2>
+<h3 id="0-original-image">0. Original Image</h3>
+<p><img alt="original" src="../results/appendix_1/lighthouse_lum.png" /></p>
+<h3 id="1-doubling-the-intensity-of-an-image">1. Doubling the Intensity of an Image</h3>
+<pre><code class="language-cpp">CImg&lt;unsigned char&gt; img(&quot;image.jpg&quot;);
+img.fill(&quot;I*2&quot;, true);
+</code></pre>
+<p><img alt="double" src="../results/appendix_1/lighthouse_double.png" /></p>
+<h3 id="2-inverting-an-image">2. Inverting an Image</h3>
+<pre><code class="language-cpp">CImg&lt;unsigned char&gt; img(&quot;image.jpg&quot;);
+img.fill(&quot;255-I&quot;, true);
+</code></pre>
+<p><img alt="invert" src="../results/appendix_1/lighthouse_invert.png" /></p>
+<h3 id="3-spiral-effect">3. Spiral Effect</h3>
+<pre><code class="language-cpp">CImg&lt;unsigned char&gt; img(&quot;image.jpg&quot;);
+img_spiral.fill(&quot;(x*y)%500&quot;,true);
+</code></pre>
+<p><img alt="spiral" src="../results/appendix_1/lighthouse_spiral.png" /></p>
+<h3 id="4-conditional-operations">4. Conditional Operations</h3>
+<pre><code class="language-cpp">CImg&lt;unsigned char&gt; img(&quot;image.jpg&quot;);
+img.fill(&quot;I*(I!=J(1,0) || I!=J(0,1)?0:1)&quot;, true);
+</code></pre>
+<p><img alt="conditional" src="../results/appendix_1/lighthouse_conditional.png" /></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../03_point_processing/" class="btn btn-neutral float-left" title="3. Point Processing Transformations"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2023 Tony Fu</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tonyfu97/Digital-Image-Processing" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../03_point_processing/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
