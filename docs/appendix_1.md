@@ -16,10 +16,6 @@ Mathematical expressions can include the following:
 - `J(x, y)`: Refers to the neighboring pixel values at relative coordinates `(x, y)`
 - `x`, `y`, `z`, `c`: Represents the coordinates of the current pixel.
 
-## Constants
-
-- `pi`
-
 ## Conditional Expressions
 
 You can use conditional expressions like `condition ? value_if_true : value_if_false`.
