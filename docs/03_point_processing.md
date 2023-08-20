@@ -78,3 +78,70 @@ As we seen in the above example, bitwise operations might seem somewhat abstract
 
 ## 3. Histogram Equalization
 
+### 3.0. Orignal Image
+
+![original](./results/03/lighthouse_cube.png)
+
+And the corresponding histogram:
+![hist_original](./results/03/hist_original.png)
+
+### 3.1. Histogram Equalization
+
+```cpp
+CImg<> equalizeHisto(CImg<> &imgIn, unsigned int nb)
+{
+    CImg<> imgOut(imgIn);                   // Create a copy of the input image for the output
+    float vmin, vmax = imgIn.max_min(vmin); // Find the minimum and maximum pixel values
+    int size = imgIn.size();                // Get the total number of pixels in the image
+    int vdiff = vmax - vmin;                // Compute the difference between max and min values
+
+    CImg<> hist = imgIn.get_histogram(nb, vmin, vmax); // Calculate the histogram with nb bins
+    long int cumul = 0;
+
+    // Compute the cumulative histogram
+    cimg_forX(hist, pos)
+    {
+        cumul += hist[pos];
+        hist[pos] = cumul;
+    }
+
+    if (cumul == 0) // Check for a special case where the image has no non-zero pixels
+        cumul = 1;  // Avoid division by zero later in the code
+
+    // Equalize the image by adjusting pixel values according to the cumulative histogram
+    cimg_foroff(imgIn, off) // Iterate through all offsets (positions) in the input image
+    {
+        int pos = (int)((imgIn[off] - vmin) * (nb - 1) / vdiff);
+        if (pos >= 0 && pos < (int)nb)
+            imgOut[off] = vmin + vdiff * hist[pos] / size;
+    }
+
+    return imgOut;
+}
+```
+
+In the example code above, `cimg_foroff` is a macro provided by the CImg library that creates a loop to iterate over all the pixels in the image. Inside this loop, we first calculate the position of the pixel in the histogram (`pos`).
+
+$$
+\text{{pos}} = \left\lfloor \frac{{(I_{\text{{off}}} - \text{{vmin}}) \cdot (\text{{nb}} - 1)}}{{\text{{vdiff}}}} \right\rfloor
+$$
+
+where \(I_{\text{{off}}}\) is the intensity of the pixel at offset `off`, \(\text{{vmin}}\) and \(\text{{vmax}}\) are the minimum and maximum intensity values in the image, \(\text{{vdiff}} = \text{{vmax}} - \text{{vmin}}\), and \(\text{{nb}}\) is the number of bins in the histogram.
+
+Then, we check if the position is within the valid range of the histogram:
+$$
+\text{if } \text{{pos}} \geq 0 \text{ and } \text{{pos}} < \text{{nb}}
+$$
+
+If so, we calculate the new pixel value using the following expression:
+
+$$
+I_{\text{{out, off}}} = \text{{vmin}} + \frac{{\text{{vdiff}} \cdot H_{\text{{pos}}}}}{{\text{{size}}}}
+$$
+
+where \(I_{\text{{out, off}}}\) is the new intensity value at offset `off`, \(H_{\text{{pos}}}\) is the value at the `pos` position in the cumulative histogram, and \(\text{{size}}\) is the total number of pixels in the image.
+
+![equalized](./results/03/lighthouse_cube_equalized.png)
+
+And the corresponding histogram:
+![hist_equalized](./results/03/hist_equalized.png)
