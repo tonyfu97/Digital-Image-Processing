@@ -66,14 +66,16 @@
                 <li class="toctree-l1"><a class="reference internal" href="../03_point_processing/">3. Point Processing Transformations</a>
                 </li>
               </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../04_morphology/">4. Morphology</a>
+                </li>
+              </ul>
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href="./">Appendix 1 - Math Expressions in CImg's Fill Method</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#syntax-and-operators">Syntax and Operators</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#variables">Variables</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#constants">Constants</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#conditional-expressions">Conditional Expressions</a>
     </li>
@@ -135,10 +137,6 @@
 <li><code>J(x, y)</code>: Refers to the neighboring pixel values at relative coordinates <code>(x, y)</code></li>
 <li><code>x</code>, <code>y</code>, <code>z</code>, <code>c</code>: Represents the coordinates of the current pixel.</li>
 </ul>
-<h2 id="constants">Constants</h2>
-<ul>
-<li><code>pi</code></li>
-</ul>
 <h2 id="conditional-expressions">Conditional Expressions</h2>
 <p>You can use conditional expressions like <code>condition ? value_if_true : value_if_false</code>.</p>
 <h2 id="boolean-logic">Boolean Logic</h2>
@@ -170,7 +168,7 @@ img.fill(&quot;I*(I!=J(1,0) || I!=J(0,1)?0:1)&quot;, true);
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../03_point_processing/" class="btn btn-neutral float-left" title="3. Point Processing Transformations"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../04_morphology/" class="btn btn-neutral float-left" title="4. Morphology"><span class="icon icon-circle-arrow-left"></span> Previous</a>
     </div>
 
   <hr/>
@@ -198,7 +196,7 @@ img.fill(&quot;I*(I!=J(1,0) || I!=J(0,1)?0:1)&quot;, true);
         </span>
     
     
-      <span><a href="../03_point_processing/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../04_morphology/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
   </span>
