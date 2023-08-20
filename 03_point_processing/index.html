@@ -92,6 +92,12 @@
         </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#3-histogram-equalization">3. Histogram Equalization</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#30-orignal-image">3.0. Orignal Image</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#31-histogram-equalization">3.1. Histogram Equalization</a>
+    </li>
+        </ul>
     </li>
     </ul>
                 </li>
@@ -172,6 +178,64 @@
 <li><strong>Thresholding</strong>: If you have two binary images representing different thresholded features, the bitwise AND can be used to find the overlapping areas between those features.</li>
 </ul>
 <h2 id="3-histogram-equalization">3. Histogram Equalization</h2>
+<h3 id="30-orignal-image">3.0. Orignal Image</h3>
+<p><img alt="original" src="../results/03/lighthouse_cube.png" /></p>
+<p>And the corresponding histogram:
+<img alt="hist_original" src="../results/03/hist_original.png" /></p>
+<h3 id="31-histogram-equalization">3.1. Histogram Equalization</h3>
+<pre><code class="language-cpp">CImg&lt;&gt; equalizeHisto(CImg&lt;&gt; &amp;imgIn, unsigned int nb)
+{
+    CImg&lt;&gt; imgOut(imgIn);                   // Create a copy of the input image for the output
+    float vmin, vmax = imgIn.max_min(vmin); // Find the minimum and maximum pixel values
+    int size = imgIn.size();                // Get the total number of pixels in the image
+    int vdiff = vmax - vmin;                // Compute the difference between max and min values
+
+    CImg&lt;&gt; hist = imgIn.get_histogram(nb, vmin, vmax); // Calculate the histogram with nb bins
+    long int cumul = 0;
+
+    // Compute the cumulative histogram
+    cimg_forX(hist, pos)
+    {
+        cumul += hist[pos];
+        hist[pos] = cumul;
+    }
+
+    if (cumul == 0) // Check for a special case where the image has no non-zero pixels
+        cumul = 1;  // Avoid division by zero later in the code
+
+    // Equalize the image by adjusting pixel values according to the cumulative histogram
+    cimg_foroff(imgIn, off) // Iterate through all offsets (positions) in the input image
+    {
+        int pos = (int)((imgIn[off] - vmin) * (nb - 1) / vdiff);
+        if (pos &gt;= 0 &amp;&amp; pos &lt; (int)nb)
+            imgOut[off] = vmin + vdiff * hist[pos] / size;
+    }
+
+    return imgOut;
+}
+</code></pre>
+<p>In the example code above, <code>cimg_foroff</code> is a macro provided by the CImg library that creates a loop to iterate over all the pixels in the image. Inside this loop, we first calculate the position of the pixel in the histogram (<code>pos</code>).</p>
+<p>
+<script type="math/tex; mode=display">
+\text{{pos}} = \left\lfloor \frac{{(I_{\text{{off}}} - \text{{vmin}}) \cdot (\text{{nb}} - 1)}}{{\text{{vdiff}}}} \right\rfloor
+</script>
+</p>
+<p>where <script type="math/tex">I_{\text{{off}}}</script> is the intensity of the pixel at offset <code>off</code>, <script type="math/tex">\text{{vmin}}</script> and <script type="math/tex">\text{{vmax}}</script> are the minimum and maximum intensity values in the image, <script type="math/tex">\text{{vdiff}} = \text{{vmax}} - \text{{vmin}}</script>, and <script type="math/tex">\text{{nb}}</script> is the number of bins in the histogram.</p>
+<p>Then, we check if the position is within the valid range of the histogram:
+<script type="math/tex; mode=display">
+\text{if } \text{{pos}} \geq 0 \text{ and } \text{{pos}} < \text{{nb}}
+</script>
+</p>
+<p>If so, we calculate the new pixel value using the following expression:</p>
+<p>
+<script type="math/tex; mode=display">
+I_{\text{{out, off}}} = \text{{vmin}} + \frac{{\text{{vdiff}} \cdot H_{\text{{pos}}}}}{{\text{{size}}}}
+</script>
+</p>
+<p>where <script type="math/tex">I_{\text{{out, off}}}</script> is the new intensity value at offset <code>off</code>, <script type="math/tex">H_{\text{{pos}}}</script> is the value at the <code>pos</code> position in the cumulative histogram, and <script type="math/tex">\text{{size}}</script> is the total number of pixels in the image.</p>
+<p><img alt="equalized" src="../results/03/lighthouse_cube_equalized.png" /></p>
+<p>And the corresponding histogram:
+<img alt="hist_equalized" src="../results/03/hist_equalized.png" /></p>
               
             </div>
           </div><footer>
