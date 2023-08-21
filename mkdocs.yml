@@ -24,6 +24,7 @@ nav:
     - 2. Block Decomposition: 02_block_decomposition.md
     - 3. Point Processing Transformations: 03_point_processing.md
     - 4. Morphology: 04_morphology.md
+    - 5. Filtering: 05_filtering.md
     - Appendix 1 - Math Expressions in CImg's Fill Method: appendix_1.md
 
 copyright: Copyright &copy; 2023 Tony Fu
