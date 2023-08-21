@@ -82,8 +82,40 @@
     <li class="toctree-l2"><a class="reference internal" href="#3-kramer-bruckner-filter">3. Kramer-Bruckner Filter</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#4-alternating-sequential-filters-asf">4. Alternating Sequential Filters (ASF):</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#5-other-morphological-operations">5. Other Morphological Operations</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#5-morphological-gradient">5. Morphological Gradient</a>
+    <li class="toctree-l3"><a class="reference internal" href="#1-morphological-gradients">1. Morphological Gradients</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-beucher-gradient">2. Beucher Gradient</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-top-hat-transformations">3. Top Hat Transformations</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#4-edge-detector-contourmin-and-contourmax">4. Edge Detector (contourMin and contourMax)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#5-nonlinear-laplacian">5. Nonlinear Laplacian</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#6-skeletonization">6. Skeletonization</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#iterative-skeletonization-function">Iterative Skeletonization Function</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#initializing-variables">Initializing Variables</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#pass-1">Pass 1</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#removing-tagged-pixels-from-pass-1">Removing Tagged Pixels from Pass 1</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#pass-2">Pass 2</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#removing-tagged-pixels-from-pass-2">Removing Tagged Pixels from Pass 2</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#return-the-total-number-of-removed-pixels">Return the Total Number of Removed Pixels</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#iterative-skeletonization">Iterative Skeletonization</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#results">Results</a>
+    </li>
+        </ul>
     </li>
         </ul>
     </li>
@@ -261,7 +293,155 @@ CImg&lt;unsigned char&gt;
 <li><strong>ASF (n = 11)</strong>:</li>
 </ul>
 <p><img alt="asf7" src="../results/04/coins_sa_filtering11.png" /></p>
-<h3 id="5-morphological-gradient">5. Morphological Gradient</h3>
+<h2 id="5-other-morphological-operations">5. Other Morphological Operations</h2>
+<h3 id="1-morphological-gradients">1. Morphological Gradients</h3>
+<p>Morphological gradients measure the difference between dilation and erosion of an image. In this code, two gradients are computed: the erosion gradient and the dilation gradient.</p>
+<ul>
+<li>Erosion Gradient (<script type="math/tex"> \text{gradE} </script>): <script type="math/tex"> \text{gradE} = A - (A \ominus B) </script>
+</li>
+<li>Dilation Gradient (<script type="math/tex"> \text{gradD} </script>): <script type="math/tex"> \text{gradD} = (A \oplus B) - A </script>
+</li>
+</ul>
+<p>Gradient E:</p>
+<p><img alt="gradientE" src="../results/04/coins_gradientE.png" /></p>
+<p>Gradient D:</p>
+<p><img alt="gradientD" src="../results/04/coins_gradientD.png" /></p>
+<h3 id="2-beucher-gradient">2. Beucher Gradient</h3>
+<p>The Beucher gradient is another way of expressing the difference between dilation and erosion. It's calculated as the difference between the dilated and eroded images.</p>
+<ul>
+<li>Beucher Gradient: <script type="math/tex"> \text{imgBeucher} = (A \oplus B) - (A \ominus B) </script>
+</li>
+</ul>
+<p><img alt="beucher" src="../results/04/coins_beucher.png" /></p>
+<h3 id="3-top-hat-transformations">3. Top Hat Transformations</h3>
+<p>Top hat transformations emphasize differences between the original image and its morphological opening or closing.</p>
+<ul>
+<li>White Top Hat: <script type="math/tex"> \text{whiteTopHat} = A - (A \ominus B) \oplus B = A - A \circ B</script>
+</li>
+<li>Black Top Hat: <script type="math/tex"> \text{blackTopHat} = (A \oplus B) \ominus B - A = A \bullet B - A</script>
+</li>
+</ul>
+<p>White Top Hat:</p>
+<p><img alt="whiteTopHat" src="../results/04/coins_white_top_hat.png" /></p>
+<p>Black Top Hat:</p>
+<p><img alt="blackTopHat" src="../results/04/coins_black_top_hat.png" /></p>
+<h3 id="4-edge-detector-contourmin-and-contourmax">4. Edge Detector (contourMin and contourMax)</h3>
+<p>These operations compute the minimum and maximum between the erosion and dilation gradients, respectively.</p>
+<ul>
+<li>Contour Min: <script type="math/tex"> \text{contourMin} = \min(\text{gradE}, \text{gradD}) </script>
+</li>
+<li>Contour Max: <script type="math/tex"> \text{contourMax} = \max(\text{gradE}, \text{gradD}) </script>
+</li>
+</ul>
+<p>Contour Min (this is blank because there is no overlap between <code>gradE</code>and <code>gradD</code>)</p>
+<p><img alt="contourMin" src="../results/04/coins_contour_min.png" /></p>
+<p>Contour Max:</p>
+<p><img alt="contourMax" src="../results/04/coins_contour_max.png" /></p>
+<h3 id="5-nonlinear-laplacian">5. Nonlinear Laplacian</h3>
+<p>The nonlinear Laplacian is the difference between the dilation and erosion gradients.</p>
+<ul>
+<li>Nonlinear Laplacian: <script type="math/tex"> \text{Laplician} = \text{gradD} - \text{gradE} </script>
+</li>
+</ul>
+<p><img alt="laplacian" src="../results/04/coins_laplacian.png" /></p>
+<h3 id="6-skeletonization">6. Skeletonization</h3>
+<p>Here we implement the <a href="http://agcggs680.pbworks.com/f/Zhan-Suen_algorithm.pdf">Zhang-Suen skeletonization algorithm</a> using the CImg library in C++. <strong>Very Important Note</strong>: this method requires that the input image is binary (i.e., pixels are either 0 or 1).</p>
+<h4 id="iterative-skeletonization-function">Iterative Skeletonization Function</h4>
+<p>The main function for skeletonization is <code>IterSkeleton</code>. This function takes a binary image as input and performs two passes, removing certain edge pixels in each pass.</p>
+<h4 id="initializing-variables">Initializing Variables</h4>
+<pre><code class="language-cpp">CImg&lt;unsigned char&gt; D(imgIn.width(), imgIn.height(), 1, 1, 0);
+CImg_3x3(N, unsigned char);
+</code></pre>
+<p>Here, we use <code>D</code> to tag pixels for removal. Whenever a pixel is tagged, we set its value to 1.</p>
+<p>Note that we never define <code>N</code> in the code. This is because <code>CImg_3x3</code> is a macro that defines <code>N</code> for us. And in the subsequent code, we use <code>N</code> to access the 8 neighbors of a pixel. The prefix <code>N</code> is hardcoded into the library's macros for defining these variables. The variables <code>Npp, Ncp, Nnp, Npc, Nnc, Npn, Ncn, Nnn</code> represent the 8 neighboring pixels around the central pixel <code>(x, y)</code>. The variable names correspond to their relative positions:</p>
+<ul>
+<li><code>Npp</code>: Previous row, previous column.</li>
+<li><code>Ncp</code>: Current row, previous column.</li>
+<li><code>Nnp</code>: Next row, previous column.</li>
+<li><code>Npc</code>: Previous row, current column.</li>
+<li><code>Nnc</code>: Next row, current column.</li>
+<li><code>Npn</code>: Previous row, next column.</li>
+<li><code>Ncn</code>: Current row, next column.</li>
+<li><code>Nnn</code>: Next row, next column.</li>
+<li>The central pixel itself is referred to as <code>Ncc</code>.</li>
+</ul>
+<p><img alt="cimg_for3x3_grid" src="../results/04/cimg_for3x3_grid.png" /></p>
+<h4 id="pass-1">Pass 1</h4>
+<p>The first pass checks each pixel and its 8 neighbors to determine if it should be removed:</p>
+<p>
+<script type="math/tex; mode=display">
+B = N_{pp} + N_{cp} + N_{np} + N_{pc} + N_{nc} + N_{pn} + N_{cn} + N_{nn}
+</script>
+<script type="math/tex; mode=display">
+C = N_{nc} \cdot (N_{nc} - N_{np}) + N_{np} \cdot (N_{np} - N_{cp}) + \cdots + N_{nn} \cdot (N_{nn} - N_{nc})
+</script>
+</p>
+<p>Here, <code>C</code> is the the number of 0-1 transitions in the 8-neighborhood of the pixel. The book's description "C(N), called connectivity number, expressing how many binary components are connected to the central pixel (x,y)" appears to be incorrect.</p>
+<p>The conditions for removal are:</p>
+<p>
+<script type="math/tex; mode=display">
+R1 = \left( B \geq 2 \right) \land \left( B \leq 6 \right) \land \left( C = 1 \right) \land \left( N_{cn} \cdot N_{nc} \cdot N_{cp} = 0 \right) \land \left( N_{pc} \cdot N_{cn} \cdot N_{nc} = 0 \right)
+</script>
+</p>
+<p>Intuitively, this means that the pixel should be removed if:</p>
+<ul>
+<li>It has 2-6 neighbors. (Because if <code>B</code> is 0 or 1, then the pixel is an end point or an isolated point.)</li>
+<li>It has exactly 1 0-1 transition in its 8-neighborhood because it is likely to be a boundary pixel.</li>
+<li>
+<p><strong><script type="math/tex"> N_{cn} \cdot N_{nc} \cdot N_{cp} = 0 </script> and <script type="math/tex"> N_{pc} \cdot N_{cn} \cdot N_{nc} = 0 </script> for <script type="math/tex"> R1 </script></strong>, and <strong><script type="math/tex"> N_{nc} \cdot N_{cp} \cdot N_{pc} = 0 </script> and <script type="math/tex"> N_{cp} \cdot N_{pc} \cdot N_{cn} = 0 </script> for <script type="math/tex"> R2 </script></strong>: These are specific conditions for Zhang-Suen thinning. They ensure that no spur pixels (pixels that stick out from the object) are created during the thinning process.</p>
+<p>For <script type="math/tex"> R1 </script>, these conditions make sure that the pixel is not an endpoint in the south and east directions, and that removing it won't break connectivity. The conditions for <script type="math/tex"> R2 </script> (see below) do a similar thing, but in the north and west directions. By separating the thinning process into two stages, the algorithm avoids the possibility of over-thinning or under-thinning.</p>
+</li>
+</ul>
+<pre><code class="language-cpp">// Pass 1
+int n1 = 0;
+cimg_for3x3(imgIn, x, y, 0, 0, N, unsigned char)
+{
+    if (imgIn(x, y))
+    {
+        // Compute B and C here...
+        bool R1 = B &gt;= 2 &amp;&amp; B &lt;= 6 &amp;&amp; C == 1 &amp;&amp; Ncn * Nnc * Ncp == 0 &amp;&amp; Npc * Ncn * Nnc == 0;
+        if (R1)
+        {
+            // Tag (x,y)
+            D(x, y) = 1;
+            ++n1;
+        }
+    }
+}
+</code></pre>
+<h4 id="removing-tagged-pixels-from-pass-1">Removing Tagged Pixels from Pass 1</h4>
+<pre><code class="language-cpp">cimg_forXY(imgIn, x, y)
+    imgIn(x, y) -= (n1 &gt; 0) * D(x, y);
+</code></pre>
+<h4 id="pass-2">Pass 2</h4>
+<p>The second pass is similar to the first, but with different conditions for removal:</p>
+<p>
+<script type="math/tex; mode=display">
+R2 = \left( B \geq 2 \right) \land \left( B \leq 6 \right) \land \left( C = 1 \right) \land \left( N_{nc} \cdot N_{cp} \cdot N_{pc} = 0 \right) \land \left( N_{cp} \cdot N_{pc} \cdot N_{cn} = 0 \right)
+</script>
+</p>
+<h4 id="removing-tagged-pixels-from-pass-2">Removing Tagged Pixels from Pass 2</h4>
+<p>Similar to the removal in Pass 1.</p>
+<h4 id="return-the-total-number-of-removed-pixels">Return the Total Number of Removed Pixels</h4>
+<pre><code class="language-cpp">return n1 + n2;
+</code></pre>
+<h4 id="iterative-skeletonization">Iterative Skeletonization</h4>
+<pre><code class="language-cpp">int num_removed;
+do
+{
+    num_removed = IterSkeleton(lum);
+} while (num_removed &gt; 0);
+</code></pre>
+<p>Here, we keep calling <code>IterSkeleton</code> until no pixels are removed in a pass.</p>
+<h4 id="results">Results</h4>
+<ul>
+<li><strong>Original</strong>:</li>
+</ul>
+<p><img alt="original" src="../images/words_and_shapes.png" /></p>
+<ul>
+<li><strong>Skeleton</strong>:</li>
+</ul>
+<p><img alt="skeleton" src="../results/04/words_and_shapes_skeleton.png" /></p>
               
             </div>
           </div><footer>
