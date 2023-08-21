@@ -23,8 +23,6 @@ CImg<float> img("image.png");
 
 You can specify a different type if you want, such as `unsigned char`, `int`, etc. But if you simply use `CImg<>`, then it defaults to using `float`.
 
-`CImg<T>` is a part of the CImg library, a popular, open-source C++ toolkit that facilitates the creation and manipulation of images. The templated class `CImg<T>` can represent images with pixels of different types (e.g., `float`, `int`, etc.).
-
 Below are some commonly used constructors for [`CImg<T>`](https://cimg.eu/reference/structcimg__library_1_1CImg.html):
 
 * **Default Constructor**: 

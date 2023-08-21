@@ -148,6 +148,186 @@ Alternating Sequential Filters are a series of morphological operations that are
 ![asf7](results/04/coins_sa_filtering11.png)
 
 
-### 5. Morphological Gradient
+## 5. Other Morphological Operations
+
+### 1. Morphological Gradients
+Morphological gradients measure the difference between dilation and erosion of an image. In this code, two gradients are computed: the erosion gradient and the dilation gradient.
+
+- Erosion Gradient (\( \text{gradE} \)): \( \text{gradE} = A - (A \ominus B) \)
+- Dilation Gradient (\( \text{gradD} \)): \( \text{gradD} = (A \oplus B) - A \)
+
+Gradient E:
+
+![gradientE](results/04/coins_gradientE.png)
+
+Gradient D:
+
+![gradientD](results/04/coins_gradientD.png)
+
+### 2. Beucher Gradient
+The Beucher gradient is another way of expressing the difference between dilation and erosion. It's calculated as the difference between the dilated and eroded images.
+
+- Beucher Gradient: \( \text{imgBeucher} = (A \oplus B) - (A \ominus B) \)
+
+![beucher](results/04/coins_beucher.png)
+
+### 3. Top Hat Transformations
+Top hat transformations emphasize differences between the original image and its morphological opening or closing.
+
+- White Top Hat: \( \text{whiteTopHat} = A - (A \ominus B) \oplus B = A - A \circ B\)
+- Black Top Hat: \( \text{blackTopHat} = (A \oplus B) \ominus B - A = A \bullet B - A\)
+
+White Top Hat:
+
+![whiteTopHat](results/04/coins_white_top_hat.png)
+
+Black Top Hat:
+
+![blackTopHat](results/04/coins_black_top_hat.png)
 
 
+### 4. Edge Detector (contourMin and contourMax)
+These operations compute the minimum and maximum between the erosion and dilation gradients, respectively.
+
+- Contour Min: \( \text{contourMin} = \min(\text{gradE}, \text{gradD}) \)
+- Contour Max: \( \text{contourMax} = \max(\text{gradE}, \text{gradD}) \)
+
+Contour Min (this is blank because there is no overlap between `gradE`and `gradD`)
+
+![contourMin](results/04/coins_contour_min.png)
+
+Contour Max:
+
+![contourMax](results/04/coins_contour_max.png)
+
+### 5. Nonlinear Laplacian
+The nonlinear Laplacian is the difference between the dilation and erosion gradients.
+
+- Nonlinear Laplacian: \( \text{Laplician} = \text{gradD} - \text{gradE} \)
+
+![laplacian](results/04/coins_laplacian.png)
+
+### 6. Skeletonization
+
+Here we implement the [Zhang-Suen skeletonization algorithm](http://agcggs680.pbworks.com/f/Zhan-Suen_algorithm.pdf) using the CImg library in C++. **Very Important Note**: this method requires that the input image is binary (i.e., pixels are either 0 or 1).
+
+#### Iterative Skeletonization Function
+
+The main function for skeletonization is `IterSkeleton`. This function takes a binary image as input and performs two passes, removing certain edge pixels in each pass.
+
+#### Initializing Variables
+
+```cpp
+CImg<unsigned char> D(imgIn.width(), imgIn.height(), 1, 1, 0);
+CImg_3x3(N, unsigned char);
+```
+
+Here, we use `D` to tag pixels for removal. Whenever a pixel is tagged, we set its value to 1.
+
+Note that we never define `N` in the code. This is because `CImg_3x3` is a macro that defines `N` for us. And in the subsequent code, we use `N` to access the 8 neighbors of a pixel. The prefix `N` is hardcoded into the library's macros for defining these variables. The variables `Npp, Ncp, Nnp, Npc, Nnc, Npn, Ncn, Nnn` represent the 8 neighboring pixels around the central pixel `(x, y)`. The variable names correspond to their relative positions:
+
+  - `Npp`: Previous row, previous column.
+  - `Ncp`: Current row, previous column.
+  - `Nnp`: Next row, previous column.
+  - `Npc`: Previous row, current column.
+  - `Nnc`: Next row, current column.
+  - `Npn`: Previous row, next column.
+  - `Ncn`: Current row, next column.
+  - `Nnn`: Next row, next column.
+  - The central pixel itself is referred to as `Ncc`.
+
+![cimg_for3x3_grid](results/04/cimg_for3x3_grid.png)
+
+#### Pass 1
+
+The first pass checks each pixel and its 8 neighbors to determine if it should be removed:
+
+\[
+B = N_{pp} + N_{cp} + N_{np} + N_{pc} + N_{nc} + N_{pn} + N_{cn} + N_{nn}
+\]
+\[
+C = N_{nc} \cdot (N_{nc} - N_{np}) + N_{np} \cdot (N_{np} - N_{cp}) + \cdots + N_{nn} \cdot (N_{nn} - N_{nc})
+\]
+
+Here, `C` is the the number of 0-1 transitions in the 8-neighborhood of the pixel. The book's description "C(N), called connectivity number, expressing how many binary components are connected to the central pixel (x,y)" appears to be incorrect.
+
+The conditions for removal are:
+
+\[
+R1 = \left( B \geq 2 \right) \land \left( B \leq 6 \right) \land \left( C = 1 \right) \land \left( N_{cn} \cdot N_{nc} \cdot N_{cp} = 0 \right) \land \left( N_{pc} \cdot N_{cn} \cdot N_{nc} = 0 \right)
+\]
+
+Intuitively, this means that the pixel should be removed if:
+
+* It has 2-6 neighbors. (Because if `B` is 0 or 1, then the pixel is an end point or an isolated point.)
+* It has exactly 1 0-1 transition in its 8-neighborhood because it is likely to be a boundary pixel.
+* **\( N_{cn} \cdot N_{nc} \cdot N_{cp} = 0 \) and \( N_{pc} \cdot N_{cn} \cdot N_{nc} = 0 \) for \( R1 \)**, and **\( N_{nc} \cdot N_{cp} \cdot N_{pc} = 0 \) and \( N_{cp} \cdot N_{pc} \cdot N_{cn} = 0 \) for \( R2 \)**: These are specific conditions for Zhang-Suen thinning. They ensure that no spur pixels (pixels that stick out from the object) are created during the thinning process.
+
+    For \( R1 \), these conditions make sure that the pixel is not an endpoint in the south and east directions, and that removing it won't break connectivity. The conditions for \( R2 \) (see below) do a similar thing, but in the north and west directions. By separating the thinning process into two stages, the algorithm avoids the possibility of over-thinning or under-thinning.
+
+
+```cpp
+// Pass 1
+int n1 = 0;
+cimg_for3x3(imgIn, x, y, 0, 0, N, unsigned char)
+{
+    if (imgIn(x, y))
+    {
+        // Compute B and C here...
+        bool R1 = B >= 2 && B <= 6 && C == 1 && Ncn * Nnc * Ncp == 0 && Npc * Ncn * Nnc == 0;
+        if (R1)
+        {
+            // Tag (x,y)
+            D(x, y) = 1;
+            ++n1;
+        }
+    }
+}
+```
+
+#### Removing Tagged Pixels from Pass 1
+
+```cpp
+cimg_forXY(imgIn, x, y)
+    imgIn(x, y) -= (n1 > 0) * D(x, y);
+```
+
+#### Pass 2
+
+The second pass is similar to the first, but with different conditions for removal:
+
+\[
+R2 = \left( B \geq 2 \right) \land \left( B \leq 6 \right) \land \left( C = 1 \right) \land \left( N_{nc} \cdot N_{cp} \cdot N_{pc} = 0 \right) \land \left( N_{cp} \cdot N_{pc} \cdot N_{cn} = 0 \right)
+\]
+
+#### Removing Tagged Pixels from Pass 2
+
+Similar to the removal in Pass 1.
+
+#### Return the Total Number of Removed Pixels
+
+```cpp
+return n1 + n2;
+```
+
+#### Iterative Skeletonization
+
+```cpp
+int num_removed;
+do
+{
+    num_removed = IterSkeleton(lum);
+} while (num_removed > 0);
+```
+
+Here, we keep calling `IterSkeleton` until no pixels are removed in a pass.
+
+#### Results
+
+- **Original**:
+
+![original](images/words_and_shapes.png)
+
+- **Skeleton**:
+
+![skeleton](results/04/words_and_shapes_skeleton.png)
