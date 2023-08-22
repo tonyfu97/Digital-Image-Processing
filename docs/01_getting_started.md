@@ -4,6 +4,7 @@
 **Date**: August 18, 2023  
 **Device**: MacBook Pro 16-inch, Late 2021 (M1 Pro)  
 **Reference**: Chapter 2.1 - 2.2 [*Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library* by Tschumperlé, Tilmant, Barra](https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538)
+**Code**: [GitHub](https://github.com/tonyfu97/Digital-Image-Processing/tree/main/01_getting_started)
 
 ## 1. Installing XQuartz (X11 on macOS)
 

@@ -1,5 +1,10 @@
 # Math Expressions in CImg's Fill Method
 
+**Author**: Tony Fu  
+**Date**: August 19, 2023  
+**Device**: MacBook Pro 16-inch, Late 2021 (M1 Pro)  
+**Code**: [GitHub](https://github.com/tonyfu97/Digital-Image-Processing/tree/main/appendix_1)
+
 This page provides a guide to using mathematical expressions within the `CImg<unsigned char>::fill()` method of the CImg library.
 
 ## Syntax and Operators
