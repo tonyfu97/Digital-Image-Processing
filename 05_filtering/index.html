@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/Digital-Image-Processing/05_filtering/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>5. Filtering - Digital Image Processing Notes</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "5. Filtering";
+        var mkdocs_page_input_path = "05_filtering.md";
+        var mkdocs_page_url = "/Digital-Image-Processing/05_filtering/";
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/django.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-274394082"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-274394082');
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Digital Image Processing Notes
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../01_getting_started/">1. Getting Started</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../02_block_decomposition/">2. Block Decomposition</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../03_point_processing/">3. Point Processing Transformations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../04_morphology/">4. Morphology</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">5. Filtering</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#1-convolution">1. Convolution</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#boundary-conditions">Boundary Conditions</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#2-median-fitler">2. Median Fitler</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#order-statistic-os-filter">Order-Statistic (OS) Filter</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#3-first-order-derivatives">3. First-Order Derivatives</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#schemes">Schemes</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#4-second-order-derivatives">4. Second-Order Derivatives</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#41-laplacian">4.1 Laplacian</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#42-hessian">4.2 Hessian</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#43-log-laplacian-of-gaussian">4.3 LoG (Laplacian of Gaussian)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#44-dog-difference-of-gaussian">4.4 DoG (Difference of Gaussian)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../appendix_1/">Appendix 1 - Math Expressions in CImg's Fill Method</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Digital Image Processing Notes</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
+      <li>5. Filtering</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tonyfu97/Digital-Image-Processing/blob/master/docs/05_filtering.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="filtering-learning-reflection">Filtering - Learning Reflection</h1>
+<p><strong>Author</strong>: Tony Fu<br />
+<strong>Date</strong>: August 21, 2023<br />
+<strong>Device</strong>: MacBook Pro 16-inch, Late 2021 (M1 Pro)<br />
+<strong>Reference</strong>: Chapter 5 <a href="https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538"><em>Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library</em> by Tschumperlé, Tilmant, Barra</a></p>
+<h2 id="1-convolution">1. Convolution</h2>
+<pre><code class="language-cpp">CImg&lt;&gt; sobel(3, 3, 1, 1, 0);
+sobel(0, 0) = -1; sobel(0, 1) = -2; sobel(0, 2) = -1;
+sobel(1, 0) = 0;  sobel(1, 1) = 0;  sobel(1, 2) = 0;
+sobel(2, 0) = 1;  sobel(2, 1) = 2;  sobel(2, 2) = 1;
+imgIn.convolve(sobel);
+</code></pre>
+<p>The above code snippet shows how to perform a convolution on an image with a 3x3 Sobel filter. The result is shown below:</p>
+<ul>
+<li><strong>Original</strong>:</li>
+</ul>
+<p><img alt="original" src="../images/lighthouse.png" /></p>
+<ul>
+<li><strong>Convolution</strong>:</li>
+</ul>
+<p><img alt="conv" src="../results/05/lighthouse_conv.png" /></p>
+<h3 id="boundary-conditions">Boundary Conditions</h3>
+<p>Boundary conditions specify how to handle the edges and can be specified using the <code>const usigned int boundary_conditions</code> parameter of the <code>convolve()</code> method. The four boundary conditions provided by the CImg library have specific meanings:</p>
+<ol>
+<li>
+<p><strong>Dirichlet (0):</strong> The pixels outside the image boundaries are considered to be zero. This creates a sort of "hard" edge around the image and can lead to noticeable artifacts along the borders.</p>
+</li>
+<li>
+<p><strong>Neumann (1) (default):</strong> The value of the border pixels is extended outside the image boundaries. Essentially, this reflects the gradient at the border, assuming that the intensity of the image doesn't change beyond the edge. This is the default boundary condition in CImg and tends to provide visually acceptable results.</p>
+</li>
+<li>
+<p><strong>Periodic (2):</strong> The image is treated as if it were tiling the plane in a repeated pattern. This means that the pixels on the right edge of the image are used as the boundary condition for the left edge, and the pixels on the bottom are used for the top. This can create seamless transitions but can also lead to strange effects if the image does not naturally tile.</p>
+</li>
+<li>
+<p><strong>Mirror (3):</strong> The pixels outside the image boundaries are determined by mirroring the pixels inside the boundaries. Imagine folding the image over at its edges, so the pixels just inside the border are duplicated just outside the border. This can create a more visually smooth transition at the edges but may not be appropriate for all types of images.</p>
+</li>
+</ol>
+<h2 id="2-median-fitler">2. Median Fitler</h2>
+<pre><code class="language-cpp">img.blur_median(3);
+</code></pre>
+<p>The above code snippet shows how to perform a median filter on an image with a 3x3 window. The result is shown below:</p>
+<ul>
+<li><strong>Origin</strong>:</li>
+</ul>
+<p><img alt="coins_threshold" src="../results/05/coins_threshold.png" /></p>
+<ul>
+<li><strong>Median Filter</strong>:</li>
+</ul>
+<p><img alt="median" src="../results/05/coins_median.png" /></p>
+<h3 id="order-statistic-os-filter">Order-Statistic (OS) Filter</h3>
+<p>An <a href="https://ieeexplore.ieee.org/document/1164247">OS filter (Bovik, Huang, and Munson, 1983)</a> is a non-linear filter that computes a linear combination of these sorted values:</p>
+<p>
+<script type="math/tex; mode=display"> F = w_1 \cdot s_1 + w_2 \cdot s_2 + \ldots + w_n \cdot s_n </script>
+</p>
+<p>where <script type="math/tex"> w_i </script> are the weights that define how much each ordered value contributes to the final result, and <script type="math/tex"> s_i </script> are the sorted values of the neighborhood pixels.</p>
+<h2 id="3-first-order-derivatives">3. First-Order Derivatives</h2>
+<p>The <code>get_gradient</code> function computes the image gradient along specified axes using different numerical schemes.</p>
+<h3 id="parameters">Parameters</h3>
+<ul>
+<li><strong><code>axes</code></strong>: Axes considered for the gradient computation (e.g., "xy").</li>
+<li><strong><code>scheme</code></strong>: Numerical scheme used for the gradient computation. Options are:</li>
+</ul>
+<h3 id="schemes">Schemes</h3>
+<ol>
+<li>
+<p><strong>Backward Finite Differences (<code>scheme = -1</code>)</strong>
+   Computes the gradient using backward finite differences:</p>
+<p>
+<script type="math/tex; mode=display">
+\text{grad}[pos] = \text{data}[pos] - \text{data}[pos - \text{off}]
+</script>
+</p>
+</li>
+<li>
+<p><strong>Central Finite Differences (<code>scheme = 0</code>)</strong>
+   Computes the gradient using central finite differences:</p>
+<p>
+<script type="math/tex; mode=display">
+\text{grad}[pos] = \frac{\text{data}[pos + \text{off}] - \text{data}[pos - \text{off}]}{2}
+</script>
+</p>
+</li>
+<li>
+<p><strong>Forward Finite Differences (<code>scheme = 1</code>)</strong>
+   Computes the gradient using forward finite differences:</p>
+<p>
+<script type="math/tex; mode=display">
+\text{grad}[pos] = \text{data}[pos + \text{off}] - \text{data}[pos]
+</script>
+</p>
+</li>
+<li>
+<p><strong>Sobel Scheme (<code>scheme = 2</code>)</strong>
+   Utilizes Sobel operators to compute the gradient.</p>
+</li>
+<li>
+<p><strong>Rotation Invariant Scheme (<code>scheme = 3</code>)</strong>
+   Uses a rotation-invariant kernels:</p>
+<p>
+<script type="math/tex; mode=display">
+\text{Rotation-Invariant}_{x} = \begin{bmatrix} -a & -b & -a \\ 0 & 0 & 0 \\ a & b & a \end{bmatrix}\\
+\text{Rotation-Invariant}_{y} = \text{Rotation-Invariant}_{x}^T
+</script>
+</p>
+<p>where <script type="math/tex"> a = 0.25 \times (2 - \sqrt{2}) </script> and <script type="math/tex"> b = 0.5 \times (\sqrt{2} - 1) </script>. </p>
+</li>
+<li>
+<p><strong>Deriche Recursive Filter</strong>: Introduced later.</p>
+</li>
+<li><strong>Van Vliet Recursive Filter</strong>: Introduced later.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Scheme</th>
+<th>Applications</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Backward finite differences</td>
+<td>General-purpose</td>
+<td>Simple, easy to implement</td>
+<td>Less accurate, sensitive to noise</td>
+</tr>
+<tr>
+<td>Centered finite differences</td>
+<td>General-purpose</td>
+<td>More accurate than forward/backward</td>
+<td>Sensitive to noise</td>
+</tr>
+<tr>
+<td>Forward finite differences</td>
+<td>General-purpose</td>
+<td>Simple, easy to implement</td>
+<td>Less accurate, sensitive to noise</td>
+</tr>
+<tr>
+<td>Using Sobel kernels</td>
+<td>Edge detection</td>
+<td>Good at capturing edges, less noisy</td>
+<td>Can miss fine details</td>
+</tr>
+<tr>
+<td>Using rotation invariant</td>
+<td>Edge detection, texture analysis</td>
+<td>Rotation invariant, captures subtle edges</td>
+<td>More computationally expensive</td>
+</tr>
+<tr>
+<td>Using Deriche recursive filter</td>
+<td>Smoothing, edge detection</td>
+<td>Smooths noise, good edge detection</td>
+<td>Computationally expensive</td>
+</tr>
+<tr>
+<td>Using Van Vliet recursive filter</td>
+<td>Smoothing, edge detection</td>
+<td>Smooths noise, efficient computation</td>
+<td>Might blur some edges</td>
+</tr>
+</tbody>
+</table>
+<h3 id="example">Example</h3>
+<pre><code class="language-cpp">// Gradient approximation using centered finite differences.
+CImgList&lt;&gt; grad = imageIn.get_gradient();
+
+// Norm and phase of the gradient.
+CImg&lt;&gt;
+    norm = (grad[0].get_sqr() + grad[1].get_sqr()).sqrt(),
+    phi = grad[1].get_atan2(grad[0]);
+</code></pre>
+<ul>
+<li><strong>Original</strong></li>
+</ul>
+<p><img alt="original" src="../images/lighthouse.png" /></p>
+<ul>
+<li><strong>Gradient X</strong></li>
+</ul>
+<p><img alt="grad_x" src="../results/05/lighthouse_gradient_x.png" /></p>
+<ul>
+<li><strong>Gradient Y</strong></li>
+</ul>
+<p><img alt="grad_y" src="../results/05/lighthouse_gradient_y.png" /></p>
+<ul>
+<li><strong>Gradient Norm</strong></li>
+</ul>
+<p><img alt="grad_norm" src="../results/05/lighthouse_gradient_norm.png" /></p>
+<ul>
+<li><strong>Gradient Phase</strong></li>
+</ul>
+<p><img alt="grad_phi" src="../results/05/lighthouse_gradient_phi.png" /></p>
+<h2 id="4-second-order-derivatives">4. Second-Order Derivatives</h2>
+<p>Second-order derivatives are useful for detecting edges (when combined with thresholding and non-maximum suppression). However, they are more commonly used for feature detection, a topic that will be covered in Chapter 6.</p>
+<h3 id="41-laplacian">4.1 Laplacian</h3>
+<p>The Laplacian operator calculates the divergence of the gradient of the image, effectively highlighting regions where there is a rapid change in intensity.</p>
+<pre><code class="language-cpp">void Laplacian(CImg&lt;&gt; &amp;imageIn)
+{
+    CImg&lt;&gt; laplacian = imageIn.get_laplacian();
+    laplacian.normalize(0, 255).save(&quot;./results/lighthouse_laplacian.png&quot;);
+}
+</code></pre>
+<p>Mathematically, it is represented as:</p>
+<p>
+<script type="math/tex; mode=display"> \nabla^2 f = \frac{{\partial^2 f}}{{\partial x^2}} + \frac{{\partial^2 f}}{{\partial y^2}} </script>
+</p>
+<p><img alt="laplacian" src="../results/05/lighthouse_laplacian.png" /></p>
+<h3 id="42-hessian">4.2 Hessian</h3>
+<p>The Hessian matrix consists of the second-order partial derivatives of the image.</p>
+<pre><code class="language-cpp">void Hessian(CImg&lt;&gt; &amp;imageIn)
+{
+    CImg&lt;&gt; Ixx = imageIn.get_hessian(&quot;xx&quot;)[0];
+    // ... rest of the code ...
+}
+</code></pre>
+<p>It is mathematically expressed as:</p>
+<p>
+<script type="math/tex; mode=display"> \mathbf{H} = \begin{bmatrix} \frac{{\partial^2 f}}{{\partial x^2}} & \frac{{\partial^2 f}}{{\partial x \partial y}} \\ \frac{{\partial^2 f}}{{\partial y \partial x}} & \frac{{\partial^2 f}}{{\partial y^2}} \end{bmatrix} </script>
+</p>
+<ul>
+<li>
+<p><strong>Hessian XX</strong>
+<img alt="hessian_xx" src="../results/05/lighthouse_hessian_xx.png" /></p>
+</li>
+<li>
+<p><strong>Hessian YY</strong>
+<img alt="hessian_yy" src="../results/05/lighthouse_hessian_yy.png" /></p>
+</li>
+<li>
+<p><strong>Hessian XY</strong>
+<img alt="hessian_xy" src="../results/05/lighthouse_hessian_xy.png" /></p>
+</li>
+</ul>
+<h3 id="43-log-laplacian-of-gaussian">4.3 LoG (Laplacian of Gaussian)</h3>
+<p>LoG combines Gaussian smoothing with the Laplacian operator.</p>
+<pre><code class="language-cpp">void LoG(CImg&lt;&gt; &amp;imageIn)
+{
+    CImg&lt;&gt; log = imageIn.get_blur(2).laplacian();
+    // ... rest of the code ...
+}
+</code></pre>
+<p>The expression for LoG is:</p>
+<p>
+<script type="math/tex; mode=display"> \nabla^2 (G * f) = \nabla^2 G * f </script>
+</p>
+<p>where <script type="math/tex"> G </script> is the Gaussian function.</p>
+<p><img alt="log" src="../results/05/lighthouse_log.png" /></p>
+<h3 id="44-dog-difference-of-gaussian">4.4 DoG (Difference of Gaussian)</h3>
+<p>DoG approximates the LoG by taking the difference between two blurred images with different standard deviations.</p>
+<pre><code class="language-cpp">void DoG(CImg&lt;&gt; &amp;imageIn)
+{
+    CImg&lt;&gt; gauss1 = imageIn.get_blur(1);
+    CImg&lt;&gt; gauss2 = imageIn.get_blur(2);
+    CImg&lt;&gt; dog = gauss1 - gauss2;
+    // ... rest of the code ...
+}
+</code></pre>
+<p>Mathematically, DoG is represented as:</p>
+<p>
+<script type="math/tex; mode=display"> \text{DoG} = (G_{\sigma_1} * f) - (G_{\sigma_2} * f) </script>
+</p>
+<p>where <script type="math/tex"> G_{\sigma_1} </script> and <script type="math/tex"> G_{\sigma_2} </script> are Gaussian functions with standard deviations <script type="math/tex"> \sigma_1 </script> and <script type="math/tex"> \sigma_2 </script>, respectively.</p>
+<p><img alt="dog" src="../results/05/lighthouse_dog.png" /></p>
+<h3 id="summary">Summary</h3>
+<table>
+<thead>
+<tr>
+<th>2nd-Order Derivative</th>
+<th>Applications</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Laplacian</strong></td>
+<td>Edge Detection</td>
+<td>Sensitive to edges, Simple computation</td>
+<td>Noisy, Sensitive to noise</td>
+</tr>
+<tr>
+<td><strong>Hessian</strong></td>
+<td>Feature Detection</td>
+<td>Captures second-order information, Rich features</td>
+<td>Computationally expensive</td>
+</tr>
+<tr>
+<td><strong>LoG (Laplacian of Gaussian)</strong></td>
+<td>Edge Detection, Feature Detection</td>
+<td>Reduces noise, Effective edge detection</td>
+<td>Slower than DoG</td>
+</tr>
+<tr>
+<td><strong>DoG (Difference of Gaussian)</strong></td>
+<td>Edge Detection, Approximation of LoG</td>
+<td>Faster approximation of LoG</td>
+<td>Less accurate than LoG</td>
+</tr>
+</tbody>
+</table>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../04_morphology/" class="btn btn-neutral float-left" title="4. Morphology"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../appendix_1/" class="btn btn-neutral float-right" title="Appendix 1 - Math Expressions in CImg's Fill Method">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2023 Tony Fu</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tonyfu97/Digital-Image-Processing" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../04_morphology/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../appendix_1/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

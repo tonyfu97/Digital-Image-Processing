@@ -123,6 +123,10 @@
                 </li>
               </ul>
               <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../05_filtering/">5. Filtering</a>
+                </li>
+              </ul>
+              <ul>
                 <li class="toctree-l1"><a class="reference internal" href="../appendix_1/">Appendix 1 - Math Expressions in CImg's Fill Method</a>
                 </li>
               </ul>
@@ -353,7 +357,16 @@ CImg&lt;unsigned char&gt;
 CImg_3x3(N, unsigned char);
 </code></pre>
 <p>Here, we use <code>D</code> to tag pixels for removal. Whenever a pixel is tagged, we set its value to 1.</p>
-<p>Note that we never define <code>N</code> in the code. This is because <code>CImg_3x3</code> is a macro that defines <code>N</code> for us. And in the subsequent code, we use <code>N</code> to access the 8 neighbors of a pixel. The prefix <code>N</code> is hardcoded into the library's macros for defining these variables. The variables <code>Npp, Ncp, Nnp, Npc, Nnc, Npn, Ncn, Nnn</code> represent the 8 neighboring pixels around the central pixel <code>(x, y)</code>. The variable names correspond to their relative positions:</p>
+<p>Note that <code>CImg_3x3</code> has the macro format <code>CImg_3x3(I,T)</code>:</p>
+<pre><code class="language-cpp">#define CImg_3x3(I,T) T I[9]; \
+        T&amp; I##pp = I[0]; T&amp; I##cp = I[1]; T&amp; I##np = I[2]; \
+        T&amp; I##pc = I[3]; T&amp; I##cc = I[4]; T&amp; I##nc = I[5]; \
+        T&amp; I##pn = I[6]; T&amp; I##cn = I[7]; T&amp; I##nn = I[8]; \
+        I##pp = I##cp = I##np = \
+        I##pc = I##cc = I##nc = \
+        I##pn = I##cn = I##nn = 0
+</code></pre>
+<p>So that in the subsequent code, we can use <code>N</code> to access the 8 neighbors of a pixel. The variables <code>Npp, Ncp, Nnp, Npc, Nnc, Npn, Ncn, Nnn</code> represent the 8 neighboring pixels around the central pixel <code>(x, y)</code>. The variable names correspond to their relative positions:</p>
 <ul>
 <li><code>Npp</code>: Previous row, previous column.</li>
 <li><code>Ncp</code>: Current row, previous column.</li>
@@ -447,7 +460,7 @@ do
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href="../03_point_processing/" class="btn btn-neutral float-left" title="3. Point Processing Transformations"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../appendix_1/" class="btn btn-neutral float-right" title="Appendix 1 - Math Expressions in CImg's Fill Method">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../05_filtering/" class="btn btn-neutral float-right" title="5. Filtering">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -478,7 +491,7 @@ do
       <span><a href="../03_point_processing/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../appendix_1/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../05_filtering/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
