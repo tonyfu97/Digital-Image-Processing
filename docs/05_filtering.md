@@ -17,7 +17,7 @@ imgIn.convolve(sobel);
 
 The above code snippet shows how to perform a convolution on an image with a 3x3 Sobel filter. The result is shown below:
 
-- **Origin**:
+- **Original**:
 
 ![original](../images/lighthouse.png)
 
@@ -65,4 +65,193 @@ An [OS filter (Bovik, Huang, and Munson, 1983)](https://ieeexplore.ieee.org/docu
 where \( w_i \) are the weights that define how much each ordered value contributes to the final result, and \( s_i \) are the sorted values of the neighborhood pixels.
 
 
-## 3. 
+## 3. First-Order Derivatives
+
+
+The `get_gradient` function computes the image gradient along specified axes using different numerical schemes.
+
+### Parameters
+
+- **`axes`**: Axes considered for the gradient computation (e.g., "xy").
+- **`scheme`**: Numerical scheme used for the gradient computation. Options are:
+
+### Schemes
+
+1. **Backward Finite Differences (`scheme = -1`)**
+   Computes the gradient using backward finite differences:
+
+    \[
+    \text{grad}[pos] = \text{data}[pos] - \text{data}[pos - \text{off}]
+    \]
+
+2. **Central Finite Differences (`scheme = 0`)**
+   Computes the gradient using central finite differences:
+
+    \[
+    \text{grad}[pos] = \frac{\text{data}[pos + \text{off}] - \text{data}[pos - \text{off}]}{2}
+    \]
+
+3. **Forward Finite Differences (`scheme = 1`)**
+   Computes the gradient using forward finite differences:
+
+    \[
+    \text{grad}[pos] = \text{data}[pos + \text{off}] - \text{data}[pos]
+    \]
+
+4. **Sobel Scheme (`scheme = 2`)**
+   Utilizes Sobel operators to compute the gradient.
+
+5. **Rotation Invariant Scheme (`scheme = 3`)**
+   Uses a rotation-invariant kernels:
+
+    \[
+    \text{Rotation-Invariant}_{x} = \begin{bmatrix} -a & -b & -a \\ 0 & 0 & 0 \\ a & b & a \end{bmatrix}\\
+    \text{Rotation-Invariant}_{y} = \text{Rotation-Invariant}_{x}^T
+    \]
+
+    where \( a = 0.25 \times (2 - \sqrt{2}) \) and \( b = 0.5 \times (\sqrt{2} - 1) \). 
+
+6. **Deriche Recursive Filter**: Introduced later.
+7. **Van Vliet Recursive Filter**: Introduced later.
+
+| Scheme                       | Applications                  | Pros                                     | Cons                                |
+|------------------------------|-------------------------------|------------------------------------------|-------------------------------------|
+| Backward finite differences  | General-purpose               | Simple, easy to implement                | Less accurate, sensitive to noise   |
+| Centered finite differences  | General-purpose               | More accurate than forward/backward      | Sensitive to noise                  |
+| Forward finite differences   | General-purpose               | Simple, easy to implement                | Less accurate, sensitive to noise   |
+| Using Sobel kernels          | Edge detection                | Good at capturing edges, less noisy      | Can miss fine details               |
+| Using rotation invariant     | Edge detection, texture analysis| Rotation invariant, captures subtle edges| More computationally expensive      |
+| Using Deriche recursive filter| Smoothing, edge detection     | Smooths noise, good edge detection       | Computationally expensive           |
+| Using Van Vliet recursive filter| Smoothing, edge detection    | Smooths noise, efficient computation     | Might blur some edges               |
+
+### Example
+
+```cpp
+// Gradient approximation using centered finite differences.
+CImgList<> grad = imageIn.get_gradient();
+
+// Norm and phase of the gradient.
+CImg<>
+    norm = (grad[0].get_sqr() + grad[1].get_sqr()).sqrt(),
+    phi = grad[1].get_atan2(grad[0]);
+```
+
+- **Original**
+
+![original](../images/lighthouse.png)
+
+- **Gradient X**
+
+![grad_x](./results/05/lighthouse_gradient_x.png)
+
+- **Gradient Y**
+
+![grad_y](./results/05/lighthouse_gradient_y.png)
+
+- **Gradient Norm**
+
+![grad_norm](./results/05/lighthouse_gradient_norm.png)
+
+- **Gradient Phase**
+
+![grad_phi](./results/05/lighthouse_gradient_phi.png)
+
+
+## 4. Second-Order Derivatives
+
+Second-order derivatives are useful for detecting edges (when combined with thresholding and non-maximum suppression). However, they are more commonly used for feature detection, a topic that will be covered in Chapter 6.
+
+### 4.1 Laplacian
+
+The Laplacian operator calculates the divergence of the gradient of the image, effectively highlighting regions where there is a rapid change in intensity.
+
+```cpp
+void Laplacian(CImg<> &imageIn)
+{
+    CImg<> laplacian = imageIn.get_laplacian();
+    laplacian.normalize(0, 255).save("./results/lighthouse_laplacian.png");
+}
+```
+
+Mathematically, it is represented as:
+
+\[ \nabla^2 f = \frac{{\partial^2 f}}{{\partial x^2}} + \frac{{\partial^2 f}}{{\partial y^2}} \]
+
+![laplacian](./results/05/lighthouse_laplacian.png)
+
+### 4.2 Hessian
+
+The Hessian matrix consists of the second-order partial derivatives of the image.
+
+```cpp
+void Hessian(CImg<> &imageIn)
+{
+    CImg<> Ixx = imageIn.get_hessian("xx")[0];
+    // ... rest of the code ...
+}
+```
+
+It is mathematically expressed as:
+
+\[ \mathbf{H} = \begin{bmatrix} \frac{{\partial^2 f}}{{\partial x^2}} & \frac{{\partial^2 f}}{{\partial x \partial y}} \\ \frac{{\partial^2 f}}{{\partial y \partial x}} & \frac{{\partial^2 f}}{{\partial y^2}} \end{bmatrix} \]
+
+- **Hessian XX**
+![hessian_xx](./results/05/lighthouse_hessian_xx.png)
+
+- **Hessian YY**
+![hessian_yy](./results/05/lighthouse_hessian_yy.png)
+
+- **Hessian XY**
+![hessian_xy](./results/05/lighthouse_hessian_xy.png)
+
+### 4.3 LoG (Laplacian of Gaussian)
+
+LoG combines Gaussian smoothing with the Laplacian operator.
+
+```cpp
+void LoG(CImg<> &imageIn)
+{
+    CImg<> log = imageIn.get_blur(2).laplacian();
+    // ... rest of the code ...
+}
+```
+
+The expression for LoG is:
+
+\[ \nabla^2 (G * f) = \nabla^2 G * f \]
+
+where \( G \) is the Gaussian function.
+
+![log](./results/05/lighthouse_log.png)
+
+### 4.4 DoG (Difference of Gaussian)
+
+DoG approximates the LoG by taking the difference between two blurred images with different standard deviations.
+
+```cpp
+void DoG(CImg<> &imageIn)
+{
+    CImg<> gauss1 = imageIn.get_blur(1);
+    CImg<> gauss2 = imageIn.get_blur(2);
+    CImg<> dog = gauss1 - gauss2;
+    // ... rest of the code ...
+}
+```
+
+Mathematically, DoG is represented as:
+
+\[ \text{DoG} = (G_{\sigma_1} * f) - (G_{\sigma_2} * f) \]
+
+where \( G_{\sigma_1} \) and \( G_{\sigma_2} \) are Gaussian functions with standard deviations \( \sigma_1 \) and \( \sigma_2 \), respectively.
+
+![dog](./results/05/lighthouse_dog.png)
+
+### Summary
+
+| 2nd-Order Derivative    | Applications                  | Pros                                             | Cons                                |
+|-------------------------|-------------------------------|--------------------------------------------------|-------------------------------------|
+| **Laplacian**           | Edge Detection                | Sensitive to edges, Simple computation           | Noisy, Sensitive to noise           |
+| **Hessian**             | Feature Detection             | Captures second-order information, Rich features | Computationally expensive           |
+| **LoG (Laplacian of Gaussian)** | Edge Detection, Feature Detection | Reduces noise, Effective edge detection          | Slower than DoG                     |
+| **DoG (Difference of Gaussian)** | Edge Detection, Approximation of LoG | Faster approximation of LoG                      | Less accurate than LoG              |
+

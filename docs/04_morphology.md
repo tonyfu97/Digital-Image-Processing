@@ -224,7 +224,18 @@ CImg_3x3(N, unsigned char);
 
 Here, we use `D` to tag pixels for removal. Whenever a pixel is tagged, we set its value to 1.
 
-Note that we never define `N` in the code. This is because `CImg_3x3` is a macro that defines `N` for us. And in the subsequent code, we use `N` to access the 8 neighbors of a pixel. The prefix `N` is hardcoded into the library's macros for defining these variables. The variables `Npp, Ncp, Nnp, Npc, Nnc, Npn, Ncn, Nnn` represent the 8 neighboring pixels around the central pixel `(x, y)`. The variable names correspond to their relative positions:
+Note that `CImg_3x3` has the macro format `CImg_3x3(I,T)`:
+
+```cpp
+#define CImg_3x3(I,T) T I[9]; \
+        T& I##pp = I[0]; T& I##cp = I[1]; T& I##np = I[2]; \
+        T& I##pc = I[3]; T& I##cc = I[4]; T& I##nc = I[5]; \
+        T& I##pn = I[6]; T& I##cn = I[7]; T& I##nn = I[8]; \
+        I##pp = I##cp = I##np = \
+        I##pc = I##cc = I##nc = \
+        I##pn = I##cn = I##nn = 0
+```
+So that in the subsequent code, we can use `N` to access the 8 neighbors of a pixel. The variables `Npp, Ncp, Nnp, Npc, Nnc, Npn, Ncn, Nnn` represent the 8 neighboring pixels around the central pixel `(x, y)`. The variable names correspond to their relative positions:
 
   - `Npp`: Previous row, previous column.
   - `Ncp`: Current row, previous column.
