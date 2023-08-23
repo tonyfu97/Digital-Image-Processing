@@ -667,6 +667,7 @@ magnitude.shift(magnitude.width() / 2, magnitude.height() / 2, 0, 0, 2);
 <p>Perform the inverse FFT to recover the original image.</p>
 <pre><code class="language-cpp">CImg&lt;&gt; img_ifft = fft.get_FFT(true)[0];
 </code></pre>
+<p><img alt="ifft" src="../results/05/lighthouse_ifft.png" /></p>
 <h3 id="82-butterworth-filters">8.2 Butterworth Filters</h3>
 <p>The idea of frequency-domain filtering involves first transforming the image into the frequency domain, then multiplying the image with a mask, and finally transforming the image back to the spatial domain. Theoretically, this is equivalent to convolving the image with the mask in the spatial domain. It might sound like a lot of extra work, but the Fast Fourier Transform (FFT) makes it much faster. However, you need to be mindful of artifacts such as the Gibbs phenomenon, which can be reduced by using appropriate windowing functions.</p>
 <p>Butterworth filters are a family of filters characterized by a maximally flat frequency response. They can be applied in both analog and digital forms, and in both time and frequency domains.</p>
@@ -703,9 +704,8 @@ cimg_forXY(gaussMask, x, y)
 gaussMask.shift(-imgIn.width() / 2, -imgIn.height() / 2, 0, 0, 2);
 </code></pre>
 <h4 id="apply-the-filter">Apply the Filter</h4>
-<p>Perform the element-wise multiplication of the Fourier Transformed image and the Gaussian mask.</p>
-<pre><code class="language-cpp">// Filtering
-cimglist_for(fImg, k)
+<p>Perform the element-wise multiplication of the Fourier Transformed image and the Gaussian mask for both the magnitude and phase components.</p>
+<pre><code class="language-cpp">cimglist_for(fImg, k)
     fImg[k].mul(gaussMask);
 </code></pre>
 <h4 id="inverse-fft-and-normalize">Inverse FFT and Normalize</h4>
@@ -715,6 +715,8 @@ return fImg.get_FFT(true)[0].normalize(0, 255);
 </code></pre>
 <p><img alt="gaussian" src="../results/05/lighthouse_gaussian.png" /></p>
 <h2 id="9-diffusion-filtering">9. Diffusion Filtering</h2>
+<p>The term "diffusion" in the context of diffusion filtering is analogous to the physical process of diffusion, but with pixel values rather than physical particles. The idea is that the pixel values in an image will "diffuse" from areas of high intensity to areas of low intensity, smoothing the image. However, unlike simple linear filtering, diffusion filtering can be controlled to be <em>anisotropic</em>, meaning it can prefer certain directions over others. This allows the diffusion to be guided by the content of the image, smoothing some areas while preserving edges and details.</p>
+<p>The diffusion filter introduced in the book, Perona and Malik's algorithm, is nonlinear and adaptive. (<em>Note: nonlinearity does not necessarily guarantee adaptivity, nor the other way around. Filters can be simultaneously linear and adaptive, like the least mean squares (LMS) filter, or nonlinear but non-adaptive, like the median filter.</em>)</p>
               
             </div>
           </div><footer>
