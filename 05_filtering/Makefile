@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -I.. -lX11 -lpthread -lpng
 
-all: convolution median derivative second_derivatives
+all: convolution median derivative second_derivatives sigma_filter adaptive_window deriche
 
 convolution: convolution.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $^
@@ -15,8 +15,20 @@ derivative: derivative.cpp
 second_derivatives: second_derivatives.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
+sigma_filter: sigma_filter.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+adaptive_window: adaptive_window.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+deriche: deriche.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
 clean:
 	rm -f convolution
 	rm -f median
 	rm -f derivative
 	rm -f second_derivatives
+	rm -f sigma_filter
+	rm -f adaptive_window
+	rm -f deriche

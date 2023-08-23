@@ -256,3 +256,203 @@ where \( G_{\sigma_1} \) and \( G_{\sigma_2} \) are Gaussian functions with stan
 | **LoG (Laplacian of Gaussian)** | Edge Detection, Feature Detection | Reduces noise, Effective edge detection          | Slower than DoG                     |
 | **DoG (Difference of Gaussian)** | Edge Detection, Approximation of LoG | Faster approximation of LoG                      | Less accurate than LoG              |
 
+
+## 5. Adaptive Filtering (Sigma Filter)
+
+Traditional smoothing filters often blur the edges along with reducing noise, causing a loss of important details. On the other hand, adaptive or other nonlinear filters like the sigma filter promise to reduce noise in images while preserving edges and contours. The method is based on the principle of weighting the influence of neighboring pixels based on the gradient, similar to some normalization or shunting mechanisms found in neuroscience.
+
+### 1. Gradient Calculation
+
+First, the code calculates the gradient of the input image using the `get_gradient()` method:
+
+```cpp
+CImgList<> g = imgIn.get_gradient();
+CImg<> grad = (g[0].get_sqr() + g[1].get_sqr()).sqrt();
+```
+
+The gradient, \(\nabla f\), quantifies the rate of change in pixel values across the image and is given by the formula:
+
+\[
+\nabla f = \sqrt{{\left(\frac{{\partial f}}{{\partial x}}\right)}^2 + {\left(\frac{{\partial f}}{{\partial y}}\right)}^2}
+\]
+
+### 2. Sum of Gradients
+
+Next, the sum of gradients in a 3x3 neighborhood is computed:
+
+```cpp
+CImg<> Sgrad = grad.get_convolve(CImg<>(3, 3, 1, 1, 1));
+```
+
+This step convolves the gradient with a 3x3 filter, summing the neighboring gradients, effectively measuring local variations in pixel intensities.
+
+### 3. Adaptive Weighting
+
+The code then applies adaptive weighting using the following lines:
+
+```cpp
+float epsilon = 100;
+CImg<> rap = imgIn.get_div(grad + epsilon);
+```
+
+Here, the division acts as a weighting coefficient, with the epsilon term preventing division by zero. The weight of a pixel in the sum is inversely proportional to the local gradient:
+
+\[
+\text{{weight}} = \frac{{f}}{{\nabla f + \epsilon}}
+\]
+
+In `rap`, the pixels with high gradients are weighted less, but in this case, less actually means darker pixels! So, this code is emphasizing the edges and contours of the image.
+
+We started with this image:
+
+![noise](results/05/lighthouse_noise.png)
+
+
+And ended up with this:
+
+![rap](./results/05/lighthouse_rap.png)
+
+
+### 4. Smoothing Operation
+
+The smoothing operation is performed in the following lines:
+
+```cpp
+CImg_3x3(I, float); // declare Ipp, Ipc, etc.
+cimg_for3x3(rap, x, y, 0, 0, I, float)
+    imgOut(x, y) = (Ipp + Ipc + Ipn + Icp + Icc + Icn + Inp + Inc + Inn) / (Sgrad(x, y) + epsilon);
+```
+
+Here, `CImg_3x3(I, float);` declares variables like `Ipp`, `Ipc`, etc., representing the neighboring pixels. The `cimg_for3x3` macro iterates through the image, applying the smoothing operation. The numerator is a simple average (actually sum) filter, and the bottom term is larger for pixels with high gradients. Therefore, we emphasize the edges and contours again by making those pixels darker.
+
+The final formula for smoothing is:
+
+\[
+\text{{imgOut}}(x, y) = \frac{{\sum \text{{neighboring pixels}}}}{{\text{{Sgrad}}(x, y) + \epsilon}}
+\]
+
+![sigma](./results/05/lighthouse_sigma.png)
+
+As you can see, the noise are amplified along with the edges are emphasized. This adaptive sigma filter may not be the best choice for this image.
+
+The somewhat cartoon-like appearance of the final output image is a common effect of adaptive smoothing techniques like the sigma filter. By emphasizing edges and smoothing uniform areas, the image can take on a more stylized or abstract appearance. 
+
+### Connection to Neuroscience
+
+The adaptive nature of this method is akin to the way some neurons modulate their response based on local activity. It aligns with principles observed in neuroscience where the influence of neighboring neurons is normalized or shunted based on the local context, allowing for a balance between sensitivity to stimuli and adaptation to the local environment.
+
+
+## 6. Adaptive Window Filters
+
+Adaptive window filters are smart filters that change their behavior based on the characteristics of the area they are working on. They look at each pixel and decide the best way to smooth or sharpen it based on the pixels around it. There are different ways to do this, and here are three examples using the following noisy image (Gaussian noise \( \sigma = 40 \)):
+
+![noise_40](./results/05/lighthouse_noise40.png)
+
+### 6.1 Nagao Filter
+Imagine you have a small grid (usually 5x5) around a pixel in the middle. In this grid, you create 9 different windows (smaller groups of pixels), each containing 9 pixels. Here we first intialize the windows:
+
+```cpp
+CImgList<unsigned char> Nagao(9, 5, 5, 1, 1, 0);
+Nagao(0, 0, 0) = Nagao(0, 0, 1) = Nagao(0, 0, 2) = Nagao(0, 0, 3) =
+    Nagao(0, 0, 4) = Nagao(0, 1, 1) = Nagao(0, 1, 2) = Nagao(0, 1, 3) =
+        Nagao(0, 2, 2) = 1;
+for (int i = 1; i < 4; ++i)
+    Nagao[i] = Nagao[0].get_rotate(i * 90);
+
+Nagao(4, 1, 1) = Nagao(4, 1, 2) = Nagao(4, 1, 3) = Nagao(4, 2, 1) =
+    Nagao(4, 2, 2) = Nagao(4, 2, 3) = Nagao(4, 3, 1) = Nagao(4, 3, 2) =
+        Nagao(4, 3, 3) = 1;
+
+Nagao(5, 0, 0) = Nagao(5, 0, 1) = Nagao(5, 0, 2) = Nagao(5, 1, 0) =
+    Nagao(5, 1, 1) = Nagao(5, 1, 2) = Nagao(5, 2, 0) = Nagao(5, 2, 1) =
+        Nagao(5, 2, 2) = 1;
+for (int i = 1; i < 4; ++i)
+    Nagao[5 + i] = Nagao[5].get_rotate(i * 90);
+```
+
+![nagao_windows](./results/05/nagao_windows.png)
+
+For each window:
+
+- You calculate the average color (mean) and how much the colors vary (variance).
+- You pick the window where the colors vary the least (smallest variance).
+- You replace the middle pixel with the average color from that chosen window.
+
+Here is the code:
+
+```cpp
+CImg<>
+    mu(9, 1, 1, 1, 0),
+    sigma(9, 1, 1, 1, 0),
+    st,
+    N(5, 5);
+CImg<int> permutations;
+cimg_for5x5(imgIn, x, y, 0, 0, N, float)
+{
+    CImgList<> res(9);
+    for (int i = 0; i < 9; ++i)
+    {
+        res[i] = N.get_mul(Nagao[i]);
+        st = res[i].get_stats();
+        mu[i] = st[2];
+        sigma[i] = st[3];
+    }
+    // Searching minimal variance.
+    sigma.sort(permutations);
+    imgOut(x, y) = mu[permutations[0]];
+}
+```
+
+![nagao](./results/05/lighthouse_nagao.png)
+
+This method helps to keep the details in the image while reducing noise.
+
+### 6.2 Kuwahara Filter
+The Kuwahara filter is like the Nagao filter, but only uses windows 5 - 8 of Nagao filter. It's just a variation that might work better on certain types of images. The basic idea of finding the least varying window and using its average color remains the same.
+
+![kuwahara_windows](./results/05/kuwahara_windows.png)
+
+![kuwahara](./results/05/lighthouse_kuwahara.png)
+
+
+## 7. Deriche Recursive Filter
+
+John Canny's work on edge detection is not only confined to the Canny edge detector but also includes mathematical foundations for defining the criteria of an effective edge detector. Canny outlined three criteria: good detection, good localization, and a single response. The first two criteria can be combined to yield a so-called *Canny criterion value*, adding mathematical rigor to the field of edge detection.
+
+The [Deriche recursive filter](https://en.wikipedia.org/wiki/Deriche_edge_detector) is an recursive solution to Canny's criteria. However, in the book, Deriche filter is presented as recursive (and potentially more efficient) alternatives to smoothing operation (0-th order), gradient computation (1st order), and Laplacian computation (2nd order).
+
+The function `CImg<T>& deriche(const float sigma, const unsigned int order=0, const char axis='x')` filter applies in one direction at once. `sigma` is the standard deviation of the filter, while `order` is the order of the derivative to compute. `axis` is the axis along which the filter is applied.
+
+### 7.1 Smoothing (0-th Order)
+
+```cpp
+CImg<> img_deriche0 = imgIn.get_deriche(SIGMA, 0, 'x');
+img_deriche0.deriche(SIGMA, 0, 'y');
+```
+
+![deriche0](./results/05/lighthouse_deriche0.png)
+
+### 7.2 Gradient Computation (1st Order)
+
+```cpp
+CImg<> img_deriche1 = imgIn.get_deriche(SIGMA, 1, 'x');
+img_deriche1.deriche(SIGMA, 1, 'y');
+CImg<> img_deriche1_norm = (img_deriche1.get_sqr() += img_deriche1.get_sqr()).sqrt();
+```
+![deriche1](./results/05/lighthouse_deriche1.png)
+
+### 7.3 Laplacian Computation (2nd Order)
+
+```cpp
+CImg<> img_deriche2_x = imgIn.get_deriche(SIGMA, 2, 'x');
+CImg<> img_deriche2_y = imgIn.get_deriche(SIGMA, 2, 'y');
+CImg<> img_deriche2_laplacian = img_deriche2_x + img_deriche2_y;
+```
+
+![deriche2](./results/05/lighthouse_deriche2.png)
+
+## 8. Frequency Domain Filtering
+
+
+
+## 9. Diffusion Filtering
