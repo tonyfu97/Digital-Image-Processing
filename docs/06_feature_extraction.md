@@ -70,7 +70,7 @@ CImg<>
     R = det - k * trace.get_sqr();
 ```
 
-The R function, which helps detect the corners, is given as:
+Often, in the theoretical explanation of the Harris-Stephens corner detection algorithm, we will see the eigenvalues \(\lambda_1\) and \(\lambda_2\) are often introduced to provide an intuitive understanding of the underlying geometric properties of the image. However, in the actual implementation, you can compute the response function \(R\) directly from the components of the second-moment matrix \(I_{xx}\), \(I_{yy}\), and \(I_{xy}\), without having to explicitly calculate the eigenvalues. It is given as:
 \[ R = \det - \, k \cdot \text{{trace}}^2 = (I_{xx} \cdot I_{yy} - I_{xy}^2) - k \cdot (I_{xx} + I_{yy})^2\]
 
 | Condition          | Region Type | Explanation                                                                                                                                                 |
@@ -108,17 +108,40 @@ cimg_for3x3(R, x, y, 0, 0, I, float)
 }
 ```
 
-Local maxima of the R function are detected. This part of the code finds points that are potential corners.
+Local maxima of the \(R\) function are detected. This part of the code finds points that are potential corners.
 
-#### 1.6 Sorting and Displaying Points of Interest
+### 1.5 Sorting the Corners
 
 ```cpp
 harrisValues.sort(perm, false);
 ```
 
-The values are sorted, and the top \( n \) corners are drawn on the image. The crosses are drawn in red, and their size and thickness can be adjusted by the `line_length` and `line_thickness` variables.
+The values are sorted, and the top \( n \) corners are drawn on the image. In other implementations, this step is usually replaced by non-maximum suppression.
 
 ![harris](./results/06/lighthouse_harris.png)
 
-## 2. Shi and Tomasi Algorithm
+## 2. Shi-Tomasi Algorithm
 
+Shi-Tomasi algorithm uses similar techniques to compute eigenvalues that represent the local structure of the image, but it applies a different criteria to determine if a region is a corner:
+
+$$
+R = \min(\lambda_1, \lambda_2)
+$$
+
+The algorithm is implemented as follows:
+
+```cpp
+CImg<>
+    det = Ixx.get_mul(Iyy) - Ixy.get_sqr(),
+    trace = Ixx + Iyy,
+    diff = (trace.get_sqr() - 4 * det).sqrt(),
+    lambda1 = (trace + diff) / 2,
+    lambda2 = (trace - diff) / 2,
+    R = lambda1.min(lambda2);
+```
+
+![shi-tomasi](./results/06/lighthouse_shi_tomasi.png)
+
+Shi-Tomasi's reliance on the minimum eigenvalue often leads to better detection of true corners. Not sure about this one.
+
+## 3. SIFT

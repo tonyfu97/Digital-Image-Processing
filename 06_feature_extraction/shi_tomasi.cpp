@@ -1,5 +1,5 @@
 /*
-  Corner detector using Harris and Stephens algorithm.
+  Corner detector using Shi-Tomasi algorithm.
   imgIn : Input image
   k     : Sensitivity parameter
   n     : Number of points to detect
@@ -29,7 +29,7 @@ CImg<> get_gaussian(int size, float sigma)
     return kernel;
 }
 
-CImg<> HarrisDetector(CImg<> &imgIn, float k, int n, float sigma)
+CImg<> ShiTomasiDetector(CImg<> &imgIn, float k, int n, float sigma)
 {
     CImg<> harris(imgIn);
     CImgList<> gradXY = imgIn.get_gradient();
@@ -44,18 +44,21 @@ CImg<> HarrisDetector(CImg<> &imgIn, float k, int n, float sigma)
         Ixx = M.get_channel(0),
         Ixy = M.get_channel(1),
         Iyy = M.get_channel(2);
-    
+
     // Alternative way to compute the structure tensor.
     // CImg<>
     //     Ixx = gradXY[0].get_mul(gradXY[0]).get_convolve(G),
     //     Iyy = gradXY[1].get_mul(gradXY[1]).get_convolve(G),
     //     Ixy = gradXY[0].get_mul(gradXY[1]).get_convolve(G);
 
-    // R function.
+    // R function (This is where the difference is with Harris)
     CImg<>
         det = Ixx.get_mul(Iyy) - Ixy.get_sqr(),
         trace = Ixx + Iyy,
-        R = det - k * trace.get_sqr();
+        diff = (trace.get_sqr() - 4 * det).sqrt(),
+        lambda1 = (trace + diff) / 2,
+        lambda2 = (trace - diff) / 2,
+        R = lambda1.min(lambda2);
 
     // Local maxima of R.
     CImgList<> imgGradR = R.get_gradient();
@@ -110,9 +113,9 @@ int main()
     // Convert to grayscale
     CImg<> lum = img.resize(512, 256); //.get_norm().blur(0.75f)
 
-    // Harris detector
-    CImg<> imgOut = HarrisDetector(lum, 0.04f, 50, 2.0f);
-    imgOut.normalize(0, 255).save("./results/lighthouse_harris.png");
+    // Shi-Tomasi
+    CImg<> imgOut = ShiTomasiDetector(lum, 0.04f, 50, 2.0f);
+    imgOut.normalize(0, 255).save("./results/lighthouse_shi_tomasi.png");
 
     return 0;
 }
