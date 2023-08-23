@@ -415,11 +415,11 @@ The Kuwahara filter is like the Nagao filter, but only uses windows 5 - 8 of Nag
 ![kuwahara](./results/05/lighthouse_kuwahara.png)
 
 
-## 7. Deriche Recursive Filter
+## 7. Deriche Recursive Filters
 
 John Canny's work on edge detection is not only confined to the Canny edge detector but also includes mathematical foundations for defining the criteria of an effective edge detector. Canny outlined three criteria: good detection, good localization, and a single response. The first two criteria can be combined to yield a so-called *Canny criterion value*, adding mathematical rigor to the field of edge detection.
 
-The [Deriche recursive filter](https://en.wikipedia.org/wiki/Deriche_edge_detector) is an recursive solution to Canny's criteria. However, in the book, Deriche filter is presented as recursive (and potentially more efficient) alternatives to smoothing operation (0-th order), gradient computation (1st order), and Laplacian computation (2nd order).
+The [Deriche recursive filter](https://en.wikipedia.org/wiki/Deriche_edge_detector) is an recursive solution to Canny's criteria. However, in the book, Deriche filter is presented as a family of recursive (and potentially more efficient) alternatives to smoothing operation (0-th order), gradient computation (1st order), and Laplacian computation (2nd order).
 
 The function `CImg<T>& deriche(const float sigma, const unsigned int order=0, const char axis='x')` filter applies in one direction at once. `sigma` is the standard deviation of the filter, while `order` is the order of the derivative to compute. `axis` is the axis along which the filter is applied.
 
@@ -451,8 +451,122 @@ CImg<> img_deriche2_laplacian = img_deriche2_x + img_deriche2_y;
 
 ![deriche2](./results/05/lighthouse_deriche2.png)
 
+
 ## 8. Frequency Domain Filtering
 
+### 8.1 Using `CImg<>::FFT()`
+
+#### Load the image and convert to grayscale
+
+```cpp
+CImg<unsigned char> img("../images/lighthouse.png");
+CImg<> lum = img.get_norm().blur(0.75f);
+```
+
+#### Resize the image
+
+FFT requires dimensions to be a power of 2, so resize the image to meet this requirement.
+
+```cpp
+int width = 1 << static_cast<int>(std::ceil(std::log2(lum.width())));
+int height = 1 << static_cast<int>(std::ceil(std::log2(lum.height())));
+lum.resize(width, height, -100, -100, 0);
+```
+
+#### Compute the FFT
+
+```cpp
+CImgList<> fft = lum.get_FFT();
+```
+
+#### Process Magnitude
+
+Take the logarithm of the magnitude part to better visualize it, and then shift the zero frequency component to the center of the spectrum.
+
+```cpp
+CImg<> magnitude(fft[0]);
+magnitude += 1; // Avoid log(0)
+magnitude.log();
+magnitude.shift(magnitude.width() / 2, magnitude.height() / 2, 0, 0, 2);
+```
+
+#### (Optional) Compute Inverse FFT
+
+Perform the inverse FFT to recover the original image.
+
+```cpp
+CImg<> img_ifft = fft.get_FFT(true)[0];
+```
+
+### 8.2 Butterworth Filters
+
+The idea of frequency-domain filtering involves first transforming the image into the frequency domain, then multiplying the image with a mask, and finally transforming the image back to the spatial domain. Theoretically, this is equivalent to convolving the image with the mask in the spatial domain. It might sound like a lot of extra work, but the Fast Fourier Transform (FFT) makes it much faster. However, you need to be mindful of artifacts such as the Gibbs phenomenon, which can be reduced by using appropriate windowing functions.
+
+Butterworth filters are a family of filters characterized by a maximally flat frequency response. They can be applied in both analog and digital forms, and in both time and frequency domains.
+
+In the analog frequency domain, the 2D transfer function for a Butterworth low-pass filter can be represented as:
+\[ H(u,v) = \frac{1}{1 + \left( \frac{D(u,v)}{D_0} \right)^{2n}} \]
+where \( D(u,v) = \sqrt{u^2 + v^2} \) is the distance from the origin in the frequency domain, and \( D_0 \) is the cutoff frequency. The parameter \( n \) is the order of the filter. Increasing \( n \) will result in a steeper roll-off, but at the expense of increased complexity, potential instability, and possible phase distortion.
+
+In the spatial domain, you would have to use the inverse Fourier transform to obtain a corresponding difference equation.
+
+### 8.3 Gaussian Filters
+
+The Gaussian filter can be implemented in both time and frequency domains Here's how to apply a Gaussian filter in the frequency domain:
+
+#### Perform the Fast Fourier Transform (FFT)
+First, compute the FFT of the input image.
+
+```cpp
+CImgList<> fImg = imgIn.get_FFT();
+```
+
+#### Create the Gaussian Mask
+Construct the frequency response of the filter using the Gaussian function. The Gaussian mask is defined in the frequency domain, and `sigma` is the standard deviation controlling the spread of the Gaussian function. In the frequency domain, the filter is described by the Gaussian function:
+
+\[ H(u, v) = 2\pi \sigma^2 \exp\left(-2\pi^2\sigma^2\left(\left(\frac{u}{W} - 0.5\right)^2 + \left(\frac{v}{H} - 0.5\right)^2\right)\right) \]
+
+Here, \( W \) and \( H \) are the width and height of the image, \( \sigma^2 \) is the squared standard deviation, and \( (u,v) \) are the frequency coordinates.
+
+```cpp
+CImg<> gaussMask(imgIn.width(), imgIn.height());
+float sigma2 = cimg::sqr(sigma);
+cimg_forXY(gaussMask, x, y)
+{
+    float fx = x / (float)imgIn.width() - 0.5f, fx2 = cimg::sqr(fx),
+          fy = y / (float)imgIn.height() - 0.5f,
+          fy2 = cimg::sqr(fy);
+    gaussMask(x, y) = 2 * cimg::PI * sigma2 *
+                      std::exp(-2 * cimg::sqr(cimg::PI) * sigma2 * (fx2 + fy2));
+}
+```
+
+#### Zero Shift the Gaussian Mask
+Shift the Gaussian mask by half its width and height to center the zero frequency.
+
+```cpp
+// Zero shift.
+gaussMask.shift(-imgIn.width() / 2, -imgIn.height() / 2, 0, 0, 2);
+```
+
+#### Apply the Filter
+Perform the element-wise multiplication of the Fourier Transformed image and the Gaussian mask.
+
+```cpp
+// Filtering
+cimglist_for(fImg, k)
+    fImg[k].mul(gaussMask);
+```
+
+#### Inverse FFT and Normalize
+Transform back to the spatial domain via inverse FFT and normalize the result.
+
+```cpp
+// Inverse FFT and real part.
+return fImg.get_FFT(true)[0].normalize(0, 255);
+```
+
+![gaussian](./results/05/lighthouse_gaussian.png)
 
 
 ## 9. Diffusion Filtering
