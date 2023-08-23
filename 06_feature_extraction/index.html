@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/Digital-Image-Processing/06_feature_extraction/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>6. Feature Extraction - Digital Image Processing Notes</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "6. Feature Extraction";
+        var mkdocs_page_input_path = "06_feature_extraction.md";
+        var mkdocs_page_url = "/Digital-Image-Processing/06_feature_extraction/";
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/django.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-274394082"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-274394082');
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Digital Image Processing Notes
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../01_getting_started/">1. Getting Started</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../02_block_decomposition/">2. Block Decomposition</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../03_point_processing/">3. Point Processing Transformations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../04_morphology/">4. Morphology</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../05_filtering/">5. Filtering</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">6. Feature Extraction</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#1-harris-stephens-corner-detector">1. Harris-Stephens Corner Detector</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#11-gradient-calculation">1.1 Gradient Calculation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#12-structure-tensor">1.2 Structure Tensor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#13-r-function-calculation">1.3 R Function Calculation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#14-local-maxima-detection">1.4 Local Maxima Detection</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#15-sorting-the-corners">1.5 Sorting the Corners</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#2-shi-tomasi-algorithm">2. Shi-Tomasi Algorithm</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#3-sift">3. SIFT</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../appendix_1/">Appendix 1 - Math Expressions in CImg's Fill Method</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Digital Image Processing Notes</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
+      <li>6. Feature Extraction</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tonyfu97/Digital-Image-Processing/blob/master/docs/06_feature_extraction.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="filtering-learning-reflection">Filtering - Learning Reflection</h1>
+<p><strong>Author</strong>: Tony Fu<br />
+<strong>Date</strong>: August 23, 2023<br />
+<strong>Device</strong>: MacBook Pro 16-inch, Late 2021 (M1 Pro)<br />
+<strong>Code</strong>: <a href="https://github.com/tonyfu97/Digital-Image-Processing/tree/main/06_feature_extraction">GitHub</a><br />
+<strong>Reference</strong>: Chapter 6 <a href="https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538"><em>Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library</em> by Tschumperlé, Tilmant, Barra</a></p>
+<h2 id="1-harris-stephens-corner-detector">1. Harris-Stephens Corner Detector</h2>
+<p>I love the explanation of the Corner detection by Professor Shree K. Nayar (<a href="https://youtu.be/Z_HwkG90Yvw">Video link</a>). Here is the summary:</p>
+<p>The Harris-Stephens corner detection algorithm is designed to identify regions where there are substantial variations in gradient in two distinct directions. While it might be simple to detect corners aligned with the x and y axes, real-world images present corners at various angles. This challenge is addressed by using the determinant, which gives a measure of how well-separated the two gradient directions are. A larger determinant typically signifies a strong presence of two different gradient directions. However, an excessively large axis in one direction could mislead the interpretation. To counterbalance this, the algorithm subtracts a term related to the trace, squared and weighted by a parameter, from the determinant. This penalizes the response value <script type="math/tex">R</script> and aids in distinguishing between genuine corners and edges or flat regions, leading to more accurate corner detection. Here are the steps:</p>
+<h3 id="11-gradient-calculation">1.1 Gradient Calculation</h3>
+<p>The gradient of the input image is calculated using:
+<script type="math/tex; mode=display"> \text{{gradXY}} = \text{{imgIn.get_gradient()}}; </script>
+This gets the gradients in the x and y directions.</p>
+<h3 id="12-structure-tensor">1.2 Structure Tensor</h3>
+<pre><code class="language-cpp">CImg&lt;&gt;
+    Ixx = gradXY[0].get_mul(gradXY[0]).get_convolve(G),
+    Iyy = gradXY[1].get_mul(gradXY[1]).get_convolve(G),
+    Ixy = gradXY[0].get_mul(gradXY[1]).get_convolve(G);
+</code></pre>
+<p>The structure tensor is computed as:
+<script type="math/tex; mode=display">
+\begin{align*}
+I_{xx} &= \text{{gradXY[0].get_mul(gradXY[0]).get_convolve(G)}}, \\
+I_{yy} &= \text{{gradXY[1].get_mul(gradXY[1]).get_convolve(G)}}, \\
+I_{xy} &= \text{{gradXY[0].get_mul(gradXY[1]).get_convolve(G)}}.
+\end{align*}
+</script>
+</p>
+<p>where the Gaussian kernel <script type="math/tex">G</script> is defined as:
+<script type="math/tex; mode=display"> G(x, y) = \frac{1}{2\pi\sigma^2} e^{-\frac{x^2 + y^2}{2\sigma^2}} </script>
+</p>
+<p>Together, we can build the structure tensor <script type="math/tex">M</script> as:</p>
+<p>
+<script type="math/tex; mode=display">
+M = \begin{bmatrix} I_{xx} & I_{xy} \\ I_{xy} & I_{yy} \end{bmatrix}
+</script>
+</p>
+<p>The determinant of <script type="math/tex">M</script> (<script type="math/tex">\det(M)</script>) and the trace of <script type="math/tex">M</script> (<script type="math/tex">\text{trace}(M)</script>) are computed as follows:</p>
+<p>
+<script type="math/tex; mode=display">\det(M) = I_{xx} \cdot I_{yy} - I_{xy} \cdot I_{xy}</script>
+</p>
+<p>
+<script type="math/tex; mode=display">\text{trace}(M) = I_{xx} + I_{yy}</script>
+</p>
+<p>The structure tensor <script type="math/tex">M</script> plays a key role in feature detection as it represents the distribution of gradients within a specific neighborhood around a point. Rather than directly comparing the gradient of a pixel with those of its neighbors, we use a Gaussian function to calculate an average gradient across an area.</p>
+<p>In essence, the structure tensor captures the underlying geometric structure in the vicinity of each pixel. It accomplishes this by portraying gradient orientations as an ellipse in the (<script type="math/tex">I_x, I_y</script>) plane within a specific window. Here, the determinant is directly proportional to the area of the ellipse, while the trace is equivalent to the sum of the lengths of the ellipse's major and minor axes.</p>
+<ul>
+<li>
+<p><strong>Presence of an edge</strong>: When an image contains an edge, the distribution of gradients forms a slender, elongated ellipse. This happens because the intensity changes consistently in one direction (along the edge) and shows little to no change in the direction perpendicular to it. The major axis of this ellipse aligns with the direction of the edge.</p>
+</li>
+<li>
+<p><strong>Presence of a corner</strong>: If a corner is present, the gradients are distributed more evenly, resulting in an elliptical shape that resembles a circle. This is because a corner features significant intensity changes in multiple directions.</p>
+</li>
+<li>
+<p><strong>Flat region</strong>: In a flat region of the image, where there is minimal change in intensity in any direction, the ellipse is small, signaling the absence of distinctive features.</p>
+</li>
+</ul>
+<h3 id="13-r-function-calculation">1.3 R Function Calculation</h3>
+<pre><code class="language-cpp">CImg&lt;&gt;
+    det = Ixx.get_mul(Iyy) - Ixy.get_sqr(),
+    trace = Ixx + Iyy,
+    R = det - k * trace.get_sqr();
+</code></pre>
+<p>Often, in the theoretical explanation of the Harris-Stephens corner detection algorithm, we will see the eigenvalues <script type="math/tex">\lambda_1</script> and <script type="math/tex">\lambda_2</script> are often introduced to provide an intuitive understanding of the underlying geometric properties of the image. However, in the actual implementation, you can compute the response function <script type="math/tex">R</script> directly from the components of the second-moment matrix <script type="math/tex">I_{xx}</script>, <script type="math/tex">I_{yy}</script>, and <script type="math/tex">I_{xy}</script>, without having to explicitly calculate the eigenvalues. It is given as:
+<script type="math/tex; mode=display"> R = \det - \, k \cdot \text{{trace}}^2 = (I_{xx} \cdot I_{yy} - I_{xy}^2) - k \cdot (I_{xx} + I_{yy})^2</script>
+</p>
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Region Type</th>
+<th>Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R is close to 0</td>
+<td>Flat Region</td>
+<td>No significant change in intensity in any direction, both eigenvalues of the structure tensor are small.</td>
+</tr>
+<tr>
+<td>R is small</td>
+<td>Edge</td>
+<td>Significant change in intensity in one direction but not the other, one large and one small eigenvalue of the structure tensor.</td>
+</tr>
+<tr>
+<td>R is positive</td>
+<td>Corner</td>
+<td>Significant changes in intensity in both directions, both eigenvalues of the structure tensor are large, indicating two dominant and different edge directions.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="14-local-maxima-detection">1.4 Local Maxima Detection</h3>
+<pre><code class="language-cpp">CImgList&lt;&gt; imgGradR = R.get_gradient();
+CImg_3x3(I, float);
+CImg&lt;&gt; harrisValues(imgIn.width() * imgIn.height(), 1, 1, 1, 0);
+CImg&lt;int&gt;
+    harrisXY(imgIn.width() * imgIn.height(), 2, 1, 1, 0),
+    perm(imgIn.width() * imgIn.height(), 1, 1, 1, 0);
+int nbHarris = 0;
+cimg_for3x3(R, x, y, 0, 0, I, float)
+{
+    if (imgGradR[0](x, y) &lt; eps &amp;&amp; imgGradR[1](x, y) &lt; eps)
+    {
+        float
+            befx = Ipc - Icc,
+            befy = Icp - Icc,
+            afty = Icn - Icc,
+            aftx = Inc - Icc;
+        if (befx &lt; 0 &amp;&amp; befy &lt; 0 &amp;&amp; aftx &lt; 0 &amp;&amp; afty &lt; 0)
+        {
+            harrisValues(nbHarris) = R(x, y);
+            harrisXY(nbHarris, 0) = x;
+            harrisXY(nbHarris++, 1) = y;
+        }
+    }
+}
+</code></pre>
+<p>Local maxima of the <script type="math/tex">R</script> function are detected. This part of the code finds points that are potential corners.</p>
+<h3 id="15-sorting-the-corners">1.5 Sorting the Corners</h3>
+<pre><code class="language-cpp">harrisValues.sort(perm, false);
+</code></pre>
+<p>The values are sorted, and the top <script type="math/tex"> n </script> corners are drawn on the image. In other implementations, this step is usually replaced by non-maximum suppression.</p>
+<p><img alt="harris" src="../results/06/lighthouse_harris.png" /></p>
+<h2 id="2-shi-tomasi-algorithm">2. Shi-Tomasi Algorithm</h2>
+<p>Shi-Tomasi algorithm uses similar techniques to compute eigenvalues that represent the local structure of the image, but it applies a different criteria to determine if a region is a corner:</p>
+<p>
+<script type="math/tex; mode=display">
+R = \min(\lambda_1, \lambda_2)
+</script>
+</p>
+<p>The algorithm is implemented as follows:</p>
+<pre><code class="language-cpp">CImg&lt;&gt;
+    det = Ixx.get_mul(Iyy) - Ixy.get_sqr(),
+    trace = Ixx + Iyy,
+    diff = (trace.get_sqr() - 4 * det).sqrt(),
+    lambda1 = (trace + diff) / 2,
+    lambda2 = (trace - diff) / 2,
+    R = lambda1.min(lambda2);
+</code></pre>
+<p><img alt="shi-tomasi" src="../results/06/lighthouse_shi_tomasi.png" /></p>
+<p>Shi-Tomasi's reliance on the minimum eigenvalue often leads to better detection of true corners. Not sure about this one.</p>
+<h2 id="3-sift">3. SIFT</h2>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../05_filtering/" class="btn btn-neutral float-left" title="5. Filtering"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../appendix_1/" class="btn btn-neutral float-right" title="Appendix 1 - Math Expressions in CImg's Fill Method">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2023 Tony Fu</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tonyfu97/Digital-Image-Processing" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../05_filtering/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../appendix_1/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
