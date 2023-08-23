@@ -11,6 +11,7 @@ CImg<> GaussianFilter(CImg<> &imgIn, float sigma)
 {
     // FFT
     CImgList<> fImg = imgIn.get_FFT();
+    
     // Frequency response of the filter.
     CImg<> gaussMask(imgIn.width(), imgIn.height());
     float sigma2 = cimg::sqr(sigma);

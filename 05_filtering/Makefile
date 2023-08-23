@@ -39,3 +39,4 @@ clean:
 	rm -f adaptive_window
 	rm -f deriche
 	rm -f fft
+	rm -f gaussian
