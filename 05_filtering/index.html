@@ -109,6 +109,74 @@
     </li>
         </ul>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#5-adaptive-filtering-sigma-filter">5. Adaptive Filtering (Sigma Filter)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-gradient-calculation">1. Gradient Calculation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-sum-of-gradients">2. Sum of Gradients</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-adaptive-weighting">3. Adaptive Weighting</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#4-smoothing-operation">4. Smoothing Operation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#connection-to-neuroscience">Connection to Neuroscience</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#6-adaptive-window-filters">6. Adaptive Window Filters</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#61-nagao-filter">6.1 Nagao Filter</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#62-kuwahara-filter">6.2 Kuwahara Filter</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#7-deriche-recursive-filters">7. Deriche Recursive Filters</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#71-smoothing-0-th-order">7.1 Smoothing (0-th Order)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#72-gradient-computation-1st-order">7.2 Gradient Computation (1st Order)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#73-laplacian-computation-2nd-order">7.3 Laplacian Computation (2nd Order)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#8-frequency-domain-filtering">8. Frequency Domain Filtering</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#81-using-cimgfft">8.1 Using CImg&lt;&gt;::FFT()</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#load-the-image-and-convert-to-grayscale">Load the image and convert to grayscale</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#resize-the-image">Resize the image</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#compute-the-fft">Compute the FFT</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#process-magnitude">Process Magnitude</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#optional-compute-inverse-fft">(Optional) Compute Inverse FFT</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#82-butterworth-filters">8.2 Butterworth Filters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#83-gaussian-filters">8.3 Gaussian Filters</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#perform-the-fast-fourier-transform-fft">Perform the Fast Fourier Transform (FFT)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#create-the-gaussian-mask">Create the Gaussian Mask</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#zero-shift-the-gaussian-mask">Zero Shift the Gaussian Mask</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#apply-the-filter">Apply the Filter</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#inverse-fft-and-normalize">Inverse FFT and Normalize</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#9-diffusion-filtering">9. Diffusion Filtering</a>
+    </li>
     </ul>
                 </li>
               </ul>
@@ -144,6 +212,7 @@
 <p><strong>Author</strong>: Tony Fu<br />
 <strong>Date</strong>: August 21, 2023<br />
 <strong>Device</strong>: MacBook Pro 16-inch, Late 2021 (M1 Pro)<br />
+<strong>Code</strong>: <a href="https://github.com/tonyfu97/Digital-Image-Processing/tree/main/05_filtering">GitHub</a><br />
 <strong>Reference</strong>: Chapter 5 <a href="https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538"><em>Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library</em> by Tschumperlé, Tilmant, Barra</a></p>
 <h2 id="1-convolution">1. Convolution</h2>
 <pre><code class="language-cpp">CImg&lt;&gt; sobel(3, 3, 1, 1, 0);
@@ -442,6 +511,210 @@ CImg&lt;&gt;
 </tr>
 </tbody>
 </table>
+<h2 id="5-adaptive-filtering-sigma-filter">5. Adaptive Filtering (Sigma Filter)</h2>
+<p>Traditional smoothing filters often blur the edges along with reducing noise, causing a loss of important details. On the other hand, adaptive or other nonlinear filters like the sigma filter promise to reduce noise in images while preserving edges and contours. The method is based on the principle of weighting the influence of neighboring pixels based on the gradient, similar to some normalization or shunting mechanisms found in neuroscience.</p>
+<h3 id="1-gradient-calculation">1. Gradient Calculation</h3>
+<p>First, the code calculates the gradient of the input image using the <code>get_gradient()</code> method:</p>
+<pre><code class="language-cpp">CImgList&lt;&gt; g = imgIn.get_gradient();
+CImg&lt;&gt; grad = (g[0].get_sqr() + g[1].get_sqr()).sqrt();
+</code></pre>
+<p>The gradient, <script type="math/tex">\nabla f</script>, quantifies the rate of change in pixel values across the image and is given by the formula:</p>
+<p>
+<script type="math/tex; mode=display">
+\nabla f = \sqrt{{\left(\frac{{\partial f}}{{\partial x}}\right)}^2 + {\left(\frac{{\partial f}}{{\partial y}}\right)}^2}
+</script>
+</p>
+<h3 id="2-sum-of-gradients">2. Sum of Gradients</h3>
+<p>Next, the sum of gradients in a 3x3 neighborhood is computed:</p>
+<pre><code class="language-cpp">CImg&lt;&gt; Sgrad = grad.get_convolve(CImg&lt;&gt;(3, 3, 1, 1, 1));
+</code></pre>
+<p>This step convolves the gradient with a 3x3 filter, summing the neighboring gradients, effectively measuring local variations in pixel intensities.</p>
+<h3 id="3-adaptive-weighting">3. Adaptive Weighting</h3>
+<p>The code then applies adaptive weighting using the following lines:</p>
+<pre><code class="language-cpp">float epsilon = 100;
+CImg&lt;&gt; rap = imgIn.get_div(grad + epsilon);
+</code></pre>
+<p>Here, the division acts as a weighting coefficient, with the epsilon term preventing division by zero. The weight of a pixel in the sum is inversely proportional to the local gradient:</p>
+<p>
+<script type="math/tex; mode=display">
+\text{{weight}} = \frac{{f}}{{\nabla f + \epsilon}}
+</script>
+</p>
+<p>In <code>rap</code>, the pixels with high gradients are weighted less, but in this case, less actually means darker pixels! So, this code is emphasizing the edges and contours of the image.</p>
+<p>We started with this image:</p>
+<p><img alt="noise" src="../results/05/lighthouse_noise.png" /></p>
+<p>And ended up with this:</p>
+<p><img alt="rap" src="../results/05/lighthouse_rap.png" /></p>
+<h3 id="4-smoothing-operation">4. Smoothing Operation</h3>
+<p>The smoothing operation is performed in the following lines:</p>
+<pre><code class="language-cpp">CImg_3x3(I, float); // declare Ipp, Ipc, etc.
+cimg_for3x3(rap, x, y, 0, 0, I, float)
+    imgOut(x, y) = (Ipp + Ipc + Ipn + Icp + Icc + Icn + Inp + Inc + Inn) / (Sgrad(x, y) + epsilon);
+</code></pre>
+<p>Here, <code>CImg_3x3(I, float);</code> declares variables like <code>Ipp</code>, <code>Ipc</code>, etc., representing the neighboring pixels. The <code>cimg_for3x3</code> macro iterates through the image, applying the smoothing operation. The numerator is a simple average (actually sum) filter, and the bottom term is larger for pixels with high gradients. Therefore, we emphasize the edges and contours again by making those pixels darker.</p>
+<p>The final formula for smoothing is:</p>
+<p>
+<script type="math/tex; mode=display">
+\text{{imgOut}}(x, y) = \frac{{\sum \text{{neighboring pixels}}}}{{\text{{Sgrad}}(x, y) + \epsilon}}
+</script>
+</p>
+<p><img alt="sigma" src="../results/05/lighthouse_sigma.png" /></p>
+<p>As you can see, the noise are amplified along with the edges are emphasized. This adaptive sigma filter may not be the best choice for this image.</p>
+<p>The somewhat cartoon-like appearance of the final output image is a common effect of adaptive smoothing techniques like the sigma filter. By emphasizing edges and smoothing uniform areas, the image can take on a more stylized or abstract appearance. </p>
+<h3 id="connection-to-neuroscience">Connection to Neuroscience</h3>
+<p>The adaptive nature of this method is akin to the way some neurons modulate their response based on local activity. It aligns with principles observed in neuroscience where the influence of neighboring neurons is normalized or shunted based on the local context, allowing for a balance between sensitivity to stimuli and adaptation to the local environment.</p>
+<h2 id="6-adaptive-window-filters">6. Adaptive Window Filters</h2>
+<p>Adaptive window filters are smart filters that change their behavior based on the characteristics of the area they are working on. They look at each pixel and decide the best way to smooth or sharpen it based on the pixels around it. There are different ways to do this, and here are three examples using the following noisy image (Gaussian noise <script type="math/tex"> \sigma = 40 </script>):</p>
+<p><img alt="noise_40" src="../results/05/lighthouse_noise40.png" /></p>
+<h3 id="61-nagao-filter">6.1 Nagao Filter</h3>
+<p>Imagine you have a small grid (usually 5x5) around a pixel in the middle. In this grid, you create 9 different windows (smaller groups of pixels), each containing 9 pixels. Here we first intialize the windows:</p>
+<pre><code class="language-cpp">CImgList&lt;unsigned char&gt; Nagao(9, 5, 5, 1, 1, 0);
+Nagao(0, 0, 0) = Nagao(0, 0, 1) = Nagao(0, 0, 2) = Nagao(0, 0, 3) =
+    Nagao(0, 0, 4) = Nagao(0, 1, 1) = Nagao(0, 1, 2) = Nagao(0, 1, 3) =
+        Nagao(0, 2, 2) = 1;
+for (int i = 1; i &lt; 4; ++i)
+    Nagao[i] = Nagao[0].get_rotate(i * 90);
+
+Nagao(4, 1, 1) = Nagao(4, 1, 2) = Nagao(4, 1, 3) = Nagao(4, 2, 1) =
+    Nagao(4, 2, 2) = Nagao(4, 2, 3) = Nagao(4, 3, 1) = Nagao(4, 3, 2) =
+        Nagao(4, 3, 3) = 1;
+
+Nagao(5, 0, 0) = Nagao(5, 0, 1) = Nagao(5, 0, 2) = Nagao(5, 1, 0) =
+    Nagao(5, 1, 1) = Nagao(5, 1, 2) = Nagao(5, 2, 0) = Nagao(5, 2, 1) =
+        Nagao(5, 2, 2) = 1;
+for (int i = 1; i &lt; 4; ++i)
+    Nagao[5 + i] = Nagao[5].get_rotate(i * 90);
+</code></pre>
+<p><img alt="nagao_windows" src="../results/05/nagao_windows.png" /></p>
+<p>For each window:</p>
+<ul>
+<li>You calculate the average color (mean) and how much the colors vary (variance).</li>
+<li>You pick the window where the colors vary the least (smallest variance).</li>
+<li>You replace the middle pixel with the average color from that chosen window.</li>
+</ul>
+<p>Here is the code:</p>
+<pre><code class="language-cpp">CImg&lt;&gt;
+    mu(9, 1, 1, 1, 0),
+    sigma(9, 1, 1, 1, 0),
+    st,
+    N(5, 5);
+CImg&lt;int&gt; permutations;
+cimg_for5x5(imgIn, x, y, 0, 0, N, float)
+{
+    CImgList&lt;&gt; res(9);
+    for (int i = 0; i &lt; 9; ++i)
+    {
+        res[i] = N.get_mul(Nagao[i]);
+        st = res[i].get_stats();
+        mu[i] = st[2];
+        sigma[i] = st[3];
+    }
+    // Searching minimal variance.
+    sigma.sort(permutations);
+    imgOut(x, y) = mu[permutations[0]];
+}
+</code></pre>
+<p><img alt="nagao" src="../results/05/lighthouse_nagao.png" /></p>
+<p>This method helps to keep the details in the image while reducing noise.</p>
+<h3 id="62-kuwahara-filter">6.2 Kuwahara Filter</h3>
+<p>The Kuwahara filter is like the Nagao filter, but only uses windows 5 - 8 of Nagao filter. It's just a variation that might work better on certain types of images. The basic idea of finding the least varying window and using its average color remains the same.</p>
+<p><img alt="kuwahara_windows" src="../results/05/kuwahara_windows.png" /></p>
+<p><img alt="kuwahara" src="../results/05/lighthouse_kuwahara.png" /></p>
+<h2 id="7-deriche-recursive-filters">7. Deriche Recursive Filters</h2>
+<p>John Canny's work on edge detection is not only confined to the Canny edge detector but also includes mathematical foundations for defining the criteria of an effective edge detector. Canny outlined three criteria: good detection, good localization, and a single response. The first two criteria can be combined to yield a so-called <em>Canny criterion value</em>, adding mathematical rigor to the field of edge detection.</p>
+<p>The <a href="https://en.wikipedia.org/wiki/Deriche_edge_detector">Deriche recursive filter</a> is an recursive solution to Canny's criteria. However, in the book, Deriche filter is presented as a family of recursive (and potentially more efficient) alternatives to smoothing operation (0-th order), gradient computation (1st order), and Laplacian computation (2nd order).</p>
+<p>The function <code>CImg&lt;T&gt;&amp; deriche(const float sigma, const unsigned int order=0, const char axis='x')</code> filter applies in one direction at once. <code>sigma</code> is the standard deviation of the filter, while <code>order</code> is the order of the derivative to compute. <code>axis</code> is the axis along which the filter is applied.</p>
+<h3 id="71-smoothing-0-th-order">7.1 Smoothing (0-th Order)</h3>
+<pre><code class="language-cpp">CImg&lt;&gt; img_deriche0 = imgIn.get_deriche(SIGMA, 0, 'x');
+img_deriche0.deriche(SIGMA, 0, 'y');
+</code></pre>
+<p><img alt="deriche0" src="../results/05/lighthouse_deriche0.png" /></p>
+<h3 id="72-gradient-computation-1st-order">7.2 Gradient Computation (1st Order)</h3>
+<pre><code class="language-cpp">CImg&lt;&gt; img_deriche1 = imgIn.get_deriche(SIGMA, 1, 'x');
+img_deriche1.deriche(SIGMA, 1, 'y');
+CImg&lt;&gt; img_deriche1_norm = (img_deriche1.get_sqr() += img_deriche1.get_sqr()).sqrt();
+</code></pre>
+<p><img alt="deriche1" src="../results/05/lighthouse_deriche1.png" /></p>
+<h3 id="73-laplacian-computation-2nd-order">7.3 Laplacian Computation (2nd Order)</h3>
+<pre><code class="language-cpp">CImg&lt;&gt; img_deriche2_x = imgIn.get_deriche(SIGMA, 2, 'x');
+CImg&lt;&gt; img_deriche2_y = imgIn.get_deriche(SIGMA, 2, 'y');
+CImg&lt;&gt; img_deriche2_laplacian = img_deriche2_x + img_deriche2_y;
+</code></pre>
+<p><img alt="deriche2" src="../results/05/lighthouse_deriche2.png" /></p>
+<h2 id="8-frequency-domain-filtering">8. Frequency Domain Filtering</h2>
+<h3 id="81-using-cimgfft">8.1 Using <code>CImg&lt;&gt;::FFT()</code></h3>
+<h4 id="load-the-image-and-convert-to-grayscale">Load the image and convert to grayscale</h4>
+<pre><code class="language-cpp">CImg&lt;unsigned char&gt; img(&quot;../images/lighthouse.png&quot;);
+CImg&lt;&gt; lum = img.get_norm().blur(0.75f);
+</code></pre>
+<h4 id="resize-the-image">Resize the image</h4>
+<p>FFT requires dimensions to be a power of 2, so resize the image to meet this requirement.</p>
+<pre><code class="language-cpp">int width = 1 &lt;&lt; static_cast&lt;int&gt;(std::ceil(std::log2(lum.width())));
+int height = 1 &lt;&lt; static_cast&lt;int&gt;(std::ceil(std::log2(lum.height())));
+lum.resize(width, height, -100, -100, 0);
+</code></pre>
+<h4 id="compute-the-fft">Compute the FFT</h4>
+<pre><code class="language-cpp">CImgList&lt;&gt; fft = lum.get_FFT();
+</code></pre>
+<h4 id="process-magnitude">Process Magnitude</h4>
+<p>Take the logarithm of the magnitude part to better visualize it, and then shift the zero frequency component to the center of the spectrum.</p>
+<pre><code class="language-cpp">CImg&lt;&gt; magnitude(fft[0]);
+magnitude += 1; // Avoid log(0)
+magnitude.log();
+magnitude.shift(magnitude.width() / 2, magnitude.height() / 2, 0, 0, 2);
+</code></pre>
+<h4 id="optional-compute-inverse-fft">(Optional) Compute Inverse FFT</h4>
+<p>Perform the inverse FFT to recover the original image.</p>
+<pre><code class="language-cpp">CImg&lt;&gt; img_ifft = fft.get_FFT(true)[0];
+</code></pre>
+<h3 id="82-butterworth-filters">8.2 Butterworth Filters</h3>
+<p>The idea of frequency-domain filtering involves first transforming the image into the frequency domain, then multiplying the image with a mask, and finally transforming the image back to the spatial domain. Theoretically, this is equivalent to convolving the image with the mask in the spatial domain. It might sound like a lot of extra work, but the Fast Fourier Transform (FFT) makes it much faster. However, you need to be mindful of artifacts such as the Gibbs phenomenon, which can be reduced by using appropriate windowing functions.</p>
+<p>Butterworth filters are a family of filters characterized by a maximally flat frequency response. They can be applied in both analog and digital forms, and in both time and frequency domains.</p>
+<p>In the analog frequency domain, the 2D transfer function for a Butterworth low-pass filter can be represented as:
+<script type="math/tex; mode=display"> H(u,v) = \frac{1}{1 + \left( \frac{D(u,v)}{D_0} \right)^{2n}} </script>
+where <script type="math/tex"> D(u,v) = \sqrt{u^2 + v^2} </script> is the distance from the origin in the frequency domain, and <script type="math/tex"> D_0 </script> is the cutoff frequency. The parameter <script type="math/tex"> n </script> is the order of the filter. Increasing <script type="math/tex"> n </script> will result in a steeper roll-off, but at the expense of increased complexity, potential instability, and possible phase distortion.</p>
+<p>In the spatial domain, you would have to use the inverse Fourier transform to obtain a corresponding difference equation.</p>
+<h3 id="83-gaussian-filters">8.3 Gaussian Filters</h3>
+<p>The Gaussian filter can be implemented in both time and frequency domains Here's how to apply a Gaussian filter in the frequency domain:</p>
+<h4 id="perform-the-fast-fourier-transform-fft">Perform the Fast Fourier Transform (FFT)</h4>
+<p>First, compute the FFT of the input image.</p>
+<pre><code class="language-cpp">CImgList&lt;&gt; fImg = imgIn.get_FFT();
+</code></pre>
+<h4 id="create-the-gaussian-mask">Create the Gaussian Mask</h4>
+<p>Construct the frequency response of the filter using the Gaussian function. The Gaussian mask is defined in the frequency domain, and <code>sigma</code> is the standard deviation controlling the spread of the Gaussian function. In the frequency domain, the filter is described by the Gaussian function:</p>
+<p>
+<script type="math/tex; mode=display"> H(u, v) = 2\pi \sigma^2 \exp\left(-2\pi^2\sigma^2\left(\left(\frac{u}{W} - 0.5\right)^2 + \left(\frac{v}{H} - 0.5\right)^2\right)\right) </script>
+</p>
+<p>Here, <script type="math/tex"> W </script> and <script type="math/tex"> H </script> are the width and height of the image, <script type="math/tex"> \sigma^2 </script> is the squared standard deviation, and <script type="math/tex"> (u,v) </script> are the frequency coordinates.</p>
+<pre><code class="language-cpp">CImg&lt;&gt; gaussMask(imgIn.width(), imgIn.height());
+float sigma2 = cimg::sqr(sigma);
+cimg_forXY(gaussMask, x, y)
+{
+    float fx = x / (float)imgIn.width() - 0.5f, fx2 = cimg::sqr(fx),
+          fy = y / (float)imgIn.height() - 0.5f,
+          fy2 = cimg::sqr(fy);
+    gaussMask(x, y) = 2 * cimg::PI * sigma2 *
+                      std::exp(-2 * cimg::sqr(cimg::PI) * sigma2 * (fx2 + fy2));
+}
+</code></pre>
+<h4 id="zero-shift-the-gaussian-mask">Zero Shift the Gaussian Mask</h4>
+<p>Shift the Gaussian mask by half its width and height to center the zero frequency.</p>
+<pre><code class="language-cpp">// Zero shift.
+gaussMask.shift(-imgIn.width() / 2, -imgIn.height() / 2, 0, 0, 2);
+</code></pre>
+<h4 id="apply-the-filter">Apply the Filter</h4>
+<p>Perform the element-wise multiplication of the Fourier Transformed image and the Gaussian mask.</p>
+<pre><code class="language-cpp">// Filtering
+cimglist_for(fImg, k)
+    fImg[k].mul(gaussMask);
+</code></pre>
+<h4 id="inverse-fft-and-normalize">Inverse FFT and Normalize</h4>
+<p>Transform back to the spatial domain via inverse FFT and normalize the result.</p>
+<pre><code class="language-cpp">// Inverse FFT and real part.
+return fImg.get_FFT(true)[0].normalize(0, 255);
+</code></pre>
+<p><img alt="gaussian" src="../results/05/lighthouse_gaussian.png" /></p>
+<h2 id="9-diffusion-filtering">9. Diffusion Filtering</h2>
               
             </div>
           </div><footer>
