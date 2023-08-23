@@ -498,6 +498,8 @@ Perform the inverse FFT to recover the original image.
 CImg<> img_ifft = fft.get_FFT(true)[0];
 ```
 
+![ifft](./results/05/lighthouse_ifft.png)
+
 ### 8.2 Butterworth Filters
 
 The idea of frequency-domain filtering involves first transforming the image into the frequency domain, then multiplying the image with a mask, and finally transforming the image back to the spatial domain. Theoretically, this is equivalent to convolving the image with the mask in the spatial domain. It might sound like a lot of extra work, but the Fast Fourier Transform (FFT) makes it much faster. However, you need to be mindful of artifacts such as the Gibbs phenomenon, which can be reduced by using appropriate windowing functions.
@@ -550,10 +552,9 @@ gaussMask.shift(-imgIn.width() / 2, -imgIn.height() / 2, 0, 0, 2);
 ```
 
 #### Apply the Filter
-Perform the element-wise multiplication of the Fourier Transformed image and the Gaussian mask.
+Perform the element-wise multiplication of the Fourier Transformed image and the Gaussian mask for both the magnitude and phase components.
 
 ```cpp
-// Filtering
 cimglist_for(fImg, k)
     fImg[k].mul(gaussMask);
 ```
@@ -570,3 +571,7 @@ return fImg.get_FFT(true)[0].normalize(0, 255);
 
 
 ## 9. Diffusion Filtering
+
+The term "diffusion" in the context of diffusion filtering is analogous to the physical process of diffusion, but with pixel values rather than physical particles. The idea is that the pixel values in an image will "diffuse" from areas of high intensity to areas of low intensity, smoothing the image. However, unlike simple linear filtering, diffusion filtering can be controlled to be *anisotropic*, meaning it can prefer certain directions over others. This allows the diffusion to be guided by the content of the image, smoothing some areas while preserving edges and details.
+
+The diffusion filter introduced in the book, Perona and Malik's algorithm, is nonlinear and adaptive. (*Note: nonlinearity does not necessarily guarantee adaptivity, nor the other way around. Filters can be simultaneously linear and adaptive, like the least mean squares (LMS) filter, or nonlinear but non-adaptive, like the median filter.*)
