@@ -45,12 +45,6 @@ CImg<> ShiTomasiDetector(CImg<> &imgIn, float k, int n, float sigma)
         Ixy = M.get_channel(1),
         Iyy = M.get_channel(2);
 
-    // Alternative way to compute the structure tensor.
-    // CImg<>
-    //     Ixx = gradXY[0].get_mul(gradXY[0]).get_convolve(G),
-    //     Iyy = gradXY[1].get_mul(gradXY[1]).get_convolve(G),
-    //     Ixy = gradXY[0].get_mul(gradXY[1]).get_convolve(G);
-
     // R function (This is where the difference is with Harris)
     CImg<>
         det = Ixx.get_mul(Iyy) - Ixy.get_sqr(),

@@ -1,4 +1,4 @@
-# Filtering - Learning Reflection
+# Feature Extraction - Learning Reflection
 
 **Author**: Tony Fu  
 **Date**: August 23, 2023  
@@ -144,4 +144,25 @@ CImg<>
 
 Shi-Tomasi's reliance on the minimum eigenvalue often leads to better detection of true corners. Not sure about this one.
 
-## 3. SIFT
+
+## 3. Hough Transform
+
+Again, I recommend watching Professor Shree K. Nayar's [video](https://youtu.be/XRBc_xkZREg?si=WBN-WPRsqEndBMcA) on the Hough Transform. Here's a summary:
+
+The Hough Transform is a technique used to detect shapes that can be represented by a mathematical equation. It's particularly useful for finding lines and circles. Essentially, it involves a "transformation" from the image space to the parameter space.
+
+For detecting lines, you might represent them with the equation \(y = mx + b\), where the parameter space consists of the slope \(m\) and the intercept \(b\). However, this representation can be problematic since the slope \(m\) can become infinite. A better approach uses the polar form \(r = x \cos \theta + y \sin \theta\), where \(r\) is the distance from the origin to the line, and \(\theta\) is the angle between the line and the x-axis. In this case, the parameter space is defined by \(r\) and \(\theta\).
+
+This parameter space is divided into a grid, where each cell represents a potential line in the image space. The algorithm then iterates through each pixel in the image space, incrementing the corresponding cell in the parameter space. The cell with the highest count (or "votes," as Professor Nayar puts it) represents the detected line.
+
+
+| Shape in Image Space | Representation in Parameter Space | Parameters  | Equation (if applicable)                               |
+|----------------------|---------------------------------------------------|-----------------------------------------|---------------------------------------------------------|
+| Line                 | Point                                             | Slope (m), Intercept (b)                | \( y = mx + b \)                                         |
+| Line (Polar Form)    | Sinusoidal Curve                                  | Distance (r), Angle (θ)                 | \( r = x \cos \theta + y \sin \theta \)                   |
+| Circle               | 3D Surface                                         | Center (a, b), Radius (r)               | \( (x - a)^2 + (y - b)^2 = r^2 \)                         |
+| Ellipse              | 4D Surface                                         | Center (a, b), Major/Minor Axes (r1, r2) | \( \frac{{(x - a)^2}}{{r1^2}} + \frac{{(y - b)^2}}{{r2^2}} = 1 \) |
+
+
+
+

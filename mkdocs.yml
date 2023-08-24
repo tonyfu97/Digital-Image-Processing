@@ -27,6 +27,7 @@ nav:
     - 5. Filtering: 05_filtering.md
     - 6. Feature Extraction: 06_feature_extraction.md
     - Appendix 1 - Math Expressions in CImg's Fill Method: appendix_1.md
+    - Where Did I Get My Images?: where_did_i_get_my_images.md
 
 copyright: Copyright &copy; 2023 Tony Fu
 
