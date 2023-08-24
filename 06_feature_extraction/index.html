@@ -93,13 +93,17 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#2-shi-tomasi-algorithm">2. Shi-Tomasi Algorithm</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#3-sift">3. SIFT</a>
+    <li class="toctree-l2"><a class="reference internal" href="#3-hough-transform">3. Hough Transform</a>
     </li>
     </ul>
                 </li>
               </ul>
               <ul>
                 <li class="toctree-l1"><a class="reference internal" href="../appendix_1/">Appendix 1 - Math Expressions in CImg's Fill Method</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../where_did_i_get_my_images/">Where Did I Get My Images?</a>
                 </li>
               </ul>
       </div>
@@ -126,7 +130,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="filtering-learning-reflection">Filtering - Learning Reflection</h1>
+                <h1 id="feature-extraction-learning-reflection">Feature Extraction - Learning Reflection</h1>
 <p><strong>Author</strong>: Tony Fu<br />
 <strong>Date</strong>: August 23, 2023<br />
 <strong>Device</strong>: MacBook Pro 16-inch, Late 2021 (M1 Pro)<br />
@@ -268,7 +272,55 @@ R = \min(\lambda_1, \lambda_2)
 </code></pre>
 <p><img alt="shi-tomasi" src="../results/06/lighthouse_shi_tomasi.png" /></p>
 <p>Shi-Tomasi's reliance on the minimum eigenvalue often leads to better detection of true corners. Not sure about this one.</p>
-<h2 id="3-sift">3. SIFT</h2>
+<h2 id="3-hough-transform">3. Hough Transform</h2>
+<p>Again, I recommend watching Professor Shree K. Nayar's <a href="https://youtu.be/XRBc_xkZREg?si=WBN-WPRsqEndBMcA">video</a> on the Hough Transform. Here's a summary:</p>
+<p>The Hough Transform is a technique used to detect shapes that can be represented by a mathematical equation. It's particularly useful for finding lines and circles. Essentially, it involves a "transformation" from the image space to the parameter space.</p>
+<p>For detecting lines, you might represent them with the equation <script type="math/tex">y = mx + b</script>, where the parameter space consists of the slope <script type="math/tex">m</script> and the intercept <script type="math/tex">b</script>. However, this representation can be problematic since the slope <script type="math/tex">m</script> can become infinite. A better approach uses the polar form <script type="math/tex">r = x \cos \theta + y \sin \theta</script>, where <script type="math/tex">r</script> is the distance from the origin to the line, and <script type="math/tex">\theta</script> is the angle between the line and the x-axis. In this case, the parameter space is defined by <script type="math/tex">r</script> and <script type="math/tex">\theta</script>.</p>
+<p>This parameter space is divided into a grid, where each cell represents a potential line in the image space. The algorithm then iterates through each pixel in the image space, incrementing the corresponding cell in the parameter space. The cell with the highest count (or "votes," as Professor Nayar puts it) represents the detected line.</p>
+<table>
+<thead>
+<tr>
+<th>Shape in Image Space</th>
+<th>Representation in Parameter Space</th>
+<th>Parameters</th>
+<th>Equation (if applicable)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Line</td>
+<td>Point</td>
+<td>Slope (m), Intercept (b)</td>
+<td>
+<script type="math/tex"> y = mx + b </script>
+</td>
+</tr>
+<tr>
+<td>Line (Polar Form)</td>
+<td>Sinusoidal Curve</td>
+<td>Distance (r), Angle (θ)</td>
+<td>
+<script type="math/tex"> r = x \cos \theta + y \sin \theta </script>
+</td>
+</tr>
+<tr>
+<td>Circle</td>
+<td>3D Surface</td>
+<td>Center (a, b), Radius (r)</td>
+<td>
+<script type="math/tex"> (x - a)^2 + (y - b)^2 = r^2 </script>
+</td>
+</tr>
+<tr>
+<td>Ellipse</td>
+<td>4D Surface</td>
+<td>Center (a, b), Major/Minor Axes (r1, r2)</td>
+<td>
+<script type="math/tex"> \frac{{(x - a)^2}}{{r1^2}} + \frac{{(y - b)^2}}{{r2^2}} = 1 </script>
+</td>
+</tr>
+</tbody>
+</table>
               
             </div>
           </div><footer>

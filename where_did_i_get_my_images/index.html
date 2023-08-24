@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/Digital-Image-Processing/where_did_i_get_my_images/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Where Did I Get My Images? - Digital Image Processing Notes</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Where Did I Get My Images?";
+        var mkdocs_page_input_path = "where_did_i_get_my_images.md";
+        var mkdocs_page_url = "/Digital-Image-Processing/where_did_i_get_my_images/";
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/django.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-274394082"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-274394082');
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Digital Image Processing Notes
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../01_getting_started/">1. Getting Started</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../02_block_decomposition/">2. Block Decomposition</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../03_point_processing/">3. Point Processing Transformations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../04_morphology/">4. Morphology</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../05_filtering/">5. Filtering</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../06_feature_extraction/">6. Feature Extraction</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../appendix_1/">Appendix 1 - Math Expressions in CImg's Fill Method</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Where Did I Get My Images?</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#browns-point-lighthouse">Browns Point Lighthouse</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#marble-mountain">Marble Mountain</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#port-angeles">Port Angeles</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#lake-crescent">Lake Crescent</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#forks">Forks</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#mount-rainier">Mount Rainier</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#san-juan-islands">San Juan Islands</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#leavenworth">Leavenworth</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sequim-bay">Sequim Bay</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#broadway">Broadway</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#little-gray-my-cat">Little Gray (My Cat)</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Digital Image Processing Notes</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
+      <li>Where Did I Get My Images?</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tonyfu97/Digital-Image-Processing/blob/master/docs/where_did_i_get_my_images.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="where-did-i-get-my-images">Where Did I Get My Images?</h1>
+<p>The stunning visuals that bring our image processing examples to life aren't just random pictures; they're a tribute to the breathtaking beauty of Washington State. These images capture the essence of a region known for its diverse geography and inspiring vistas.</p>
+<h2 id="browns-point-lighthouse">Browns Point Lighthouse</h2>
+<p><img alt="Browns Point Lighthouse" src="../images/lighthouse.png" /></p>
+<p><em>Standing guard over Puget Sound, Browns Point Lighthouse is a beacon of maritime history and a symbol of the region's nautical heritage.</em></p>
+<h2 id="marble-mountain">Marble Mountain</h2>
+<p><img alt="Marble Mountain" src="../images/road.png" /></p>
+<p><em>With its sweeping vistas and challenging terrain, Marble Mountain offers an exciting exploration ground for outdoor enthusiasts. Its peaks and trails are a tribute to Washington's rugged beauty.</em></p>
+<h2 id="port-angeles">Port Angeles</h2>
+<p><img alt="signboard" src="../images/signboard.png" /></p>
+<p><em>A popular stop for ice cream enthusiasts, the windy Port Angeles Wharf serves as a gateway for travelers heading to Canada or Olympic National Park.</em></p>
+<h2 id="lake-crescent">Lake Crescent</h2>
+<p><img alt="lake" src="../images/lake.png" /></p>
+<p><em>Nestled near an elusive restaurant and a charming lodge, Lake Crescent offers breathtaking views and an escape into Washington's tranquil beauty.</em></p>
+<h2 id="forks">Forks</h2>
+<p><img alt="car" src="../images/car.png" /></p>
+<p><em>Home to the filming of Twilight, Forks presents a nostalgic scene with Bella's truck, capturing the spirit of the famous series.</em></p>
+<h2 id="mount-rainier">Mount Rainier</h2>
+<p><img alt="mountain" src="../images/mountain.png" /></p>
+<p><em>A majestic sight from the hiking trails, Mount Rainier's peak remains a distant wonder, its beauty inspiring awe without the need to conquer its summit.</em></p>
+<h2 id="san-juan-islands">San Juan Islands</h2>
+<p><img alt="farm" src="../images/farm.png" /></p>
+<p><em>An early visit to San Juan Islands reveals a peaceful landscape, waiting for the lavender to bloom in the months to come.</em></p>
+<h2 id="leavenworth">Leavenworth</h2>
+<p><img alt="town" src="../images/town.png" /></p>
+<p><em>A festive winter wonderland, Leavenworth recalls the times before the pandemic, filled with lively celebrations, beer, and sausage.</em></p>
+<h2 id="sequim-bay">Sequim Bay</h2>
+<p><img alt="bay" src="../images/bay.png" /></p>
+<p><em>With boats bathed in the soft glow of sunset, Sequim Bay offers a tranquil scene of coastal serenity.</em></p>
+<h2 id="broadway">Broadway</h2>
+<p><img alt="Broadway" src="../images/street.png" /></p>
+<p><em>Captured on a tranquil winter's day, this view of Broadway showcases a rare moment of calm on one of Seattle's busiest streets. Stretching all the way to Yesler Terrace, the image paints a peaceful contrast to the normally bustling avenue, offering a contemplative glimpse into the heart of the city.</em></p>
+<h2 id="little-gray-my-cat">Little Gray (My Cat)</h2>
+<p><img alt="Cat" src="../images/cat.png" /></p>
+<p><em>Meet Little Gray, my delightful cat. While not a Washington landmark, he's a cherished part of my world and adds a touch of whimsy to this collection of images.</em></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../appendix_1/" class="btn btn-neutral float-left" title="Appendix 1 - Math Expressions in CImg's Fill Method"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2023 Tony Fu</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tonyfu97/Digital-Image-Processing" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../appendix_1/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
