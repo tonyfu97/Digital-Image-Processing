@@ -282,10 +282,6 @@ for (unsigned i = 0; i < accNumber; ++i)
 return imgOut;
 ```
 
-* **Threshold = 0.5**
-
-![road_hough_0.50](./results/06/road_hough_0.50.png)
-
 * **Threshold = 0.6**
 
 ![road_hough_0.60](./results/06/road_hough_0.60.png)
@@ -303,8 +299,6 @@ return imgOut;
 ![road_hough_0.90](./results/06/road_hough_0.90.png)
 
 
-Certainly! Here's the documentation:
-
 ### Circle Detection
 
 The Hough Transform can also be used to detect circles. In this case, the parameter space is 3D, with the parameters being the center of the circle \((xc, yc)\) and the radius \(r\). The equation of a circle is given by:
@@ -321,5 +315,45 @@ The Hough Transform is applied to detect the circles:
 ![coins_hough](./results/06/coins_hought_circle.png)
 
 The middle coin at the bottom was not detected perhaps because the binarization process caused it to be broken.
+
+
+Certainly! Here's an improved version of your text that enhances grammar, clarity, and accuracy:
+
+## 4. Texture Spectrum
+
+[He and Wang (1990)](https://www.sciencedirect.com/science/article/pii/0031320390901358?via=ihub) proposed a method to characterize textures in an image. As the first step of most algorithms, we break down the problem into smaller pieces. Instead of characterizing the whole image at once, we analyze each pixel individually. For each pixel, we define a so-called *texture unit*, a vector of size 8 \(\{E_1, E_2, E_3, \ldots\}\). The formula for \(E_i\) is given as:
+
+$$
+\begin{equation}
+\text{E_i}(v_1, v_2, \tau) = 
+\begin{cases} 
+  0 & \text{if } v_1 < v_2 - \tau \\
+  1 & \text{if } \left| v_1 - v_2 \right| \leq \tau \\
+  2 & \text{otherwise}
+\end{cases}
+\end{equation}
+$$
+
+where \(v_1\) is the pixel value of the i-th neighboring pixel, and \(v_2\) is the pixel value of the current pixel. \(\tau\) is a threshold that determines sensitivity. Here is an diagram that illustrates the calculation of \(E_i\):
+
+![texture_spectrum](./results/06/texture_spectrum.png)
+
+Next, we summarize this texture unit, which is a vector of size 8, into a single value:
+
+$$
+N = \sum_{i=1}^{8} 3^{i-1} E_i
+$$
+
+To visualize this texture encoding, let's consider the original image:
+
+![farm](./images/farm.png)
+
+And here is the texture encoding (using \(\tau = 5\)):
+
+![farm_texture_spectrum](./results/06/farm_texture_spectrum.png)
+
+To obtain the texture spectrum, we go through each pixel and calculate the texture encoding. Then, we plot the histogram of the texture encodings. This histogram represents the texture spectrum of the image:
+
+![farm_texture_spectrum_histogram](./results/06/farm_texture_spectrum_histogram.png)
 
 
