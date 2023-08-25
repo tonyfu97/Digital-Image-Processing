@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -I.. -lX11 -lpthread -lpng
 
-all: harris shi_tomasi hough
+all: harris shi_tomasi hough hough_circle
 
 harris: harris.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $^
@@ -12,7 +12,11 @@ shi_tomasi: shi_tomasi.cpp
 hough: hough.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
+hough_circle: hough_circle.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
 clean:
 	rm -f harris
 	rm -f shi_tomasi
 	rm -f hough
+	rm -f hough_circle

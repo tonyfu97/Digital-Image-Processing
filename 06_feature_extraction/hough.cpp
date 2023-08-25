@@ -54,8 +54,7 @@ CImg<> Hough(CImg<> &imgIn, float thr)
     // Gradient and smoothing.
     CImgList<> grad = imgIn.get_gradient();
     cimglist_for(grad, l)
-        grad[l]
-            .blur(1.5f);
+        grad[l].blur(1.5f);
 
     // Hough space.
     cimg_forXY(imgIn, x, y)
@@ -83,8 +82,8 @@ CImg<> Hough(CImg<> &imgIn, float thr)
         acc2(x, y) = (float)std::log(1 + acc(x, y));
 
     // Thresholding and filtering the accumulators.
-    int taille_max = acc2.get_threshold(thr * acc2.max()).get_label().max();
-    CImg<int> coordinates(taille_max, 2, 1, 1, 0);
+    int size_max = acc2.get_threshold(thr * acc2.max()).get_label().max();
+    CImg<int> coordinates(size_max, 2, 1, 1, 0);
     int accNumber = 0;
     AccThreshold(acc2, thr * acc2.max(), 4, coordinates, accNumber);
 
@@ -107,14 +106,11 @@ CImg<> Hough(CImg<> &imgIn, float thr)
 
 int main()
 {
-    CImg<unsigned char> img("../images/road.png");
-
-    // Convert to grayscale
-    CImg<> lum = img;
+    CImg<> img("../images/road.png");
 
     // Hough transform
-    float thr = 0.5f;
-    CImg<> imgOut = Hough(lum, thr);
+    float thr = 0.9f;
+    CImg<> imgOut = Hough(img, thr);
 
     // Save result with threshold (rounded to 2 decimal places) in the name
     std::string filename = "./results/road_hough_0." + std::to_string((int)(thr * 100)) + ".png";

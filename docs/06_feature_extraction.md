@@ -164,5 +164,162 @@ This parameter space is divided into a grid, where each cell represents a potent
 | Ellipse              | 4D Surface                                         | Center (a, b), Major/Minor Axes (r1, r2) | \( \frac{{(x - a)^2}}{{r1^2}} + \frac{{(y - b)^2}}{{r2^2}} = 1 \) |
 
 
+### 3.1 Initializing Variables
+The code starts by defining variables for the accumulator, image dimensions, and bounds of the parameters.
+
+```cpp
+CImg<>
+    acc(500, 400, 1, 1, 0),
+    imgOut(imgIn);
+int
+    wx = imgIn.width(),
+    wy = imgIn.height();
+
+float
+    rhomax = std::sqrt((float)(wx * wx + wy * wy)) / 2,
+    thetamax = 2 * cimg::PI;
+```
+
+### 3.2 Gradient Calculation and Smoothing
+The code calculates the gradient of the input image and applies a blur to smooth it.
+
+```cpp
+CImgList<> grad = imgIn.get_gradient();
+cimglist_for(grad, l)
+    grad[l].blur(1.5f);
+```
+
+### 3.3 Hough Space Calculation
+
+The Hough space is a mathematical representation that helps in identifying lines in an image. In the Hough space, a line can be represented by two parameters: \(\rho\) and \(\theta\), where \(\rho\) (same as \( r\) mentioned above) is the distance from the origin to the closest point on the straight line, and \(\theta\) is the angle formed by this perpendicular line and the horizontal axis.
+
+#### 3.3.1 Calculating the Gradient and the Angles
+
+The code snippet begins by iterating over all the pixels in the input image to calculate the gradient at each pixel:
+
+```cpp
+float
+    X = (float)x - wx / 2,
+    Y = (float)y - wy / 2,
+    gx = grad(0, x, y),
+    gy = grad(1, x, y),
+    theta = std::atan2(gy, gx);
+```
+
+Here, \(X\) and \(Y\) represent the coordinates if the origin is at the center of the image. The gradient at each pixel is given by \((gx, gy)\), and \(\theta\) is calculated using the arctangent function, which gives the angle of the gradient vector.
+
+#### 3.3.2 Calculating \(\rho\)
+
+Next, the code calculates \(\rho\) as follows:
+
+```cpp
+rho = std::sqrt(X * X + Y * Y) * std::cos(std::atan2(Y, X) - theta);
+```
+
+The value of \(\rho\) is computed using the distance formula and the cosine of the difference between the angle of the vector to the origin \((X, Y)\) and \(\theta\).
+
+#### 3.3.3 Adjusting \(\rho\) and \(\theta\)
+
+If \(\rho\) is negative, it's multiplied by -1, and \(\theta\) is adjusted by adding \(\pi\):
+
+```cpp
+if (rho < 0)
+{
+    rho *= -1;
+    theta += cimg::PI;
+}
+theta = cimg::mod(theta, thetamax);
+```
+
+This ensures that \(\rho\) is positive, and \(\theta\) is within the valid range.
+
+#### 3.3.4 Populating the Accumulator
+
+Finally, the accumulator is updated based on the calculated \(\rho\) and \(\theta\):
+
+```cpp
+acc((int)(theta * acc.width() / thetamax), (int)(rho * acc.height() / rhomax)) += (float)std::sqrt(gx * gx + gy * gy);
+```
+
+![road_hough_raw_0.9](./results/06/road_hough_raw_0.9.png)
+
+The accumulator's cell corresponding to \(\rho\) and \(\theta\) is incremented by the magnitude of the gradient. This process effectively votes for the parameters of the line that the current pixel might be part of. By the end of this process, the accumulator will contain information about the lines present in the image, represented in the Hough space.
+
+### 3.4 Accumulator Smoothing and Thresholding
+The accumulator is smoothed and thresholded to identify significant lines.
+
+```cpp
+// Smoothing the accumulators.
+acc.blur(0.5f);
+CImg<> acc2(acc);
+
+// Log transform to enhance the contrast of small values.
+cimg_forXY(acc2, x, y)
+    acc2(x, y) = (float)std::log(1 + acc(x, y));
+
+// Thresholding and filtering the accumulators.
+int size_max = acc2.get_threshold(thr * acc2.max()).get_label().max();
+CImg<int> coordinates(size_max, 2, 1, 1, 0);
+int accNumber = 0;
+AccThreshold(acc2, thr * acc2.max(), 4, coordinates, accNumber);
+```
+
+The `AccThreshold()` function is also defined in `hough.cpp`. It modifies `coordinates` and `accNumber` in place. `coordinates` contains the coordinates of the local maxima in the accumulator grid that are above the given threshold, and `accNumber` contains the count of such maxima. The image below shows the accumulator after smoothing and thresholding with a threshold value of 0.9.
+
+![road_hough_thresholded_0.9](./results/06/road_hough_thresholded_0.9.png)
+
+### 3.5 Line Display
+Finally, the detected lines are drawn on the output image using the calculated rho and theta values.
+
+```cpp
+unsigned char col1[3] = {255, 255, 0};
+for (unsigned i = 0; i < accNumber; ++i)
+{
+    // Drawing lines
+    // ...
+    imgOut.draw_line(x0, y0, x1, y1, col1, 1.0f).draw_line(x0 + 1, y0, x1 + 1, y1, col1, 1.0f).draw_line(x0, y0 + 1, x1, y1 + 1, col1, 1.0f);
+}
+return imgOut;
+```
+
+* **Threshold = 0.5**
+
+![road_hough_0.50](./results/06/road_hough_0.50.png)
+
+* **Threshold = 0.6**
+
+![road_hough_0.60](./results/06/road_hough_0.60.png)
+
+* **Threshold = 0.7**
+
+![road_hough_0.70](./results/06/road_hough_0.70.png)
+
+* **Threshold = 0.8**
+
+![road_hough_0.80](./results/06/road_hough_0.80.png)
+
+* **Threshold = 0.9**
+
+![road_hough_0.90](./results/06/road_hough_0.90.png)
+
+
+Certainly! Here's the documentation:
+
+### Circle Detection
+
+The Hough Transform can also be used to detect circles. In this case, the parameter space is 3D, with the parameters being the center of the circle \((xc, yc)\) and the radius \(r\). The equation of a circle is given by:
+\[ (x - xc)^2 + (y - yc)^2 = r^2 \]
+
+See `hough_circle.cpp` for the implementation.
+
+Starting with a binarized image of coins:
+
+![coins_median](./results/06/coins_median.png)
+
+The Hough Transform is applied to detect the circles:
+
+![coins_hough](./results/06/coins_hought_circle.png)
+
+The middle coin at the bottom was not detected perhaps because the binarization process caused it to be broken.
 
 
