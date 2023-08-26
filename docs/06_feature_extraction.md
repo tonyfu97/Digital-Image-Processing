@@ -316,9 +316,6 @@ The Hough Transform is applied to detect the circles:
 
 The middle coin at the bottom was not detected perhaps because the binarization process caused it to be broken.
 
-
-Certainly! Here's an improved version of your text that enhances grammar, clarity, and accuracy:
-
 ## 4. Texture Spectrum
 
 [He and Wang (1990)](https://www.sciencedirect.com/science/article/pii/0031320390901358?via=ihub) proposed a method to characterize textures in an image. As the first step of most algorithms, we break down the problem into smaller pieces. Instead of characterizing the whole image at once, we analyze each pixel individually. For each pixel, we define a so-called *texture unit*, a vector of size 8 \(\{E_1, E_2, E_3, \ldots\}\). The formula for \(E_i\) is given as:
@@ -356,4 +353,125 @@ To obtain the texture spectrum, we go through each pixel and calculate the textu
 
 ![farm_texture_spectrum_histogram](./results/06/farm_texture_spectrum_histogram.png)
 
+The sharp peak in the middle means that most texture units are encoded as a vector of ones. This is because the image contains a lot of flat regions.
+
+## 5. Tamura Coefficients
+
+[Tamura et al. (1978)](https://ieeexplore.ieee.org/document/4309999) introduce six texture features that are considered to correspond well to human visual perception. These features were proposed to capture essential characteristics of visual textures that humans typically recognize. The six texture features are: **Coarseness**, **Contrast**, **Directionality**, **Line-Likeness**, **Regularity**, and **Roughness**. The book only covers the first three, so I will only discuss those.
+
+### 5.1 Contrast
+
+Tamura's contrast is defined as the ratio of the standard deviation to the kurtosis of the image's pixel values.
+
+\[
+Contrast = \frac{\sigma}{\kappa^n}
+\]
+
+Here, \( \sigma^2 \) is the variance, \( \kappa \) is the kurtosis, and \( n \) is a given exponent (I use 0.5). The book has made a mistake to calculate this value based on the histogram counts, which is not the usual way to calculate these statistics for Tamura's contrast.
+
+The reason kurtosis is included in the formula is that standard deviation alone may not provide a complete picture of how most pixels are distributed within the image. This is because standard deviation is highly sensitive to outliers. While outliers might not significantly alter our perception of contrast in an image, they can dramatically increase the value of the standard deviation. By dividing the standard deviation by the kurtosis, the formula incorporates a term that mitigates the impact of outliers, providing a more accurate measure of contrast that aligns with human perception.
+
+For this following image, the contrast is calculated to be 1,158,660:
+
+![car](./images/car.png)
+
+After normalizing the image to be between (50, 200), the contrast decreases to 235,809:
+
+![car_low_contrast](./results/06/car_low_contrast.png)
+
+### 5.2 Coarseness
+
+Four functions work together to compute Tamura's coarseness in an image. The functions provide a series of steps, calculating integral means, local means, differences, and coarseness. The functions are as follows:
+
+1. **`IntegralMean`**: This function calculates the local mean within a window of size `k` around a given pixel `(x,y)` using the integral image. The integral image helps to compute sum queries over image subregions efficiently.
+
+2. **`ComputeAk`**: Computes the local means at different scales using the `IntegralMean` function. This will provide an image `Ak` where each pixel holds the average intensity of its surrounding pixels for different window sizes.
+
+3. **`ComputeE`**: Calculates the absolute differences between local means at different scales, creating two images `Ekh` and `Ekv`, representing horizontal and vertical differences. These capture texture changes in different directions.
+
+4. **`ComputeS`**: Uses `Ekh` and `Ekv` to compute Tamura's coarseness measure. It calculates the scale at which the largest difference between neighboring local means is observed.
+
+The formulas represented by the functions are as follows:
+
+- **Horizontal and Vertical Differences (`Ekh`, `Ekv`)**:
+  \[
+  E_k^h(x, y) = |A_k(x + 2^{k-1}, y) - A_k(x - 2^{k-1}, y)|
+  \]
+  \[
+  E_k^v(x, y) = |A_k(x, y + 2^{k-1}) - A_k(x, y - 2^{k-1})|
+  \]
+  where \(A_k\) is the local mean at scale \(k\).
+
+- **Coarseness (`ComputeS`)**:
+  \[
+  Coarseness = \frac{{\sum_{x,y} 2^{k_{\text{max}}(x,y)}}}{{\text{width} \times \text{height}}}
+  \]
+  where \( k_{\text{max}}(x,y) \) is the scale at which the maximum difference is found for pixel \( (x,y) \).
+
+For the following image, the coarseness is calculated to be 25.244:
+
+![farm](./images/farm.png)
+
+After Gaussian blur with a sigma of 5, the coarseness **increases** to 28.919:
+
+![farm_smooth](./results/06/farm_smooth.png)
+
+The unexpected behavior may be due to the interpretation of what coarseness means in this context. In Tamura's coarseness, it's not necessarily related to roughness but more about the granularity or scale of the texture. A smoother image may have larger, more uniform regions, which would be captured by this measure as being "coarser."
+
+### 5.3 Directionality
+
+Tamura's directionality coefficient aims to quantify the extent and directionality of edge-like features in an image. Higher values often indicate more dominant directions in the textures or features of the image.
+
+The formula for directionality look like:
+
+\[
+D = 1 + r \times \text{nb_pics} \times \sum_{p=0}^{\text{nb_pics}} \sum_{x} [ -h(x) \times (x - \text{perm}(p))^2 ]
+\]
+
+Here, \( \text{nb_pics} \) is the number of maxima in the histogram, and \( r \) is a constant set to 1 in your code.
+
+The following are a few texture images with their directionality coefficients:
+
+#### Banded (D = 1)
+
+![banded](./textures/banded1.png)
+
+#### Grid (D = 1)
+
+![grid](./textures/grid1.png)
+
+#### Chequered (D = 1)
+
+![chequered](./textures/chequered1.png)
+
+#### Spiralled (D = 1)
+
+![spiralled](./textures/spiralled1.png)
+
+#### Cobwebbed (D = 1)
+
+![cobwebbed](./textures/cobwebbed1.png)
+
+#### Cracked (D = -2.61569e+07)
+
+![cracked](./textures/cracked1.png)
+
+#### Honeycombed (D = -358847)
+
+![honeycombed](./textures/honeycombed1.png)
+
+#### Dotted (D = -18227)
+
+![dotted](./textures/dotted1.png)
+
+#### Bubbly (D = -7.85011e+07)
+
+![bubbly](./textures/bubbly1.png)
+
+#### Fibrous (D = -9.09765e+08)
+
+![fibrous](./textures/fibrous1.png)
+
+
+## 6. 
 

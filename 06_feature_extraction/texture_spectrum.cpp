@@ -6,6 +6,7 @@
 #include "CImg.h"
 
 #include <string>
+#include <iostream>
 
 using namespace cimg_library;
 
@@ -18,7 +19,7 @@ unsigned char valE(float val1, float val2, float tau)
 CImg<> TextureUnit(CImg<> &imgIn)
 {
     CImg<unsigned char> E(8);
-    CImg<> N(imgIn);
+    CImg<int> N(imgIn.width(), imgIn.height(), 1, 1, 0);
     CImg_3x3(I, float);
     float tau = 5;
     cimg_for3x3(imgIn, x, y, 0, 0, I, float)
@@ -49,8 +50,8 @@ int main()
     CImg<> imgOut = TextureUnit(imgIn);
     imgOut.get_normalize(0, 255).save_png("./results/farm_texture_spectrum.png");
 
-    // Compute the histogram with 256 bins
-    CImg<unsigned int> histogram = imgOut.histogram(256);
+    // Compute the histogram
+    CImg<unsigned int> histogram = imgOut.histogram(imgOut.max() - 1);
     histogram.display_graph();
 
     return 0;
