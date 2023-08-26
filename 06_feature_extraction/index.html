@@ -119,6 +119,42 @@
     </li>
         </ul>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#4-texture-spectrum">4. Texture Spectrum</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#5-tamura-coefficients">5. Tamura Coefficients</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#51-contrast">5.1 Contrast</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#52-coarseness">5.2 Coarseness</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#53-directionality">5.3 Directionality</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#banded-d-1">Banded (D = 1)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#grid-d-1">Grid (D = 1)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#chequered-d-1">Chequered (D = 1)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#spiralled-d-1">Spiralled (D = 1)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#cobwebbed-d-1">Cobwebbed (D = 1)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#cracked-d-261569e07">Cracked (D = -2.61569e+07)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#honeycombed-d-358847">Honeycombed (D = -358847)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#dotted-d-18227">Dotted (D = -18227)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bubbly-d-785011e07">Bubbly (D = -7.85011e+07)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#fibrous-d-909765e08">Fibrous (D = -9.09765e+08)</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#6">6.</a>
+    </li>
     </ul>
                 </li>
               </ul>
@@ -429,10 +465,6 @@ for (unsigned i = 0; i &lt; accNumber; ++i)
 return imgOut;
 </code></pre>
 <ul>
-<li><strong>Threshold = 0.5</strong></li>
-</ul>
-<p><img alt="road_hough_0.50" src="../results/06/road_hough_0.50.png" /></p>
-<ul>
 <li><strong>Threshold = 0.6</strong></li>
 </ul>
 <p><img alt="road_hough_0.60" src="../results/06/road_hough_0.60.png" /></p>
@@ -448,7 +480,6 @@ return imgOut;
 <li><strong>Threshold = 0.9</strong></li>
 </ul>
 <p><img alt="road_hough_0.90" src="../results/06/road_hough_0.90.png" /></p>
-<p>Certainly! Here's the documentation:</p>
 <h3 id="circle-detection">Circle Detection</h3>
 <p>The Hough Transform can also be used to detect circles. In this case, the parameter space is 3D, with the parameters being the center of the circle <script type="math/tex">(xc, yc)</script> and the radius <script type="math/tex">r</script>. The equation of a circle is given by:
 <script type="math/tex; mode=display"> (x - xc)^2 + (y - yc)^2 = r^2 </script>
@@ -459,6 +490,122 @@ return imgOut;
 <p>The Hough Transform is applied to detect the circles:</p>
 <p><img alt="coins_hough" src="../results/06/coins_hought_circle.png" /></p>
 <p>The middle coin at the bottom was not detected perhaps because the binarization process caused it to be broken.</p>
+<h2 id="4-texture-spectrum">4. Texture Spectrum</h2>
+<p><a href="https://www.sciencedirect.com/science/article/pii/0031320390901358?via=ihub">He and Wang (1990)</a> proposed a method to characterize textures in an image. As the first step of most algorithms, we break down the problem into smaller pieces. Instead of characterizing the whole image at once, we analyze each pixel individually. For each pixel, we define a so-called <em>texture unit</em>, a vector of size 8 <script type="math/tex">\{E_1, E_2, E_3, \ldots\}</script>. The formula for <script type="math/tex">E_i</script> is given as:</p>
+<p>
+<script type="math/tex; mode=display">
+\begin{equation}
+\text{E_i}(v_1, v_2, \tau) = 
+\begin{cases} 
+  0 & \text{if } v_1 < v_2 - \tau \\
+  1 & \text{if } \left| v_1 - v_2 \right| \leq \tau \\
+  2 & \text{otherwise}
+\end{cases}
+\end{equation}
+</script>
+</p>
+<p>where <script type="math/tex">v_1</script> is the pixel value of the i-th neighboring pixel, and <script type="math/tex">v_2</script> is the pixel value of the current pixel. <script type="math/tex">\tau</script> is a threshold that determines sensitivity. Here is an diagram that illustrates the calculation of <script type="math/tex">E_i</script>:</p>
+<p><img alt="texture_spectrum" src="../results/06/texture_spectrum.png" /></p>
+<p>Next, we summarize this texture unit, which is a vector of size 8, into a single value:</p>
+<p>
+<script type="math/tex; mode=display">
+N = \sum_{i=1}^{8} 3^{i-1} E_i
+</script>
+</p>
+<p>To visualize this texture encoding, let's consider the original image:</p>
+<p><img alt="farm" src="../images/farm.png" /></p>
+<p>And here is the texture encoding (using <script type="math/tex">\tau = 5</script>):</p>
+<p><img alt="farm_texture_spectrum" src="../results/06/farm_texture_spectrum.png" /></p>
+<p>To obtain the texture spectrum, we go through each pixel and calculate the texture encoding. Then, we plot the histogram of the texture encodings. This histogram represents the texture spectrum of the image:</p>
+<p><img alt="farm_texture_spectrum_histogram" src="../results/06/farm_texture_spectrum_histogram.png" /></p>
+<p>The sharp peak in the middle means that most texture units are encoded as a vector of ones. This is because the image contains a lot of flat regions.</p>
+<h2 id="5-tamura-coefficients">5. Tamura Coefficients</h2>
+<p><a href="https://ieeexplore.ieee.org/document/4309999">Tamura et al. (1978)</a> introduce six texture features that are considered to correspond well to human visual perception. These features were proposed to capture essential characteristics of visual textures that humans typically recognize. The six texture features are: <strong>Coarseness</strong>, <strong>Contrast</strong>, <strong>Directionality</strong>, <strong>Line-Likeness</strong>, <strong>Regularity</strong>, and <strong>Roughness</strong>. The book only covers the first three, so I will only discuss those.</p>
+<h3 id="51-contrast">5.1 Contrast</h3>
+<p>Tamura's contrast is defined as the ratio of the standard deviation to the kurtosis of the image's pixel values.</p>
+<p>
+<script type="math/tex; mode=display">
+Contrast = \frac{\sigma}{\kappa^n}
+</script>
+</p>
+<p>Here, <script type="math/tex"> \sigma^2 </script> is the variance, <script type="math/tex"> \kappa </script> is the kurtosis, and <script type="math/tex"> n </script> is a given exponent (I use 0.5). The book has made a mistake to calculate this value based on the histogram counts, which is not the usual way to calculate these statistics for Tamura's contrast.</p>
+<p>The reason kurtosis is included in the formula is that standard deviation alone may not provide a complete picture of how most pixels are distributed within the image. This is because standard deviation is highly sensitive to outliers. While outliers might not significantly alter our perception of contrast in an image, they can dramatically increase the value of the standard deviation. By dividing the standard deviation by the kurtosis, the formula incorporates a term that mitigates the impact of outliers, providing a more accurate measure of contrast that aligns with human perception.</p>
+<p>For this following image, the contrast is calculated to be 1,158,660:</p>
+<p><img alt="car" src="../images/car.png" /></p>
+<p>After normalizing the image to be between (50, 200), the contrast decreases to 235,809:</p>
+<p><img alt="car_low_contrast" src="../results/06/car_low_contrast.png" /></p>
+<h3 id="52-coarseness">5.2 Coarseness</h3>
+<p>Four functions work together to compute Tamura's coarseness in an image. The functions provide a series of steps, calculating integral means, local means, differences, and coarseness. The functions are as follows:</p>
+<ol>
+<li>
+<p><strong><code>IntegralMean</code></strong>: This function calculates the local mean within a window of size <code>k</code> around a given pixel <code>(x,y)</code> using the integral image. The integral image helps to compute sum queries over image subregions efficiently.</p>
+</li>
+<li>
+<p><strong><code>ComputeAk</code></strong>: Computes the local means at different scales using the <code>IntegralMean</code> function. This will provide an image <code>Ak</code> where each pixel holds the average intensity of its surrounding pixels for different window sizes.</p>
+</li>
+<li>
+<p><strong><code>ComputeE</code></strong>: Calculates the absolute differences between local means at different scales, creating two images <code>Ekh</code> and <code>Ekv</code>, representing horizontal and vertical differences. These capture texture changes in different directions.</p>
+</li>
+<li>
+<p><strong><code>ComputeS</code></strong>: Uses <code>Ekh</code> and <code>Ekv</code> to compute Tamura's coarseness measure. It calculates the scale at which the largest difference between neighboring local means is observed.</p>
+</li>
+</ol>
+<p>The formulas represented by the functions are as follows:</p>
+<ul>
+<li>
+<p><strong>Horizontal and Vertical Differences (<code>Ekh</code>, <code>Ekv</code>)</strong>:
+  <script type="math/tex; mode=display">
+  E_k^h(x, y) = |A_k(x + 2^{k-1}, y) - A_k(x - 2^{k-1}, y)|
+  </script>
+<script type="math/tex; mode=display">
+  E_k^v(x, y) = |A_k(x, y + 2^{k-1}) - A_k(x, y - 2^{k-1})|
+  </script>
+  where <script type="math/tex">A_k</script> is the local mean at scale <script type="math/tex">k</script>.</p>
+</li>
+<li>
+<p><strong>Coarseness (<code>ComputeS</code>)</strong>:
+  <script type="math/tex; mode=display">
+  Coarseness = \frac{{\sum_{x,y} 2^{k_{\text{max}}(x,y)}}}{{\text{width} \times \text{height}}}
+  </script>
+  where <script type="math/tex"> k_{\text{max}}(x,y) </script> is the scale at which the maximum difference is found for pixel <script type="math/tex"> (x,y) </script>.</p>
+</li>
+</ul>
+<p>For the following image, the coarseness is calculated to be 25.244:</p>
+<p><img alt="farm" src="../images/farm.png" /></p>
+<p>After Gaussian blur with a sigma of 5, the coarseness <strong>increases</strong> to 28.919:</p>
+<p><img alt="farm_smooth" src="../results/06/farm_smooth.png" /></p>
+<p>The unexpected behavior may be due to the interpretation of what coarseness means in this context. In Tamura's coarseness, it's not necessarily related to roughness but more about the granularity or scale of the texture. A smoother image may have larger, more uniform regions, which would be captured by this measure as being "coarser."</p>
+<h3 id="53-directionality">5.3 Directionality</h3>
+<p>Tamura's directionality coefficient aims to quantify the extent and directionality of edge-like features in an image. Higher values often indicate more dominant directions in the textures or features of the image.</p>
+<p>The formula for directionality look like:</p>
+<p>
+<script type="math/tex; mode=display">
+D = 1 + r \times \text{nb_pics} \times \sum_{p=0}^{\text{nb_pics}} \sum_{x} [ -h(x) \times (x - \text{perm}(p))^2 ]
+</script>
+</p>
+<p>Here, <script type="math/tex"> \text{nb_pics} </script> is the number of maxima in the histogram, and <script type="math/tex"> r </script> is a constant set to 1 in your code.</p>
+<p>The following are a few texture images with their directionality coefficients:</p>
+<h4 id="banded-d-1">Banded (D = 1)</h4>
+<p><img alt="banded" src="../textures/banded1.png" /></p>
+<h4 id="grid-d-1">Grid (D = 1)</h4>
+<p><img alt="grid" src="../textures/grid1.png" /></p>
+<h4 id="chequered-d-1">Chequered (D = 1)</h4>
+<p><img alt="chequered" src="../textures/chequered1.png" /></p>
+<h4 id="spiralled-d-1">Spiralled (D = 1)</h4>
+<p><img alt="spiralled" src="../textures/spiralled1.png" /></p>
+<h4 id="cobwebbed-d-1">Cobwebbed (D = 1)</h4>
+<p><img alt="cobwebbed" src="../textures/cobwebbed1.png" /></p>
+<h4 id="cracked-d-261569e07">Cracked (D = -2.61569e+07)</h4>
+<p><img alt="cracked" src="../textures/cracked1.png" /></p>
+<h4 id="honeycombed-d-358847">Honeycombed (D = -358847)</h4>
+<p><img alt="honeycombed" src="../textures/honeycombed1.png" /></p>
+<h4 id="dotted-d-18227">Dotted (D = -18227)</h4>
+<p><img alt="dotted" src="../textures/dotted1.png" /></p>
+<h4 id="bubbly-d-785011e07">Bubbly (D = -7.85011e+07)</h4>
+<p><img alt="bubbly" src="../textures/bubbly1.png" /></p>
+<h4 id="fibrous-d-909765e08">Fibrous (D = -9.09765e+08)</h4>
+<p><img alt="fibrous" src="../textures/fibrous1.png" /></p>
+<h2 id="6">6.</h2>
               
             </div>
           </div><footer>
