@@ -432,46 +432,47 @@ Here, \( \text{nb_pics} \) is the number of maxima in the histogram, and \( r \)
 
 The following are a few texture images with their directionality coefficients:
 
-#### Banded (D = 1)
+![directionality_results](./results/06/directionality_results.png)
 
-![banded](./textures/banded1.png)
+## 6. Local Binary Pattern (LBP)
 
-#### Grid (D = 1)
+I appreciate the explanation of LBP by [Moacir Antonelli Ponti](https://youtu.be/_5ktOnEZ3O4?si=N8WPh3r5gyv6pu1v). It's worth noting that the implementation from the book, which is also used here, is simplified. Specifically, it lacks translation invariance, and sequences of \(U\) with an identical number of '1's are treated as equivalent (e.g., {0101} and {0011}).
 
-![grid](./textures/grid1.png)
+### 6.1 Sampling \(p\) Points on a Circle of Radius \(R\)
 
-#### Chequered (D = 1)
+The first step involves sampling \(p\) points on a circle with radius \(R\). In the example code from the book, \(p=20\) and \(R=2\). These sampled points likely won't align with the pixel grid, so interpolation using `CImg<>linear_atXY(x, y)` is necessary.
 
-![chequered](./textures/chequered1.png)
+### 6.2 Computing Uniformity (\(U\))
 
-#### Spiralled (D = 1)
+This is the step where LBP earns its "binary" moniker. For each point, we compare its value \(V(n)\) to the value \(V_c\) of the central pixel as well as the value of the preceding point \(V(n-1)\):
 
-![spiralled](./textures/spiralled1.png)
+\[
+U = \sum_{n=0}^{p-1} \left[ \left( V(n) - V_c > 0 \right) - \left( V(n-1) - V_c > 0 \right) \right]
+\]
 
-#### Cobwebbed (D = 1)
+Here, \(V(n)\) is the value of the sampled point, and \(V_c\) is the value of the center pixel. If \(n=0\), \(V(n-1)\) is out of range, so we use \(V(p-1)\).
 
-![cobwebbed](./textures/cobwebbed1.png)
+### 6.3 Computing LBP
 
-#### Cracked (D = -2.61569e+07)
+We categorize the \(LBP\) value by comparing \(U\) with 2. If \(U > 2\), indicating a non-uniform pattern (i.e., more than two transitions between 0 and 1), we label it with a special value \(p+1\). Otherwise, the following applies:
 
-![cracked](./textures/cracked1.png)
+\[
+\begin{cases} 
+  lbp(x,y) = p+1 & \text{if } U > 2 \\
+  lbp(x,y) = \sum_{n=0}^{p-1} \left[ V(n) - V_c > 0 \right] & \text{otherwise}
+\end{cases}
+\]
 
-#### Honeycombed (D = -358847)
+Utilizing a small subset of textures from the [Describable Textures Dataset (DTD)](https://www.kaggle.com/datasets/jmexpert/describable-textures-dataset-dtd) (found in the "textures" folder), I obtained intriguing results.
 
-![honeycombed](./textures/honeycombed1.png)
+![lbp_example1](./results/06/lbp_example1.png)
 
-#### Dotted (D = -18227)
+The example above demonstrates that LBP can effectively capture the "fibrous" texture in the original image.
 
-![dotted](./textures/dotted1.png)
+![lbp_example2](./results/06/lbp_example2.png)
 
-#### Bubbly (D = -7.85011e+07)
+Similarly, LBP worked well for a "grid" texture, as can be seen from the top-1 result.
 
-![bubbly](./textures/bubbly1.png)
+![lbp_example3](./results/06/lbp_example3.png)
 
-#### Fibrous (D = -9.09765e+08)
-
-![fibrous](./textures/fibrous1.png)
-
-
-## 6. 
-
+However, LBP struggled to capture the "banded" texture effectively, as the top results don't resemble the original image closely.

@@ -1,0 +1,12 @@
+Distance (cracked): 316786
+Distance (banded): 547240
+Distance (cobwebbed): 333800
+Distance (dotted): 762070
+Distance (bubbly): 342738
+Distance (fibrous): 334552
+Distance (honeycombed): 279384
+Distance (grid): 203524
+Distance (spiralled): 297038
+Distance (chequered): 225906
+Distance (wrinkled): 315186
+Distance (braided): 309508

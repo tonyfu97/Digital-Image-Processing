@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -I.. -lX11 -lpthread -lpng -std=c++11
 
-all: harris shi_tomasi hough hough_circle texture_spectrum tamura_contrast tamura_coarseness tamura_directionality
+all: harris shi_tomasi hough hough_circle texture_spectrum tamura_contrast tamura_coarseness tamura_directionality lbp
 
 harris: harris.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $^
@@ -27,6 +27,9 @@ tamura_coarseness: tamura_coarseness.cpp
 tamura_directionality: tamura_directionality.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
+lbp: lbp.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
 clean:
 	rm -f harris
 	rm -f shi_tomasi
@@ -36,3 +39,4 @@ clean:
 	rm -f tamura_contrast
 	rm -f tamura_coarseness
 	rm -f tamura_directionality
+	rm -f lbp
