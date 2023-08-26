@@ -463,11 +463,11 @@ We categorize the \(LBP\) value by comparing \(U\) with 2. If \(U > 2\), indicat
 \end{cases}
 \]
 
-Utilizing a small subset of textures from the [Describable Textures Dataset (DTD)](https://www.kaggle.com/datasets/jmexpert/describable-textures-dataset-dtd) (found in the "textures" folder), I obtained intriguing results.
+Using a small subset of textures from the [Describable Textures Dataset (DTD)](https://www.kaggle.com/datasets/jmexpert/describable-textures-dataset-dtd) (found in the "textures" folder), I got some interesting results:
 
 ![lbp_example1](./results/06/lbp_example1.png)
 
-The example above demonstrates that LBP can effectively capture the "fibrous" texture in the original image.
+The example above demonstrates that LBP can capture the "fibrous" texture in the original image.
 
 ![lbp_example2](./results/06/lbp_example2.png)
 
@@ -475,4 +475,4 @@ Similarly, LBP worked well for a "grid" texture, as can be seen from the top-1 r
 
 ![lbp_example3](./results/06/lbp_example3.png)
 
-However, LBP struggled to capture the "banded" texture effectively, as the top results don't resemble the original image closely.
+However, LBP struggled to capture the "banded" texture effectively, as the top results don't look like the original image.
