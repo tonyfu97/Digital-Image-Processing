@@ -10,9 +10,9 @@ All intellectual property rights related to the book, including content, images,
 ![cover](./images/cover.png)
 
 ## Introduction
-I relied on OpenCV for my image processing needs. Though powerful, setting it up on a new machine was always cumbersome, requiring complex installation and linking processes. Plus, OpenCV's extensive set of features often felt overwhelming, making it difficult to manage and understand specific algorithm implementations.
+I used to rely on OpenCV for image processing tasks. It's powerful, but getting it set up on a new computer was always a bit of a headache. Plus, it has so many features that it was hard to keep track of everything.
 
-That's when I discovered CImg—a refreshingly simple library that encapsulates everything into **a single header file**. This approach means I can copy the header into my project and start using it immediately, without the hassle. I have also always wanted to learn more about the inner workings and design patterns of image processing libraries. CImg's simplicity makes it a great candidate for this purpose. This [repository](https://github.com/tonyfu97/Digital-Image-Processing) will document my journey and the insights I gain along the way.
+Then I found CImg. What's cool about it is that it's all in one header file. That means you can just drop it into your project and get going. This [repository](https://github.com/tonyfu97/Digital-Image-Processing) will document my journey and the insights I gain along the way.
 
 ## References
 

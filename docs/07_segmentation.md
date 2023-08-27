@@ -115,4 +115,5 @@ After 400 iterations:
 
 ![active_contours_400](./results/07/active_contours_400.png)
 
-## 2. 
+## 2. Otsu's Algorithm
+
