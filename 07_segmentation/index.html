@@ -109,6 +109,16 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#3-bernsens-algorithm">3. Bernsen's Algorithm</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#4-k-means-clustering">4. K-means Clustering</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#k-means-pseudocode">K-means Pseudocode:</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_1">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#5">5.</a>
+    </li>
     </ul>
                 </li>
               </ul>
@@ -253,6 +263,116 @@ F_{adv}(x, y) = \\
 <p>and the algorithm fails to find a good threshold (it found 103). The result is a binarized image that is not very useful:</p>
 <p><img alt="otsu_output_failed" src="../results/07/otsu_output_failed.png" /></p>
 <h2 id="3-bernsens-algorithm">3. Bernsen's Algorithm</h2>
+<p>Bersen's algorithm is a local thresholding algorithm that is more robust to uneven illumination. It works by finding the minimum and maximum pixel values in a local neighborhood and then using the average of these two values as the threshold. The size of the neighborhood is a parameter that can be tuned. Mathematically, the threshold is defined as:</p>
+<p>
+<script type="math/tex; mode=display">
+T(x, y) = 
+\begin{cases}
+\frac{N_{max}(x, y) + N_{min}(x, y)}{2} \text{ if } N_{max}(x, y) - N_{min}(x, y) < contrast \\
+0 \text{ otherwise}
+\end{cases}
+</script>
+</p>
+<p>where <script type="math/tex">N_{max}(x, y) = \max_{(x', y') \in N(x, y)}</script> and <script type="math/tex">N_{min}(x, y) = \min_{(x', y') \in N(x, y)}</script>, i.e., the maximum and minimum pixel values in the neighborhood <script type="math/tex">N(x, y)</script>. The <script type="math/tex">contrast</script> parameter is a threshold that controls the contrast of the image. If the contrast is below this threshold, then the pixel is set to the average of the maximum and minimum pixel values in the neighborhood. Otherwise, the pixel is set to 0.</p>
+<p>Personally, I think Bernsen's algorithm improve the segmentation of the previous image, but notice that there are many holes in the result.</p>
+<p><img alt="bernsen_output" src="../results/07/bernsen_output.png" /></p>
+<p>We can further threshold the image:</p>
+<p><img alt="bernsen_threshold" src="../results/07/bernsen_threshold.png" /></p>
+<h2 id="4-k-means-clustering">4. K-means Clustering</h2>
+<p>For a deeper understanding of K-means clustering, I highly recommend Professor Shree Nayar's <a href="https://youtu.be/22mpExWh1LY?si=fVxUoC7XL8Lj1iqh">lecture</a>.</p>
+<p>K-means clustering is an algorithm used for partitioning a dataset into <script type="math/tex">k</script> distinct clusters. The algorithm iteratively assigns each data point to the nearest cluster center and recalculates the centers until the assignments stabilize. Although convergence is guaranteed, the algorithm may converge to a local minimum. Initial cluster centers are commonly chosen randomly, though various methods exist for this step.</p>
+<h3 id="k-means-pseudocode">K-means Pseudocode:</h3>
+<ol>
+<li>
+<p>Initialize data points and number of clusters (k)</p>
+<ul>
+<li>The <code>ComputeFeatures()</code> function converts the original image of dimensions (x, y) into feature vectors with dimensions (x, y, 2). For each pixel at (x, y), it computes:<ul>
+<li>(x, y, 0): The mean of a 5x5 neighborhood around the pixel.</li>
+<li>(x, y, 1): The variance of the same 5x5 neighborhood.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Randomly initialize k cluster centers</p>
+<ul>
+<li>Choose <code>k</code> random data points as initial centers.</li>
+<li>The distance between a data point and a cluster center is calculated using the squared Euclidean distance as follows:
+    <script type="math/tex; mode=display">
+    d^2 = \sum_{dim=0}^{1} (data(x, y, dim) - g_i(dim))^2
+    </script>
+    where <code>dim = 0</code> is the mean and <code>dim = 1</code> is the variance of the 5x5 neighborhood around the pixel.</li>
+<li>Function: <code>PerformKMeans()</code> initializes this inside the loop with <code>cimg_forX</code>, and <code>d2()</code> computes this squared Euclidean distance.</li>
+</ul>
+</li>
+<li>
+<p>Loop until convergence (or max iterations):</p>
+<ul>
+<li>
+<p>Function: <code>PerformKMeans()</code> handles the loop, and the convergence criterion is checked at the end of the loop.</p>
+</li>
+<li>
+<p>Assign each data point to the nearest cluster center</p>
+<ul>
+<li>Calculate the distance between each data point and all <code>k</code> cluster centers.</li>
+<li>Assign the data point to the cluster center with the smallest distance.</li>
+<li>Function: <code>AssignToNearestClass()</code></li>
+</ul>
+</li>
+<li>
+<p>Recompute cluster centers based on the points in each cluster</p>
+<ul>
+<li>Calculate the mean feature vector for each cluster based on its current members.</li>
+<li>Function: <code>RecomputeClassCenters()</code></li>
+</ul>
+</li>
+<li>
+<p>Check for convergence</p>
+<ul>
+<li>Convergence is checked by calculating the total within-cluster variance before and after reassignment.</li>
+<li>If the variance changes insignificantly, the algorithm has converged.</li>
+<li>Function: <code>TotalWithinClusterVariance()</code> provides the measure used for checking convergence.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Return the final cluster centers and assignments</p>
+<ul>
+<li>Function: <code>PerformKMeans()</code> returns <code>outputImage</code>, which contains the final cluster assignments.</li>
+</ul>
+</li>
+</ol>
+<h3 id="example_1">Example</h3>
+<ul>
+<li>2 clusters:</li>
+</ul>
+<p><img alt="kmeans_2" src="../results/07/kmeans_2.png" /></p>
+<ul>
+<li>3 clusters:</li>
+</ul>
+<p><img alt="kmeans_3" src="../results/07/kmeans_3.png" /></p>
+<ul>
+<li>4 clusters:</li>
+</ul>
+<p><img alt="kmeans_4" src="../results/07/kmeans_4.png" /></p>
+<ul>
+<li>5 clusters:</li>
+</ul>
+<p><img alt="kmeans_5" src="../results/07/kmeans_5.png" /></p>
+<ul>
+<li>6 clusters:</li>
+</ul>
+<p><img alt="kmeans_6" src="../results/07/kmeans_6.png" /></p>
+<ul>
+<li>7 clusters:</li>
+</ul>
+<p><img alt="kmeans_7" src="../results/07/kmeans_7.png" /></p>
+<ul>
+<li>8 clusters:</li>
+</ul>
+<p><img alt="kmeans_8" src="../results/07/kmeans_8.png" /></p>
+<h2 id="5">5.</h2>
               
             </div>
           </div><footer>
