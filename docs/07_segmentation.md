@@ -153,3 +153,19 @@ and the algorithm fails to find a good threshold (it found 103). The result is a
 
 ## 3. Bernsen's Algorithm
 
+Bersen's algorithm is a local thresholding algorithm that is more robust to uneven illumination. It works by finding the minimum and maximum pixel values in a local neighborhood and then using the average of these two values as the threshold. The size of the neighborhood is a parameter that can be tuned. Mathematically, the threshold is defined as:
+
+$$
+T(x, y) = 
+\begin{cases}
+\frac{N_{max}(x, y) + N_{min}(x, y)}{2} \text{ if } N_{max}(x, y) - N_{min}(x, y) < contrast \\
+0 \text{ otherwise}
+\end{cases}
+$$
+
+where \(N_{max}(x, y) = \max_{(x', y') \in N(x, y)}\) and \(N_{min}(x, y) = \min_{(x', y') \in N(x, y)}\), i.e., the maximum and minimum pixel values in the neighborhood \(N(x, y)\). The \(contrast\) parameter is a threshold that controls the contrast of the image. If the contrast is below this threshold, then the pixel is set to the average of the maximum and minimum pixel values in the neighborhood. Otherwise, the pixel is set to 0.
+
+Personally, I think Bernsen's algorithm improve the segmentation of the previous image, but notice that there are many holes in the result.
+
+![bernsen_output](./results/07/bernsen_output.png)
+
