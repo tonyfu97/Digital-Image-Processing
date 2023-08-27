@@ -117,3 +117,39 @@ After 400 iterations:
 
 ## 2. Otsu's Algorithm
 
+I recommended [this video](https://youtu.be/jUUkMaNuHP8?si=jKMFgdkYQw6A7otz) by Jian Wei Tay for a more intuitive understanding of Otsu's algorithm.
+
+Otsu's algorithm is used for finding a threshold value for binarization, separating the image into foreground and background. This threshold should maxmize the between-class variance, which is defined as:
+
+$$
+\sigma_B^2(t) = w_0(t) \cdot w_1(t) \cdot \left( \mu_0(t) - \mu_1(t) \right)^2
+$$
+
+where \(w_0(t)\) and \(w_1(t)\) are the probabilities of the two classes separated by the threshold \(t\), and \(\mu_0(t)\) and \(\mu_1(t)\) are the means of the two classes. The threshold \(t\) that maximizes \(\sigma_B^2(t)\) is the optimal threshold. Intuitively, this threshold should be the one that maximizes the difference between the two classes. However, note that they are weighted by the product \(w_0(t) \cdot w_1(t)\), which biases the algorithm towards thresholds that result in balanced classes.
+
+Starting with a grayscale image:
+
+![otsu_input](./results/07/otsu_input.png)
+
+We first compute the histogram of the image:
+
+![otsu_input_histogram](./results/07/otsu_input_histogram.png)
+
+The optimal threshold was found to be 81. We then binarize the image using this threshold:
+
+![otsu_output](./results/07/otsu_output.png)
+
+As you can see, Otsu's algorithm works well when the pixel values have a bimodal distribution. However, it does not work well when the distribution is not bimodal. For example, here is the result when applied to the following image:
+
+![otsu_input_failed](./results/07/otsu_input_failed.png)
+
+The histogram is tri-modal:
+
+![otsu_input_histogram_failed](./results/07/otsu_input_histogram_failed.png)
+
+and the algorithm fails to find a good threshold (it found 103). The result is a binarized image that is not very useful:
+
+![otsu_output_failed](./results/07/otsu_output_failed.png)
+
+## 3. Bernsen's Algorithm
+

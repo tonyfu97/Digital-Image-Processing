@@ -6,6 +6,12 @@ I used to rely on OpenCV for image processing tasks. It's powerful, but getting 
 
 Then I found CImg. What's cool about it is that it's all in one header file. That means you can just drop it into your project and get going. I'll be sharing what I learn as I go along, so check out my [study notes](https://tonyfu97.github.io/Digital-Image-Processing/) if you're interested.
 
+## References
+Here are some key resources that guided this project:
+- **Primary Reference**: [*Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library* by Tschumperlé, Tilmant, Barra](https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538)
+- [CImg Library](http://cimg.eu/)
+- [*Principles of Digital Image Processing* series by Burger &amp; Burge (2009, 2013)](https://imagingbook.com/books/englisch-edition-3-vol-softcover/)
+
 ## Core Concepts
 
 | Chapter | Topic | Key Ideas |
@@ -22,9 +28,3 @@ Then I found CImg. What's cool about it is that it's all in one header file. Tha
 | 10 | [3D Visualization](./10_3d/) | |
 | Appendix 1| [Math Expressions in CImg's Fill Method](./appendix_1/) | How to write math expression for `CImg<>::fill()` |
 | Appendix 2| [JPEG Compression](./appendix_2/) | |
-
-## References
-Here are some key resources that guided this project:
-- **Primary Reference**: [*Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library* by Tschumperlé, Tilmant, Barra](https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538)
-- [CImg Library](http://cimg.eu/)
-- [*Principles of Digital Image Processing* series by Burger &amp; Burge (2009, 2013)](https://imagingbook.com/books/englisch-edition-3-vol-softcover/)
