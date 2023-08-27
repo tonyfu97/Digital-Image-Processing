@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/Digital-Image-Processing/07_segmentation/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>7. Segmentation - Digital Image Processing Notes</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "7. Segmentation";
+        var mkdocs_page_input_path = "07_segmentation.md";
+        var mkdocs_page_url = "/Digital-Image-Processing/07_segmentation/";
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/django.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-274394082"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-274394082');
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Digital Image Processing Notes
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../01_getting_started/">1. Getting Started</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../02_block_decomposition/">2. Block Decomposition</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../03_point_processing/">3. Point Processing Transformations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../04_morphology/">4. Morphology</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../05_filtering/">5. Filtering</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../06_feature_extraction/">6. Feature Extraction</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">7. Segmentation</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#1-active-contours">1. Active Contours</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#11-initialize-level-set-psi">1.1 Initialize Level Set  \psi</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#12-define-forces">1.2 Define Forces</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#stopping-function-geodesic-model">Stopping Function (Geodesic Model)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#gradients-of-level-set">Gradients of Level Set</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#propagation-force">Propagation Force</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#advective-force">Advective Force</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#13-evolve-level-set">1.3 Evolve Level Set</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#14-normalize-level-set">1.4 Normalize Level Set</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#2-otsus-algorithm">2. Otsu's Algorithm</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#3-bernsens-algorithm">3. Bernsen's Algorithm</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../appendix_1/">Appendix 1 - Math Expressions in CImg's Fill Method</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../where_did_i_get_my_images/">Where Did I Get My Images?</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Digital Image Processing Notes</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
+      <li>7. Segmentation</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tonyfu97/Digital-Image-Processing/blob/master/docs/07_segmentation.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="segmentation-learning-reflection">Segmentation - Learning Reflection</h1>
+<p><strong>Author</strong>: Tony Fu<br />
+<strong>Date</strong>: August 25, 2023<br />
+<strong>Device</strong>: MacBook Pro 16-inch, Late 2021 (M1 Pro)<br />
+<strong>Code</strong>: <a href="https://github.com/tonyfu97/Digital-Image-Processing/07_segmentation">GitHub</a><br />
+<strong>Reference</strong>: Chapter 7 <a href="https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538"><em>Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library</em> by Tschumperlé, Tilmant, Barra</a></p>
+<h2 id="1-active-contours">1. Active Contours</h2>
+<p>This chapter is quite math-heavy, so for a more intuitive understanding of the concepts, I recommend checking out Professor Shree Nayar's <a href="https://youtu.be/FROJUMk9P3Y?si=Bd_46R-5ZORLOjAO">lecture</a> on active contours.</p>
+<p>Active contours provide a method for analyzing images and delineating shapes within them. Think of it as placing an elastic band around an object and then letting the band adjust itself to fit the object. In more technical terms, these contours work by minimizing a total energy (i.e., potential energy derived from the image itself and kinetic energy that allows the contour to move and adjust). Initially, you place a starting "loop" or initial contour around the area of interest. The system then works to minimize this total energy.</p>
+<h3 id="11-initialize-level-set-psi">1.1 Initialize Level Set <script type="math/tex"> \psi </script>
+</h3>
+<p>Unlike explicit representations like polygonal approximations or parametric curves, the implicit representation—referred to as <strong>level set</strong> (<script type="math/tex">\psi</script>) representation by the book—offers more flexibility. In this context, a level set is a collection of pixels that are all at the same signed distance from the contour. In particular, the contour is the zero level set, and the pixels inside the contour have negative values, while those outside have positive values. The contour is then the zero crossing of the level set. At the start of the algorithm, we need to initialize the level set. In this case, we can draw a circle centered at <script type="math/tex">x_0, y_0</script> with radius <script type="math/tex">r</script>. This can be bigger than the object if we are contracting the contour or smaller if we are expanding it. The level set is then initialized as:</p>
+<p>
+<script type="math/tex; mode=display">
+\psi_0(x, y) = \sqrt{(x - x_0)^2 + (y - y_0)^2} - r
+</script>
+</p>
+<h3 id="12-define-forces">1.2 Define Forces</h3>
+<p>The level set <script type="math/tex"> \psi </script> is then evolved under the influence of two forces: the propagation force <script type="math/tex">F_{prop}</script> and the advective force <script type="math/tex">F_{adv}</script>.</p>
+<h4 id="stopping-function-geodesic-model">Stopping Function (Geodesic Model)</h4>
+<p>A stopping function <script type="math/tex">f(x,y)</script> is defined to control how fast the contour expands or contracts based on the image gradient.</p>
+<p>
+<script type="math/tex; mode=display">
+f(x, y) = exp\_cont \cdot \left( \frac{1}{1 + \| \nabla I(x, y) \|} + balloon \right)
+</script>
+</p>
+<p>where </p>
+<p>
+<script type="math/tex; mode=display">
+exp\_cont = \begin{cases}
+1 & \text{if expanding contour} \\
+-1 & \text{if contracting contour}
+\end{cases}
+</script>
+</p>
+<p>and <script type="math/tex">balloon</script> is a parameter that controls the amount of expansion or contraction.</p>
+<h4 id="gradients-of-level-set">Gradients of Level Set</h4>
+<p>Here we define two functions <script type="math/tex">\nabla ^+</script> and <script type="math/tex">\nabla ^-</script> that takes the level set <script type="math/tex">\psi</script> as input and returns the gradient of <script type="math/tex">\psi</script> in the positive and negative directions, respectively. They are defined as:
+<script type="math/tex; mode=display">
+\nabla ^+ (\psi) = \sqrt{\max(D^{-x}(\psi), 0)^2 + \min(D^{+x}(\psi), 0)^2 + \max(D^{-y}(\psi), 0)^2 + \min(D^{+y}(\psi), 0)^2}\\
+\nabla ^- (\psi) = \sqrt{\max(D^{+x}(\psi), 0)^2 + \min(D^{-x}(\psi), 0)^2 + \max(D^{+y}(\psi), 0)^2 + \min(D^{-y}(\psi), 0)^2}
+</script>
+</p>
+<p>where <script type="math/tex">D^{-x}(\psi)</script> is the backward difference of <script type="math/tex">\psi</script> in the x direction, and <script type="math/tex">D^{+x}(\psi)</script> is the forward difference of <script type="math/tex">\psi</script> in the x direction. The same applies to the y direction.</p>
+<h4 id="propagation-force">Propagation Force</h4>
+<p>The propagation force is then defined as:</p>
+<p>
+<script type="math/tex; mode=display">
+F_{prop}(x, y) = - \nabla ^+ (\psi (x, y)) \cdot \max(f(x, y), 0) - \nabla ^- (\psi (x, y)) \cdot \min(f(x, y), 0)
+</script>
+</p>
+<h4 id="advective-force">Advective Force</h4>
+<p>The advective force is defined as:</p>
+<p>
+<script type="math/tex; mode=display">
+F_{adv}(x, y) = \\
+ - \max(\nabla_x (f(x, y)), 0) \cdot \nabla^{-x} (\psi (x, y))\\
+ - \min(\nabla_x (f(x, y)), 0) \cdot \nabla ^{+x} (\psi (x, y)) \\
+ - \max(\nabla_y (f(x, y)), 0) \cdot \nabla^{-y} (\psi (x, y)) \\
+ - \min(\nabla_y (f(x, y)), 0) \cdot \nabla ^{+y} (\psi (x, y))
+</script>
+</p>
+<h3 id="13-evolve-level-set">1.3 Evolve Level Set</h3>
+<p>The level set is then evolved by the following equation:</p>
+<p>
+<script type="math/tex; mode=display">
+\psi_{t+1}(x, y) = \psi_t(x, y) + \Delta t \cdot \left( \alpha F_{prop}(x, y) + \beta F_{adv}(x, y) \right)
+</script>
+</p>
+<p>where <script type="math/tex">\alpha</script> and <script type="math/tex">\beta</script> are parameters that control the relative influence of the two forces.</p>
+<h3 id="14-normalize-level-set">1.4 Normalize Level Set</h3>
+<p>After evolving the level set, we need to normalize it so that the zero level set remains the contour. This is done using the Eikonal equation:</p>
+<pre><code class="language-cpp">if (!(iter % 20))
+    LevelSet.distance_eikonal(10, 3);
+</code></pre>
+<p>As the contour evolves, numerical irregularities may cause the function to deviate from being a proper signed distance function. Solving the Eikonal equation periodically helps to re-initialize or "normalize" the level set function.</p>
+<h3 id="example">Example</h3>
+<p>Here I start with the binarized image of coins:</p>
+<p><img alt="active_contours_input" src="../results/07/active_contours_input.png" /></p>
+<p>And iteratively apply active contours. I am using expansion here, so the contour is initialized as a smaller circle inside the coin and expands to fit the coin.</p>
+<p><img alt="active_contours_0" src="../results/07/active_contours_0.png" /></p>
+<p>This is the contour after 40 iterations:</p>
+<p><img alt="active_contours_40" src="../results/07/active_contours_40.png" /></p>
+<p>After 200 iterations:</p>
+<p><img alt="active_contours_200" src="../results/07/active_contours_200.png" /></p>
+<p>After 400 iterations:</p>
+<p><img alt="active_contours_400" src="../results/07/active_contours_400.png" /></p>
+<h2 id="2-otsus-algorithm">2. Otsu's Algorithm</h2>
+<p>I recommended <a href="https://youtu.be/jUUkMaNuHP8?si=jKMFgdkYQw6A7otz">this video</a> by Jian Wei Tay for a more intuitive understanding of Otsu's algorithm.</p>
+<p>Otsu's algorithm is used for finding a threshold value for binarization, separating the image into foreground and background. This threshold should maxmize the between-class variance, which is defined as:</p>
+<p>
+<script type="math/tex; mode=display">
+\sigma_B^2(t) = w_0(t) \cdot w_1(t) \cdot \left( \mu_0(t) - \mu_1(t) \right)^2
+</script>
+</p>
+<p>where <script type="math/tex">w_0(t)</script> and <script type="math/tex">w_1(t)</script> are the probabilities of the two classes separated by the threshold <script type="math/tex">t</script>, and <script type="math/tex">\mu_0(t)</script> and <script type="math/tex">\mu_1(t)</script> are the means of the two classes. The threshold <script type="math/tex">t</script> that maximizes <script type="math/tex">\sigma_B^2(t)</script> is the optimal threshold. Intuitively, this threshold should be the one that maximizes the difference between the two classes. However, note that they are weighted by the product <script type="math/tex">w_0(t) \cdot w_1(t)</script>, which biases the algorithm towards thresholds that result in balanced classes.</p>
+<p>Starting with a grayscale image:</p>
+<p><img alt="otsu_input" src="../results/07/otsu_input.png" /></p>
+<p>We first compute the histogram of the image:</p>
+<p><img alt="otsu_input_histogram" src="../results/07/otsu_input_histogram.png" /></p>
+<p>The optimal threshold was found to be 81. We then binarize the image using this threshold:</p>
+<p><img alt="otsu_output" src="../results/07/otsu_output.png" /></p>
+<p>As you can see, Otsu's algorithm works well when the pixel values have a bimodal distribution. However, it does not work well when the distribution is not bimodal. For example, here is the result when applied to the following image:</p>
+<p><img alt="otsu_input_failed" src="../results/07/otsu_input_failed.png" /></p>
+<p>The histogram is tri-modal:</p>
+<p><img alt="otsu_input_histogram_failed" src="../results/07/otsu_input_histogram_failed.png" /></p>
+<p>and the algorithm fails to find a good threshold (it found 103). The result is a binarized image that is not very useful:</p>
+<p><img alt="otsu_output_failed" src="../results/07/otsu_output_failed.png" /></p>
+<h2 id="3-bernsens-algorithm">3. Bernsen's Algorithm</h2>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../06_feature_extraction/" class="btn btn-neutral float-left" title="6. Feature Extraction"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../appendix_1/" class="btn btn-neutral float-right" title="Appendix 1 - Math Expressions in CImg's Fill Method">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2023 Tony Fu</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tonyfu97/Digital-Image-Processing" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../06_feature_extraction/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../appendix_1/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
