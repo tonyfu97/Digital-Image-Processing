@@ -1,5 +1,5 @@
 /*
-    Bernsen's algorithm (histogram-based segmentation)
+    Bernsen's algorithm
 */
 
 #define cimg_use_png
@@ -53,11 +53,11 @@ int main(int argc, char *argv[])
     CImg<> img("../images/mountain.png");
     img.norm().blur(0.75f);
     img.normalize(0, 255).save_png("./results/bernsen_input.png");
-    // img.get_histogram(256).display_graph("Histogram of the input image", 3);
 
-    CImg<> img_segmented = Bernsen(img, 30.0f);
+    CImg<> img_segmented = Bernsen(img, 40.0f);
     img_segmented.normalize(0, 255).save_png("./results/bernsen_output.png");
-    // img_segmented.get_histogram(256).display_graph("Histogram of the output image", 3);
+
+    img_segmented.threshold(1).normalize(0, 255).save_png("./results/bernsen_threshold.png");
 
     return 0;
 }

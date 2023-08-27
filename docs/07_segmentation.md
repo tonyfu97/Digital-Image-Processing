@@ -169,3 +169,85 @@ Personally, I think Bernsen's algorithm improve the segmentation of the previous
 
 ![bernsen_output](./results/07/bernsen_output.png)
 
+We can further threshold the image:
+
+![bernsen_threshold](./results/07/bernsen_threshold.png)
+
+
+## 4. K-means Clustering
+
+For a deeper understanding of K-means clustering, I highly recommend Professor Shree Nayar's [lecture](https://youtu.be/22mpExWh1LY?si=fVxUoC7XL8Lj1iqh).
+
+K-means clustering is an algorithm used for partitioning a dataset into \(k\) distinct clusters. The algorithm iteratively assigns each data point to the nearest cluster center and recalculates the centers until the assignments stabilize. Although convergence is guaranteed, the algorithm may converge to a local minimum. Initial cluster centers are commonly chosen randomly, though various methods exist for this step.
+
+### K-means Pseudocode:
+
+1. Initialize data points and number of clusters (k)
+    - The `ComputeFeatures()` function converts the original image of dimensions (x, y) into feature vectors with dimensions (x, y, 2). For each pixel at (x, y), it computes:
+        - (x, y, 0): The mean of a 5x5 neighborhood around the pixel.
+        - (x, y, 1): The variance of the same 5x5 neighborhood.
+
+2. Randomly initialize k cluster centers
+    - Choose `k` random data points as initial centers.
+    - The distance between a data point and a cluster center is calculated using the squared Euclidean distance as follows:
+        \[
+        d^2 = \sum_{dim=0}^{1} (data(x, y, dim) - g_i(dim))^2
+        \]
+        where `dim = 0` is the mean and `dim = 1` is the variance of the 5x5 neighborhood around the pixel.
+    - Function: `PerformKMeans()` initializes this inside the loop with `cimg_forX`, and `d2()` computes this squared Euclidean distance.
+
+3. Loop until convergence (or max iterations):
+    - Function: `PerformKMeans()` handles the loop, and the convergence criterion is checked at the end of the loop.
+
+    * Assign each data point to the nearest cluster center
+
+        * Calculate the distance between each data point and all `k` cluster centers.
+        * Assign the data point to the cluster center with the smallest distance.
+        * Function: `AssignToNearestClass()`
+
+    * Recompute cluster centers based on the points in each cluster
+
+        * Calculate the mean feature vector for each cluster based on its current members.
+        * Function: `RecomputeClassCenters()`
+
+    * Check for convergence
+
+        * Convergence is checked by calculating the total within-cluster variance before and after reassignment.
+        * If the variance changes insignificantly, the algorithm has converged.
+        * Function: `TotalWithinClusterVariance()` provides the measure used for checking convergence.
+
+4. Return the final cluster centers and assignments
+    - Function: `PerformKMeans()` returns `outputImage`, which contains the final cluster assignments.
+
+### Example
+
+* 2 clusters:
+
+![kmeans_2](./results/07/kmeans_2.png)
+
+* 3 clusters:
+
+![kmeans_3](./results/07/kmeans_3.png)
+
+* 4 clusters:
+
+![kmeans_4](./results/07/kmeans_4.png)
+
+* 5 clusters:
+
+![kmeans_5](./results/07/kmeans_5.png)
+
+* 6 clusters:
+
+![kmeans_6](./results/07/kmeans_6.png)
+
+* 7 clusters:
+
+![kmeans_7](./results/07/kmeans_7.png)
+
+* 8 clusters:
+
+![kmeans_8](./results/07/kmeans_8.png)
+
+
+## 5. 

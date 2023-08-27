@@ -22,9 +22,9 @@ Here are some key resources that guided this project:
 | 4 ![coins_sa_filtering11](./docs/results/04/coins_sa_filtering11.png)| [Mathematical Morphology](./04_mathematical_morphology/) | Dilation, erosion, opening, closing, Kramer-Bruckner, Alternating Sequential Filters (ASF), morphological gradients, Beucher gradient, skeletonization |
 | 5 ![lighthouse_gradient_norm](./docs/results/05/lighthouse_gradient_norm.png)| [Filtering](./05_filtering/) | Convolution, median filter, first-order derivative, second-order derivative, adaptive filters, adaptive window filters, frequency-domain filtering, diffusion filtering | 
 | 6 ![road_hough_thresholded_0.90](./docs/results/06/road_hough_thresholded_0.9.png)| [Feature Extraction](./06_feature_extraction/) | Harris-Stephens corner detection, Shi-Tomasi algorithm, Hough transform, texture spectrum, Tamura texture coefficients, Local Binary Patterns (LBP) |
-| 7 ![active_contours_400](./docs/results/07/active_contours_400.png)| [Segmentation](./07_segmentation/) | Active contours, Ostu's algorithm, Bernsen's algorithm, K-means clustering, Simple Linear Iterative Clustering (SLIC) |
+| 7 ![kmeans_6](./docs/results/07/kmeans_6.png)| [Segmentation](./07_segmentation/) | Active contours, Ostu's algorithm, Bernsen's algorithm, K-means clustering, Simple Linear Iterative Clustering (SLIC) |
 | 8 | [Motion Estimation](./08_motion/) | |
-| 9 | [Multisppectral Imaging](./09_multispectral/) | |
+| 9 | [Multispectral Imaging](./09_multispectral/) | |
 | 10 | [3D Visualization](./10_3d/) | |
 | Appendix 1| [Math Expressions in CImg's Fill Method](./appendix_1/) | How to write math expression for `CImg<>::fill()` |
 | Appendix 2| [JPEG Compression](./appendix_2/) | |
