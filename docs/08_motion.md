@@ -18,6 +18,8 @@ The Horn-Schunck method frames optical flow as an energy minimization problem by
     E_{\text{data}} = \int \int (I_x u + I_y v + I_t)^2 \, dx \, dy
     \]
 
+    The book also shows a variant of the data term (called the "direct method") that minize the squared difference between the shifted image and the original image.
+
 2. **Smoothness Term**: To encourage smoothness in the flow field, Horn and Schunck include a regularization term. This term imposes a penalty on abrupt changes in \(u\) and \(v\).
 
     \[
@@ -76,3 +78,27 @@ I use two frames from the following GIF as input to the Horn-Schunck optical flo
 The result optical flow is shown below:
 
 ![horn_schunck](./results/08/horn_schunck.png)
+
+
+## 2. Multi-Scale Optical Flow
+
+### Leveraging Multi-Scale Approaches for Robust Optical Flow
+
+Optical flow estimation involves capturing pixel-level movement between consecutive images. However, real-world scenarios often include varied and complex motions which may not be accurately captured at just a single scale. This is where our multi-scale approach comes in.
+
+An example implementation of the algorithm scales down the image iteratively by factors of 2, beginning with the coarsest scale and moving towards the finest. At each scale, the Horn-Schunck algorithm is applied to estimate optical flow. The algorithm first captures larger motion patterns at these coarser scales and then refines these estimates as it proceeds to finer scales.
+
+### Example
+
+![horn_schunck_multiscale](./results/08/horn_schunck_multiscale.png)
+
+Notice that most arrows, which represent the optical flow, are concentrated on the moving car. However, you might also see that the arrow directions are not entirely accurate.
+
+
+## 3. Lucas-Kanade Optical Flow
+
+
+
+
+
+

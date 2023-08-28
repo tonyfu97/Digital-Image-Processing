@@ -1,5 +1,5 @@
 /*
-    Horn-Schunck optical flow method
+    Horn-Schunck optical flow method (with multiscale resolution)
 */
 
 #define cimg_use_png
@@ -8,6 +8,7 @@
 #include <cmath>
 #include <string>
 #include <iostream>
+#include <algorithm>
 
 using namespace cimg_library;
 
@@ -43,23 +44,57 @@ void HornSchunck(CImg<> &displacementField,
     }
 }
 
+// For multi-scale resolution
+void ComputeMultiScale(CImg<> &seq, CImg<> &V, int nb_scales, int nb_iters, float alpha)
+{
+    for (int N = nb_scales - 1; N >= 0; --N)
+    {
+        float scaleFactor = std::pow(2, static_cast<double>(N));
+        int
+            scaledWidth = std::max(1, static_cast<int>(seq.width() / scaleFactor)),
+            scaledHeight = std::max(1, static_cast<int>(seq.height() / scaleFactor));
+        
+        CImg<> scaledSeq = seq.get_resize(scaledWidth, scaledHeight).blur(N, N, 0, true, false);
+
+        if (V)
+            (V *= 2).resize(scaledWidth, scaledHeight, 1, 2);
+        else
+            V.assign(scaledWidth, scaledHeight, 1, 2, 0);
+
+        HornSchunck(V, scaledSeq, nb_iters << N, alpha);
+    }
+}
+
 int main()
 {
     CImg<>
-        img1("../images/driveby_1.png"),
-        img2("../images/driveby_2.png");
+        img1("../docs/images/driveby_1.png"),
+        img2("../docs/images/driveby_2.png");
 
-    img1.norm().blur(1.0f);
-    img2.norm().blur(1.0f).resize(img1);
+    img1.normalize(0, 255).blur(1.0f);
+    img2.normalize(0, 255).blur(1.0f).resize(img1);
+
+    // Remove alpha channel
+    if (img1.spectrum() == 4)
+        img1.channels(0, 2);
+    if (img2.spectrum() == 4)
+        img2.channels(0, 2);
 
     // Sequence of two images, stacked along z
-    CImg<> seq(img1.width(), img1.height(), 2, 1, 0.);
+    CImg<> seq(img1.width(), img1.height(), 2, 1);
     seq.draw_image(0, 0, 0, 0, img1);
     seq.draw_image(0, 0, 1, 0, img2);
 
     CImg<> V(img1.width(), img1.height(), 1, 2, 0.);
-    HornSchunck(V, seq, 100, 0.1f);
-    V.norm().normalize(0, 255).save_png("./results/horn_schunck.png");
+    int nb_scales = 1;
+    int nb_iters = 100;
+    float alpha = 0.1f; // Regularization weight
+
+    ComputeMultiScale(seq, V, nb_scales, nb_iters, alpha);
+
+    unsigned char color[] = {255, 0, 0};
+    img1.draw_quiver(V, color, 0.5f, 20, 1, true);
+    img1.save_png("./results/horn_schunck_multiscale.png");
 
     return 0;
 }
