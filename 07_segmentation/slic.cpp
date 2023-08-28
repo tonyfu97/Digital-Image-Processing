@@ -170,7 +170,7 @@ CImg<> draw_boundaries(const CImg<> &img, const CImg<> &labels, const CImg<> &ce
 }
 
 // Simple Linear Iterative Clustering (SLIC) superpixels
-CImg<> SLIC(CImg<> &img, float S, float m, int max_iter)
+CImg<> SLIC(CImg<> &img, float S, float m)
 {
     // remove alpha channel if any
     if (img.spectrum() == 4)
@@ -209,6 +209,6 @@ int main()
     const int S = 40; // Superpixel size
     const int m = 10; // Compactness factor
 
-    CImg<> visu = SLIC(img, S, m, 10);
+    CImg<> visu = SLIC(img, S, m);
     visu.save("./results/slic.png");
 }

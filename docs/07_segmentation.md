@@ -283,7 +283,7 @@ Despite its name, the algorithm is quite complex. For a detailed example, check 
         - For each centroid, we iterate through pixels within a \(2S \times 2S\) neighborhood and calculate the distance \(D\) in CIELab space.
         
         \[
-        D = \text{... (your equation here)}
+        D = (L_i - L_k)^2 + (a_i - a_k)^2 + (b_i - b_k)^2 + \left( \frac{x_i - x_k}{S} \right)^2 m^2 + \left( \frac{y_i - y_k}{S} \right)^2 m^2
         \]
         
         - If \(D\) is smaller than the existing distance, the pixel's label is updated to the centroid's index.
@@ -298,7 +298,7 @@ Despite its name, the algorithm is quite complex. For a detailed example, check 
         - Convergence is declared if centroids don't change significantly, using a threshold of 0.25. The change is quantified as:
         
         \[
-        \text{residualError} = \sum_{k=0}^{K-1} | \text{centroids}_k - \text{centroids}_{k-1} |
+        \text{residualError} = \sum_{k=0}^{K-1} | \text{centroids}_k - \text{centroids}_{k}^{old} |
         \]
 
 
