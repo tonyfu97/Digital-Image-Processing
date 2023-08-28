@@ -14,6 +14,8 @@ I used to rely on OpenCV for image processing tasks. It's powerful, but getting 
 
 Then I found CImg. What's cool about it is that it's all in one header file. That means you can just drop it into your project and get going. This [repository](https://github.com/tonyfu97/Digital-Image-Processing) will document my journey and the insights I gain along the way.
 
+![cimg_flyer](./images/cimg_flyer.png)
+
 ## References
 
 * **Primary reference**: [*Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library* by Tschumperlé, Tilmant, Barra](https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538)

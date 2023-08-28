@@ -3,7 +3,7 @@
 **Author**: Tony Fu  
 **Date**: August 25, 2023  
 **Device**: MacBook Pro 16-inch, Late 2021 (M1 Pro)  
-**Code**: [GitHub](https://github.com/tonyfu97/Digital-Image-Processing/07_segmentation)  
+**Code**: [GitHub](https://github.com/tonyfu97/Digital-Image-Processing/tree/main/07_segmentation)  
 **Reference**: Chapter 7 [*Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library* by Tschumperlé, Tilmant, Barra](https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538)
 
 ## 1. Active Contours
@@ -180,7 +180,7 @@ For a deeper understanding of K-means clustering, I highly recommend Professor S
 
 K-means clustering is an algorithm used for partitioning a dataset into \(k\) distinct clusters. The algorithm iteratively assigns each data point to the nearest cluster center and recalculates the centers until the assignments stabilize. Although convergence is guaranteed, the algorithm may converge to a local minimum. Initial cluster centers are commonly chosen randomly, though various methods exist for this step.
 
-### K-means Pseudocode:
+### K-means Pseudocode
 
 1. Initialize data points and number of clusters (k)
     - The `ComputeFeatures()` function converts the original image of dimensions (x, y) into feature vectors with dimensions (x, y, 2). For each pixel at (x, y), it computes:
@@ -212,8 +212,11 @@ K-means clustering is an algorithm used for partitioning a dataset into \(k\) di
 
     * Check for convergence
 
-        * Convergence is checked by calculating the total within-cluster variance before and after reassignment.
-        * If the variance changes insignificantly, the algorithm has converged.
+        * Convergence is checked by calculating the total within-cluster variance before and after reassignment. This total within-cluster variance is the objective function and is defined as:
+            $$
+            \sum_{i=0}^{k-1} \sum_{(x, y) \in C_i} d^2
+            $$
+        * If the variance changes insignificantly (the book uses 1e-3 as the threshold), the algorithm has converged.
         * Function: `TotalWithinClusterVariance()` provides the measure used for checking convergence.
 
 4. Return the final cluster centers and assignments
@@ -223,31 +226,89 @@ K-means clustering is an algorithm used for partitioning a dataset into \(k\) di
 
 * 2 clusters:
 
-![kmeans_2](./results/07/kmeans_2.png)
+    ![kmeans_2](./results/07/kmeans_2.png)
 
 * 3 clusters:
 
-![kmeans_3](./results/07/kmeans_3.png)
+    ![kmeans_3](./results/07/kmeans_3.png)
 
 * 4 clusters:
 
-![kmeans_4](./results/07/kmeans_4.png)
+    ![kmeans_4](./results/07/kmeans_4.png)
 
 * 5 clusters:
 
-![kmeans_5](./results/07/kmeans_5.png)
+    ![kmeans_5](./results/07/kmeans_5.png)
 
 * 6 clusters:
 
-![kmeans_6](./results/07/kmeans_6.png)
+    ![kmeans_6](./results/07/kmeans_6.png)
 
 * 7 clusters:
 
-![kmeans_7](./results/07/kmeans_7.png)
+    ![kmeans_7](./results/07/kmeans_7.png)
 
 * 8 clusters:
 
-![kmeans_8](./results/07/kmeans_8.png)
+    ![kmeans_8](./results/07/kmeans_8.png)
 
 
-## 5. 
+## 5. Simple Linear Iterative Clustering (SLIC)
+
+While k-means is effective for clustering based on pixel feature similarity, it doesn't consider spatial proximity. As demonstrated above, k-means often results in clusters that are scattered across the image.
+
+Simple Linear Iterative Clustering (SLIC) solves this by creating more coherent and compact clusters, known as "super-pixels." These super-pixels adapt to the image's local geometry, offering a more natural segmentation. This dual focus on feature similarity and spatial proximity gives SLIC an advantage over traditional k-means in image segmentation tasks.
+
+### SLIC Pseudocode
+
+Despite its name, the algorithm is quite complex. For a detailed example, check out [this video](https://youtu.be/-hmUbB-Y8R0?si=YOaxu7aOx6gW94fH) by Thales Sehn Körting. Here's a summary:
+
+1. **Convert image to CIELab color space**
+    - CIELab is a perceptually uniform color space, which helps in clustering pixels by perceived color similarity.
+    - Function: `CImg<T>::get_RGBtoLab()`. Remove the alpha channel if it exists.
+
+2. **Initialize Centroids**
+    - This occurs within `initialize_centroids()`. The centroids are evenly spaced on a grid, each separated by \(S\) pixels (I use \(S=40\)).
+    - Centroids are initialized at the pixel with the lowest gradient within a \(S \times S\) neighborhood.
+    - The output is a `centroids` variable with dimensions `((img.width() / S) * (img.height() / S), 5)`. The last dimension contains:
+        * (0): x-coordinate in the original image
+        * (1): y-coordinate in the original image
+        * (2): L value
+        * (3): a value
+        * (4): b value
+
+3. **Iterate Until Convergence (or Max Iterations)**
+    - **Assign pixels to nearest centroids**
+        - Handled in `get_labels()`. Here, each centroid (indexed by `k`) is assessed.
+        - For each centroid, we iterate through pixels within a \(2S \times 2S\) neighborhood and calculate the distance \(D\) in CIELab space.
+        
+        \[
+        D = \text{... (your equation here)}
+        \]
+        
+        - If \(D\) is smaller than the existing distance, the pixel's label is updated to the centroid's index.
+        
+    - **Label Remaining Pixels**
+        - Unlabeled pixels are identified and assigned to the nearest centroid.
+
+    - **Recompute centroids**
+        - In `recompute_centroid()`, centroids are recalculated based on the mean of the pixels assigned to them.
+        
+    - **Check for Convergence**
+        - Convergence is declared if centroids don't change significantly, using a threshold of 0.25. The change is quantified as:
+        
+        \[
+        \text{residualError} = \sum_{k=0}^{K-1} | \text{centroids}_k - \text{centroids}_{k-1} |
+        \]
+
+
+### Example
+
+We can apply SLIC to the following image (after Gaussian smoothing):
+
+![car](../images/car.png)
+
+And here is the result (with \(S = 40\) and \(m = 10\)):
+
+![slic](./results/07/slic.png)
+

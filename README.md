@@ -6,6 +6,8 @@ I used to rely on OpenCV for image processing tasks. It's powerful, but getting 
 
 Then I found CImg. What's cool about it is that it's all in one header file. That means you can just drop it into your project and get going. I'll be sharing what I learn as I go along, so check out my [study notes](https://tonyfu97.github.io/Digital-Image-Processing/) if you're interested.
 
+![cimg_flyer](./docs/images/cimg_flyer.png)
+
 ## References
 Here are some key resources that guided this project:
 - **Primary Reference**: [*Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library* by Tschumperlé, Tilmant, Barra](https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538)
@@ -22,7 +24,7 @@ Here are some key resources that guided this project:
 | 4 ![coins_sa_filtering11](./docs/results/04/coins_sa_filtering11.png)| [Mathematical Morphology](./04_mathematical_morphology/) | Dilation, erosion, opening, closing, Kramer-Bruckner, Alternating Sequential Filters (ASF), morphological gradients, Beucher gradient, skeletonization |
 | 5 ![lighthouse_gradient_norm](./docs/results/05/lighthouse_gradient_norm.png)| [Filtering](./05_filtering/) | Convolution, median filter, first-order derivative, second-order derivative, adaptive filters, adaptive window filters, frequency-domain filtering, diffusion filtering | 
 | 6 ![road_hough_thresholded_0.90](./docs/results/06/road_hough_thresholded_0.9.png)| [Feature Extraction](./06_feature_extraction/) | Harris-Stephens corner detection, Shi-Tomasi algorithm, Hough transform, texture spectrum, Tamura texture coefficients, Local Binary Patterns (LBP) |
-| 7 ![kmeans_6](./docs/results/07/kmeans_6.png)| [Segmentation](./07_segmentation/) | Active contours, Ostu's algorithm, Bernsen's algorithm, K-means clustering, Simple Linear Iterative Clustering (SLIC) |
+| 7 ![slic](./docs/results/07/slic.png)| [Segmentation](./07_segmentation/) | Active contours, Ostu's algorithm, Bernsen's algorithm, K-means clustering, Simple Linear Iterative Clustering (SLIC) |
 | 8 | [Motion Estimation](./08_motion/) | |
 | 9 | [Multispectral Imaging](./09_multispectral/) | |
 | 10 | [3D Visualization](./10_3d/) | |

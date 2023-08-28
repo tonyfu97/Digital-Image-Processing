@@ -7,7 +7,6 @@
 
 #include <string>
 #include <iostream>
-#include <algorithm>
 
 using namespace cimg_library;
 
@@ -33,9 +32,9 @@ CImg<> ComputeFeatures(CImg<> &imgIn)
 
 /*
     Squared Euclidean distance between two vectors.
-    g_i        : Class center (dim, 1)
-    data       : Feature vectors (x, y, dim)
-    x, y       : Pixel coordinates
+    classCenters : Class centers (ncl, dim)
+    featureData  : Feature vectors (x, y, dim)
+    x, y         : Pixel coordinates
 */
 float d2(CImg<> &g_i, CImg<> &data, int x, int y)
 {
@@ -47,9 +46,9 @@ float d2(CImg<> &g_i, CImg<> &data, int x, int y)
 
 /*
     Assigment of points to classes
-    data       : Feature vectors (x, y, dim)
-    g          : Class centers (ncl, dim)
-    label      : Classes of the points (x, y)
+    featureData  : Feature vectors (x, y, dim)
+    classCenters : Class centers (ncl, dim)
+    label        : Classes of the points (x, y)
 */
 void AssignToNearestClass(CImg<> &featureData, CImgList<> &classCenters, CImg<unsigned int> &labels)
 {
@@ -78,9 +77,9 @@ void AssignToNearestClass(CImg<> &featureData, CImgList<> &classCenters, CImg<un
 
 /*
     Computing class centers.
-    data       : Feature vectors (x, y, dim)
-    label      : Classes of the points (x, y)
-    g          : Class centers (ncl, dim)
+    featureData  : Feature vectors (x, y, dim)
+    label        : Classes of the points (x, y)
+    classCenters : Class centers (ncl, dim)
 */
 void RecomputeClassCenters(CImg<> &featureData, CImg<unsigned int> &labels, CImgList<> &classCenters)
 {
@@ -109,9 +108,9 @@ void RecomputeClassCenters(CImg<> &featureData, CImg<unsigned int> &labels, CImg
 
 /*
     K-means stopping criterion.
-    data      : Feature vectors (x, y, dim)
-    g         : Class centers (ncl, dim)
-    label : Classes of the points (x, y)
+    featureData  : Feature vectors (x, y, dim)
+    classCenters : Class centers (ncl, dim)
+    label        : Classes of the points (x, y)
 */
 float TotalWithinClusterVariance(CImg<> &featureData, CImgList<> &classCenters, CImg<unsigned int> &labels)
 {
@@ -123,8 +122,8 @@ float TotalWithinClusterVariance(CImg<> &featureData, CImgList<> &classCenters, 
 
 /*
     K-means algorithm.
-    imgIn  : Input image
-    ncl    : Number of classes
+    imgIn      : Input image
+    numClasses : Number of classes (ncl)
 */
 CImg<unsigned int> PerformKMeans(CImg<> &inputImage, int numClasses)
 {
