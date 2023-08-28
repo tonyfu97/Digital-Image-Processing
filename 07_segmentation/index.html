@@ -111,13 +111,19 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#4-k-means-clustering">4. K-means Clustering</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#k-means-pseudocode">K-means Pseudocode:</a>
+    <li class="toctree-l3"><a class="reference internal" href="#k-means-pseudocode">K-means Pseudocode</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#example_1">Example</a>
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#5">5.</a>
+    <li class="toctree-l2"><a class="reference internal" href="#5-simple-linear-iterative-clustering-slic">5. Simple Linear Iterative Clustering (SLIC)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#slic-pseudocode">SLIC Pseudocode</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_2">Example</a>
+    </li>
+        </ul>
     </li>
     </ul>
                 </li>
@@ -158,7 +164,7 @@
 <p><strong>Author</strong>: Tony Fu<br />
 <strong>Date</strong>: August 25, 2023<br />
 <strong>Device</strong>: MacBook Pro 16-inch, Late 2021 (M1 Pro)<br />
-<strong>Code</strong>: <a href="https://github.com/tonyfu97/Digital-Image-Processing/07_segmentation">GitHub</a><br />
+<strong>Code</strong>: <a href="https://github.com/tonyfu97/Digital-Image-Processing/tree/main/07_segmentation">GitHub</a><br />
 <strong>Reference</strong>: Chapter 7 <a href="https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538"><em>Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library</em> by Tschumperlé, Tilmant, Barra</a></p>
 <h2 id="1-active-contours">1. Active Contours</h2>
 <p>This chapter is quite math-heavy, so for a more intuitive understanding of the concepts, I recommend checking out Professor Shree Nayar's <a href="https://youtu.be/FROJUMk9P3Y?si=Bd_46R-5ZORLOjAO">lecture</a> on active contours.</p>
@@ -281,7 +287,7 @@ T(x, y) =
 <h2 id="4-k-means-clustering">4. K-means Clustering</h2>
 <p>For a deeper understanding of K-means clustering, I highly recommend Professor Shree Nayar's <a href="https://youtu.be/22mpExWh1LY?si=fVxUoC7XL8Lj1iqh">lecture</a>.</p>
 <p>K-means clustering is an algorithm used for partitioning a dataset into <script type="math/tex">k</script> distinct clusters. The algorithm iteratively assigns each data point to the nearest cluster center and recalculates the centers until the assignments stabilize. Although convergence is guaranteed, the algorithm may converge to a local minimum. Initial cluster centers are commonly chosen randomly, though various methods exist for this step.</p>
-<h3 id="k-means-pseudocode">K-means Pseudocode:</h3>
+<h3 id="k-means-pseudocode">K-means Pseudocode</h3>
 <ol>
 <li>
 <p>Initialize data points and number of clusters (k)</p>
@@ -329,8 +335,12 @@ T(x, y) =
 <li>
 <p>Check for convergence</p>
 <ul>
-<li>Convergence is checked by calculating the total within-cluster variance before and after reassignment.</li>
-<li>If the variance changes insignificantly, the algorithm has converged.</li>
+<li>Convergence is checked by calculating the total within-cluster variance before and after reassignment. This total within-cluster variance is the objective function and is defined as:
+    <script type="math/tex; mode=display">
+    \sum_{i=0}^{k-1} \sum_{(x, y) \in C_i} d^2
+    </script>
+</li>
+<li>If the variance changes insignificantly (the book uses 1e-3 as the threshold), the algorithm has converged.</li>
 <li>Function: <code>TotalWithinClusterVariance()</code> provides the measure used for checking convergence.</li>
 </ul>
 </li>
@@ -345,34 +355,112 @@ T(x, y) =
 </ol>
 <h3 id="example_1">Example</h3>
 <ul>
-<li>2 clusters:</li>
-</ul>
+<li>
+<p>2 clusters:</p>
 <p><img alt="kmeans_2" src="../results/07/kmeans_2.png" /></p>
-<ul>
-<li>3 clusters:</li>
-</ul>
+</li>
+<li>
+<p>3 clusters:</p>
 <p><img alt="kmeans_3" src="../results/07/kmeans_3.png" /></p>
-<ul>
-<li>4 clusters:</li>
-</ul>
+</li>
+<li>
+<p>4 clusters:</p>
 <p><img alt="kmeans_4" src="../results/07/kmeans_4.png" /></p>
-<ul>
-<li>5 clusters:</li>
-</ul>
+</li>
+<li>
+<p>5 clusters:</p>
 <p><img alt="kmeans_5" src="../results/07/kmeans_5.png" /></p>
-<ul>
-<li>6 clusters:</li>
-</ul>
+</li>
+<li>
+<p>6 clusters:</p>
 <p><img alt="kmeans_6" src="../results/07/kmeans_6.png" /></p>
-<ul>
-<li>7 clusters:</li>
-</ul>
+</li>
+<li>
+<p>7 clusters:</p>
 <p><img alt="kmeans_7" src="../results/07/kmeans_7.png" /></p>
-<ul>
-<li>8 clusters:</li>
-</ul>
+</li>
+<li>
+<p>8 clusters:</p>
 <p><img alt="kmeans_8" src="../results/07/kmeans_8.png" /></p>
-<h2 id="5">5.</h2>
+</li>
+</ul>
+<h2 id="5-simple-linear-iterative-clustering-slic">5. Simple Linear Iterative Clustering (SLIC)</h2>
+<p>While k-means is effective for clustering based on pixel feature similarity, it doesn't consider spatial proximity. As demonstrated above, k-means often results in clusters that are scattered across the image.</p>
+<p>Simple Linear Iterative Clustering (SLIC) solves this by creating more coherent and compact clusters, known as "super-pixels." These super-pixels adapt to the image's local geometry, offering a more natural segmentation. This dual focus on feature similarity and spatial proximity gives SLIC an advantage over traditional k-means in image segmentation tasks.</p>
+<h3 id="slic-pseudocode">SLIC Pseudocode</h3>
+<p>Despite its name, the algorithm is quite complex. For a detailed example, check out <a href="https://youtu.be/-hmUbB-Y8R0?si=YOaxu7aOx6gW94fH">this video</a> by Thales Sehn Körting. Here's a summary:</p>
+<ol>
+<li>
+<p><strong>Convert image to CIELab color space</strong></p>
+<ul>
+<li>CIELab is a perceptually uniform color space, which helps in clustering pixels by perceived color similarity.</li>
+<li>Function: <code>CImg&lt;T&gt;::get_RGBtoLab()</code>. Remove the alpha channel if it exists.</li>
+</ul>
+</li>
+<li>
+<p><strong>Initialize Centroids</strong></p>
+<ul>
+<li>This occurs within <code>initialize_centroids()</code>. The centroids are evenly spaced on a grid, each separated by <script type="math/tex">S</script> pixels (I use <script type="math/tex">S=40</script>).</li>
+<li>Centroids are initialized at the pixel with the lowest gradient within a <script type="math/tex">S \times S</script> neighborhood.</li>
+<li>The output is a <code>centroids</code> variable with dimensions <code>((img.width() / S) * (img.height() / S), 5)</code>. The last dimension contains:<ul>
+<li>(0): x-coordinate in the original image</li>
+<li>(1): y-coordinate in the original image</li>
+<li>(2): L value</li>
+<li>(3): a value</li>
+<li>(4): b value</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Iterate Until Convergence (or Max Iterations)</strong></p>
+<ul>
+<li>
+<p><strong>Assign pixels to nearest centroids</strong></p>
+<ul>
+<li>Handled in <code>get_labels()</code>. Here, each centroid (indexed by <code>k</code>) is assessed.</li>
+<li>For each centroid, we iterate through pixels within a <script type="math/tex">2S \times 2S</script> neighborhood and calculate the distance <script type="math/tex">D</script> in CIELab space.</li>
+</ul>
+<p>
+<script type="math/tex; mode=display">
+D = \text{... (your equation here)}
+</script>
+</p>
+<ul>
+<li>If <script type="math/tex">D</script> is smaller than the existing distance, the pixel's label is updated to the centroid's index.</li>
+</ul>
+</li>
+<li>
+<p><strong>Label Remaining Pixels</strong></p>
+<ul>
+<li>Unlabeled pixels are identified and assigned to the nearest centroid.</li>
+</ul>
+</li>
+<li>
+<p><strong>Recompute centroids</strong></p>
+<ul>
+<li>In <code>recompute_centroid()</code>, centroids are recalculated based on the mean of the pixels assigned to them.</li>
+</ul>
+</li>
+<li>
+<p><strong>Check for Convergence</strong></p>
+<ul>
+<li>Convergence is declared if centroids don't change significantly, using a threshold of 0.25. The change is quantified as:</li>
+</ul>
+<p>
+<script type="math/tex; mode=display">
+\text{residualError} = \sum_{k=0}^{K-1} | \text{centroids}_k - \text{centroids}_{k-1} |
+</script>
+</p>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="example_2">Example</h3>
+<p>We can apply SLIC to the following image (after Gaussian smoothing):</p>
+<p><img alt="car" src="../images/car.png" /></p>
+<p>And here is the result (with <script type="math/tex">S = 40</script> and <script type="math/tex">m = 10</script>):</p>
+<p><img alt="slic" src="../results/07/slic.png" /></p>
               
             </div>
           </div><footer>
