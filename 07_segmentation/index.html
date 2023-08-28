@@ -129,6 +129,10 @@
                 </li>
               </ul>
               <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../08_motion/">8. Motion Estimation</a>
+                </li>
+              </ul>
+              <ul>
                 <li class="toctree-l1"><a class="reference internal" href="../appendix_1/">Appendix 1 - Math Expressions in CImg's Fill Method</a>
                 </li>
               </ul>
@@ -423,7 +427,7 @@ T(x, y) =
 </ul>
 <p>
 <script type="math/tex; mode=display">
-D = \text{... (your equation here)}
+D = (L_i - L_k)^2 + (a_i - a_k)^2 + (b_i - b_k)^2 + \left( \frac{x_i - x_k}{S} \right)^2 m^2 + \left( \frac{y_i - y_k}{S} \right)^2 m^2
 </script>
 </p>
 <ul>
@@ -449,7 +453,7 @@ D = \text{... (your equation here)}
 </ul>
 <p>
 <script type="math/tex; mode=display">
-\text{residualError} = \sum_{k=0}^{K-1} | \text{centroids}_k - \text{centroids}_{k-1} |
+\text{residualError} = \sum_{k=0}^{K-1} | \text{centroids}_k - \text{centroids}_{k}^{old} |
 </script>
 </p>
 </li>
@@ -466,7 +470,7 @@ D = \text{... (your equation here)}
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href="../06_feature_extraction/" class="btn btn-neutral float-left" title="6. Feature Extraction"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../appendix_1/" class="btn btn-neutral float-right" title="Appendix 1 - Math Expressions in CImg's Fill Method">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../08_motion/" class="btn btn-neutral float-right" title="8. Motion Estimation">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -497,7 +501,7 @@ D = \text{... (your equation here)}
       <span><a href="../06_feature_extraction/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../appendix_1/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../08_motion/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

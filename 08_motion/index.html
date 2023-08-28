@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/Digital-Image-Processing/appendix_1/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/Digital-Image-Processing/08_motion/" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Appendix 1 - Math Expressions in CImg's Fill Method - Digital Image Processing Notes</title>
+    <title>8. Motion Estimation - Digital Image Processing Notes</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Appendix 1 - Math Expressions in CImg\u0027s Fill Method";
-        var mkdocs_page_input_path = "appendix_1.md";
-        var mkdocs_page_url = "/Digital-Image-Processing/appendix_1/";
+        var mkdocs_page_name = "8. Motion Estimation";
+        var mkdocs_page_input_path = "08_motion.md";
+        var mkdocs_page_url = "/Digital-Image-Processing/08_motion/";
       </script>
     
     <script src="../js/jquery-3.6.0.min.js" defer></script>
@@ -82,36 +82,24 @@
                 <li class="toctree-l1"><a class="reference internal" href="../07_segmentation/">7. Segmentation</a>
                 </li>
               </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../08_motion/">8. Motion Estimation</a>
-                </li>
-              </ul>
               <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="./">Appendix 1 - Math Expressions in CImg's Fill Method</a>
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">8. Motion Estimation</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#syntax-and-operators">Syntax and Operators</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#variables">Variables</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#conditional-expressions">Conditional Expressions</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#boolean-logic">Boolean Logic</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a>
+    <li class="toctree-l2"><a class="reference internal" href="#1-horn-schunck-optical-flow">1. Horn-Schunck Optical Flow</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#0-original-image">0. Original Image</a>
+    <li class="toctree-l3"><a class="reference internal" href="#problem-formulation">Problem Formulation</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#1-doubling-the-intensity-of-an-image">1. Doubling the Intensity of an Image</a>
+    <li class="toctree-l3"><a class="reference internal" href="#minimization-process">Minimization Process</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#2-inverting-an-image">2. Inverting an Image</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#3-spiral-effect">3. Spiral Effect</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#4-conditional-operations">4. Conditional Operations</a>
+    <li class="toctree-l3"><a class="reference internal" href="#example">Example</a>
     </li>
         </ul>
     </li>
     </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../appendix_1/">Appendix 1 - Math Expressions in CImg's Fill Method</a>
                 </li>
               </ul>
               <ul>
@@ -132,9 +120,9 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
-      <li>Appendix 1 - Math Expressions in CImg's Fill Method</li>
+      <li>8. Motion Estimation</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/tonyfu97/Digital-Image-Processing/blob/master/docs/appendix_1.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/tonyfu97/Digital-Image-Processing/blob/master/docs/08_motion.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -142,58 +130,93 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="math-expressions-in-cimgs-fill-method">Math Expressions in CImg's Fill Method</h1>
+                <h1 id="motion-estimation">Motion Estimation</h1>
 <p><strong>Author</strong>: Tony Fu<br />
-<strong>Date</strong>: August 19, 2023<br />
+<strong>Date</strong>: August 27, 2023<br />
 <strong>Device</strong>: MacBook Pro 16-inch, Late 2021 (M1 Pro)<br />
-<strong>Code</strong>: <a href="https://github.com/tonyfu97/Digital-Image-Processing/tree/main/appendix_1">GitHub</a></p>
-<p>This page provides a guide to using mathematical expressions within the <code>CImg&lt;unsigned char&gt;::fill()</code> method of the CImg library.</p>
-<h2 id="syntax-and-operators">Syntax and Operators</h2>
-<p>Mathematical expressions can include the following:</p>
-<ul>
-<li>Basic arithmetic: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code></li>
-<li>Trigonometric functions: <code>sin</code>, <code>cos</code>, <code>tan</code>, etc.</li>
-<li>Logarithmic functions: <code>log</code>, <code>exp</code>, etc.</li>
-</ul>
-<h2 id="variables">Variables</h2>
-<ul>
-<li><code>I</code>: Represents the current pixel value. For example, <code>I*2</code> would double the intensity of every pixel.</li>
-<li><code>J(x, y)</code>: Refers to the neighboring pixel values at relative coordinates <code>(x, y)</code></li>
-<li><code>x</code>, <code>y</code>, <code>z</code>, <code>c</code>: Represents the coordinates of the current pixel.</li>
-</ul>
-<h2 id="conditional-expressions">Conditional Expressions</h2>
-<p>You can use conditional expressions like <code>condition ? value_if_true : value_if_false</code>.</p>
-<h2 id="boolean-logic">Boolean Logic</h2>
-<p>Use logical operators like <code>&amp;&amp;</code> (AND), <code>||</code> (OR), and <code>!</code> (NOT) for conditional logic, and comparison operators (<code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>) are also available.</p>
-<h2 id="examples">Examples</h2>
-<h3 id="0-original-image">0. Original Image</h3>
-<p><img alt="original" src="../results/appendix_1/lighthouse_lum.png" /></p>
-<h3 id="1-doubling-the-intensity-of-an-image">1. Doubling the Intensity of an Image</h3>
-<pre><code class="language-cpp">CImg&lt;unsigned char&gt; img(&quot;image.jpg&quot;);
-img.fill(&quot;I*2&quot;, true);
-</code></pre>
-<p><img alt="double" src="../results/appendix_1/lighthouse_double.png" /></p>
-<h3 id="2-inverting-an-image">2. Inverting an Image</h3>
-<pre><code class="language-cpp">CImg&lt;unsigned char&gt; img(&quot;image.jpg&quot;);
-img.fill(&quot;255-I&quot;, true);
-</code></pre>
-<p><img alt="invert" src="../results/appendix_1/lighthouse_invert.png" /></p>
-<h3 id="3-spiral-effect">3. Spiral Effect</h3>
-<pre><code class="language-cpp">CImg&lt;unsigned char&gt; img(&quot;image.jpg&quot;);
-img_spiral.fill(&quot;(x*y)%500&quot;,true);
-</code></pre>
-<p><img alt="spiral" src="../results/appendix_1/lighthouse_spiral.png" /></p>
-<h3 id="4-conditional-operations">4. Conditional Operations</h3>
-<pre><code class="language-cpp">CImg&lt;unsigned char&gt; img(&quot;image.jpg&quot;);
-img.fill(&quot;I*(I!=J(1,0) || I!=J(0,1)?0:1)&quot;, true);
-</code></pre>
-<p><img alt="conditional" src="../results/appendix_1/lighthouse_conditional.png" /></p>
+<strong>Code</strong>: <a href="https://github.com/tonyfu97/Digital-Image-Processing/tree/main/08_motion">GitHub</a><br />
+<strong>Reference</strong>: Chapter 8 <a href="https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538"><em>Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library</em> by Tschumperlé, Tilmant, Barra</a></p>
+<h2 id="1-horn-schunck-optical-flow">1. Horn-Schunck Optical Flow</h2>
+<h3 id="problem-formulation">Problem Formulation</h3>
+<p>The Horn-Schunck method frames optical flow as an energy minimization problem by defining an energy function <script type="math/tex">E</script> that encapsulates two main terms:</p>
+<ol>
+<li>
+<p><strong>Data Term</strong>: This measures how well the flow <script type="math/tex"> (u,v) </script> is consistent with the pixel intensities in the given images. It's based on the brightness constancy constraint: <script type="math/tex"> I(x,y,t) = I(x+u, y+v, t+1) </script>, which states that the intensity of a point in an image should remain constant over time.</p>
+<p>
+<script type="math/tex; mode=display">
+E_{\text{data}} = \int \int (I_x u + I_y v + I_t)^2 \, dx \, dy
+</script>
+</p>
+</li>
+<li>
+<p><strong>Smoothness Term</strong>: To encourage smoothness in the flow field, Horn and Schunck include a regularization term. This term imposes a penalty on abrupt changes in <script type="math/tex">u</script> and <script type="math/tex">v</script>.</p>
+<p>
+<script type="math/tex; mode=display">
+E_{\text{smooth}} = \int \int (\nabla u)^2 + (\nabla v)^2 \, dx \, dy
+</script>
+</p>
+</li>
+</ol>
+<p>The combined energy function <script type="math/tex"> E </script> to be minimized is:</p>
+<p>
+<script type="math/tex; mode=display">
+E = E_{\text{data}} + \alpha E_{\text{smooth}} =
+\int \int \left[ (I_x u + I_y v + I_t)^2 + \alpha ((\nabla u)^2 + (\nabla v)^2) \right] \, dx \, dy
+</script>
+</p>
+<h3 id="minimization-process">Minimization Process</h3>
+<p>To find the flow fields <script type="math/tex"> u </script> and <script type="math/tex"> v </script> that minimize this energy function, Horn and Schunck uses the Euler-Lagrange equations derived from <script type="math/tex"> E </script>.</p>
+<ol>
+<li>
+<p>Take the first variation of <script type="math/tex"> E </script> with respect to <script type="math/tex"> u </script> and <script type="math/tex"> v </script> and set them to zero.</p>
+<p>
+<script type="math/tex; mode=display">
+\frac{\partial E}{\partial u} = 0 \quad \text{and} \quad \frac{\partial E}{\partial v} = 0
+</script>
+</p>
+</li>
+<li>
+<p>This results in a set of PDEs that are solved iteratively:</p>
+<p>
+<script type="math/tex; mode=display">
+I_x(I_x u + I_y v + I_t) + \alpha \Delta u = 0
+</script>
+</p>
+<p>
+<script type="math/tex; mode=display">
+I_y(I_x u + I_y v + I_t) + \alpha \Delta v = 0
+</script>
+</p>
+<p>In the original paper, Horn and Schunck approximated the Laplacians with:</p>
+<p>
+<script type="math/tex; mode=display">
+\nabla u = 4 (\bar{u} - u) \quad \text{and} \quad \nabla v = 4 (\bar{v} - v)
+</script>
+</p>
+<p>where <script type="math/tex"> \bar{u} </script> and <script type="math/tex"> \bar{v} </script> are the averages of <script type="math/tex"> u </script> and <script type="math/tex"> v </script> in the 3-neighborhood of the current pixel.</p>
+</li>
+<li>
+<p>The PDEs are solved iteratively until convergence (in the code, I set the maximum number of iterations to 100). The iterative update equations are:</p>
+<p>
+<script type="math/tex; mode=display">
+u = \bar{u} - \frac{I_x(I_x \bar{u} + I_y \bar{v} + I_t)}{4\alpha + I_x^2 + I_y^2}
+\quad \text{and} \quad
+v = \bar{v} - \frac{I_y(I_x \bar{u} + I_y \bar{v} + I_t)}{4\alpha + I_x^2 + I_y^2}
+</script>
+</p>
+</li>
+</ol>
+<h3 id="example">Example</h3>
+<p>I use two frames from the following GIF as input to the Horn-Schunck optical flow algorithm:</p>
+<p><img alt="driveby_gif" src="../images/driveby.gif" /></p>
+<p>The result optical flow is shown below:</p>
+<p><img alt="horn_schunck" src="../results/08/horn_schunck.png" /></p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../08_motion/" class="btn btn-neutral float-left" title="8. Motion Estimation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../where_did_i_get_my_images/" class="btn btn-neutral float-right" title="Where Did I Get My Images?">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../07_segmentation/" class="btn btn-neutral float-left" title="7. Segmentation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../appendix_1/" class="btn btn-neutral float-right" title="Appendix 1 - Math Expressions in CImg's Fill Method">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -221,10 +244,10 @@ img.fill(&quot;I*(I!=J(1,0) || I!=J(0,1)?0:1)&quot;, true);
         </span>
     
     
-      <span><a href="../08_motion/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../07_segmentation/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../where_did_i_get_my_images/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../appendix_1/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
