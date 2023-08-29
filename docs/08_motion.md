@@ -210,7 +210,7 @@ And the result:
 
 ### Why Eigenvalues?
 
-Recall that in the [Harris-Stephen corner detection](../06_feature_extraction/#1-harris-stephens-corner-detector) section, we introduced the concept of a structure tensor, denoted \( \textbf{M} \), to capture local image structures. Similarly, in the Lucas-Kanade method, we utilize another structure tensor \(A^T A\). This \(2 \times 2\) matrix serves to encapsulate the local texture around a pixel.
+Recall that in the [Harris-Stephen corner detection](../06_feature_extraction/#1-harris-stephens-corner-detector) section, we introduced the concept of a structure tensor, denoted \( M \), to capture local image structures. Similarly, in the Lucas-Kanade method, we utilize another structure tensor \(A^T A\). This \(2 \times 2\) matrix serves to encapsulate the local texture around a pixel.
 
 The eigenvalues of this structure tensor guide us in determining how to process each pixel. The following table outlines the actions based on different conditions:
 
@@ -230,5 +230,32 @@ To demonstrate the benefits of incorporating eigenvalue analysis, let's apply th
 
 ![lucas_kanade_eigen_shuffleboard](./results/08/lucas_kanade_eigen_shuffleboard.png)
 
-You'll notice that the output is cleaner and more reliable compared to earlier methods.
+I find the output to be cleaner compared to earlier methods.
 
+
+## 5. Object Tracking by Cross-Correlation
+
+### Algorithm Overview
+
+Object tracking in a sequence of images can be accomplished by first identifying the object in the initial frame and creating a "template" of it. In subsequent frames, we cross-correlate this template with a local neighborhood of pixels to find the location that yields the highest correlation. This newly identified location represents the object's new position. This method is considered a form of sparse motion estimation because it doesn't involve comparing the entire image, but rather a small localized area.
+
+### Examples
+
+In the following image, we first identify the object in motion and enclose it within a box to create a template:
+
+![cross_correlation_driveby_input](./results/08/cross_correlation_driveby_input.png)
+
+We then apply the cross-correlation algorithm to subsequent frames to track the object:
+
+![cross_correlation_driveby_output](./results/08/cross_correlation_driveby_output.png)
+
+Here's another example:
+
+![cross_correlation_shuffleboard_input](./results/08/cross_correlation_shuffleboard_input.png)
+
+And the tracking result:
+
+![cross_correlation_shuffleboard_output](./results/08/cross_correlation_shuffleboard_output.png)
+
+
+##
