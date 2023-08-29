@@ -6,6 +6,8 @@
 **Code**: [GitHub](https://github.com/tonyfu97/Digital-Image-Processing/tree/main/08_motion)  
 **Reference**: Chapter 8 [*Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library* by Tschumperlé, Tilmant, Barra](https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538)
 
+I also recommend Professor Shree Nayar's [lecture series](https://youtube.com/playlist?list=PL2zRqk16wsdoYzrWStffqBAoUY8XdvatV&si=mds5gPNjt4l43Pmw) on the on Optical Flow.
+
 ## 1. Horn-Schunck Optical Flow
 
 ### Problem Formulation
@@ -101,7 +103,7 @@ In the Horn-Schunck method, the energy function \(E\) is minimized globally over
 
 ### Problem Formulation
 
-Before introducing the window \(W\), let's first take a closer look at the **data term** used in the Horn-Schunck method. It is based on the brightness constancy constraint: \( I(x,y,t) = I(x+u, y+v, t+1) \), which states that the intensity of a point in an image should remain constant over time. Here, we take some steps to derive the optical flow equation.
+Before introducing the window \(W\), let's first take a closer look at the **data term** used in the Horn-Schunck method. It is based on the brightness constancy constraint: \( I(x,y,t) = I(x+u, y+v, t+1) \), which states that the intensity of a point in an image should remain constant over time. Here, we take some steps to derive the optical flow equation. This derivation is also covered by Professor Shree Nayar in his [lecture](https://youtu.be/IjPLZ3hjU1A?si=vFxhDuyotewubWS6).
 
 1. **First-Order Taylor Series Expansion**: We approximate the right-hand side of the equation around \((x, y, t)\):
 
@@ -189,7 +191,7 @@ A^T A \mathbf{V} = A^T \mathbf{b}
 
 Here, \(A^T\) is the transpose of \(A\), and \(A^T A\) becomes a square matrix, making it possible to find an exact solution. The resulting \(\mathbf{V}\) is the least squares solution to the original equation.
 
-### Example
+### Examples
 
 Applying the Lucas-Kanade optical flow algorithm to the same two frames from the previous section, we get the following result:
 
@@ -202,3 +204,31 @@ Here is another example:
 And the result:
 
 ![lucas_kanade](./results/08/lucas_kanade_shuffleboard.png)
+
+
+## 4. Lucas-Kanade Optical Flow with Eigenelement Analysis
+
+### Why Eigenvalues?
+
+Recall that in the [Harris-Stephen corner detection](../06_feature_extraction/#1-harris-stephens-corner-detector) section, we introduced the concept of a structure tensor, denoted \( \textbf{M} \), to capture local image structures. Similarly, in the Lucas-Kanade method, we utilize another structure tensor \(A^T A\). This \(2 \times 2\) matrix serves to encapsulate the local texture around a pixel.
+
+The eigenvalues of this structure tensor guide us in determining how to process each pixel. The following table outlines the actions based on different conditions:
+
+| Condition | Action |
+|-----------|--------|
+| Both eigenvalues \( \geq \tau_D \)| Compute the velocity using \( \text{localVelocity} = -A^T A \times A^T b \). |
+| One eigenvalue \( \geq \tau_D \) | Project the estimated velocity onto the direction corresponding to the large eigenvalue.|
+| Both eigenvalues \( < \tau_D \) | Ignore the pixel, as it is too smooth or noisy to provide reliable motion information. |
+
+For a deeper dive into eigenvalue analysis, you can refer to Professor Shree Nayar's [lecture](https://youtu.be/6wMoHgpVUn8?si=J_qQ42REAsAvxOdh&t=243).
+
+### Examples
+
+To demonstrate the benefits of incorporating eigenvalue analysis, let's apply the Lucas-Kanade optical flow algorithm to the same sets of frames we used in previous sections. Below are the results:
+
+![lucas_kanade_eigen_driveby](./results/08/lucas_kanade_eigen_driveby.png)
+
+![lucas_kanade_eigen_shuffleboard](./results/08/lucas_kanade_eigen_shuffleboard.png)
+
+You'll notice that the output is cleaner and more reliable compared to earlier methods.
+

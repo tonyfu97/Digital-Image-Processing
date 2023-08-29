@@ -1,6 +1,6 @@
 # Digital Image Processing with C++ : Study Notes
 
-This website includes my study notes for the book [*Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library*](https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538) by Tschumperlé, Tilmant, and Barra.
+This website includes my study notes for the book [*Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library*](https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538) by Tschumperlé, Tilmant, and Barra. College courses only scratch the surface of what's out there, so this project is my way of diving in and getting hands-on with C++. 
 
 Please note that this website does not include the book's content, except for some of the code snippets used. If you're interested in more details, you can purchase the book [here](https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538). I am not affiliated with the authors or the publisher in any way. I simply enjoy the book and want to share my notes with others. While I have some background in image processing, I have attempted to make my notes beginner-friendly. I have included things that I personally found to need more explanation or clarification. I hope you find them useful.
 
