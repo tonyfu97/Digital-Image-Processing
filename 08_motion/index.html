@@ -95,6 +95,32 @@
     </li>
         </ul>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#2-multi-scale-optical-flow">2. Multi-Scale Optical Flow</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#leveraging-multi-scale-approaches-for-robust-optical-flow">Leveraging Multi-Scale Approaches for Robust Optical Flow</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_1">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#3-lucas-kanade-optical-flow">3. Lucas-Kanade Optical Flow</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#problem-formulation_1">Problem Formulation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#minimization-process_1">Minimization Process</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#4-lucas-kanade-optical-flow-with-eigenelement-analysis">4. Lucas-Kanade Optical Flow with Eigenelement Analysis</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#why-eigenvalues">Why Eigenvalues?</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#examples_1">Examples</a>
+    </li>
+        </ul>
+    </li>
     </ul>
                 </li>
               </ul>
@@ -136,6 +162,7 @@
 <strong>Device</strong>: MacBook Pro 16-inch, Late 2021 (M1 Pro)<br />
 <strong>Code</strong>: <a href="https://github.com/tonyfu97/Digital-Image-Processing/tree/main/08_motion">GitHub</a><br />
 <strong>Reference</strong>: Chapter 8 <a href="https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538"><em>Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library</em> by Tschumperlé, Tilmant, Barra</a></p>
+<p>I also recommend Professor Shree Nayar's <a href="https://youtube.com/playlist?list=PL2zRqk16wsdoYzrWStffqBAoUY8XdvatV&amp;si=mds5gPNjt4l43Pmw">lecture series</a> on the on Optical Flow.</p>
 <h2 id="1-horn-schunck-optical-flow">1. Horn-Schunck Optical Flow</h2>
 <h3 id="problem-formulation">Problem Formulation</h3>
 <p>The Horn-Schunck method frames optical flow as an energy minimization problem by defining an energy function <script type="math/tex">E</script> that encapsulates two main terms:</p>
@@ -147,6 +174,7 @@
 E_{\text{data}} = \int \int (I_x u + I_y v + I_t)^2 \, dx \, dy
 </script>
 </p>
+<p>The book also shows a variant of the data term (called the "direct method") that minize the squared difference between the shifted image and the original image.</p>
 </li>
 <li>
 <p><strong>Smoothness Term</strong>: To encourage smoothness in the flow field, Horn and Schunck include a regularization term. This term imposes a penalty on abrupt changes in <script type="math/tex">u</script> and <script type="math/tex">v</script>.</p>
@@ -211,6 +239,154 @@ v = \bar{v} - \frac{I_y(I_x \bar{u} + I_y \bar{v} + I_t)}{4\alpha + I_x^2 + I_y^
 <p><img alt="driveby_gif" src="../images/driveby.gif" /></p>
 <p>The result optical flow is shown below:</p>
 <p><img alt="horn_schunck" src="../results/08/horn_schunck.png" /></p>
+<h2 id="2-multi-scale-optical-flow">2. Multi-Scale Optical Flow</h2>
+<h3 id="leveraging-multi-scale-approaches-for-robust-optical-flow">Leveraging Multi-Scale Approaches for Robust Optical Flow</h3>
+<p>Optical flow estimation involves capturing pixel-level movement between consecutive images. However, real-world scenarios often include varied and complex motions which may not be accurately captured at just a single scale. This is where our multi-scale approach comes in.</p>
+<p>An example implementation of the algorithm scales down the image iteratively by factors of 2, beginning with the coarsest scale and moving towards the finest. At each scale, the Horn-Schunck algorithm is applied to estimate optical flow. The algorithm first captures larger motion patterns at these coarser scales and then refines these estimates as it proceeds to finer scales.</p>
+<h3 id="example_1">Example</h3>
+<p><img alt="horn_schunck_multiscale" src="../results/08/horn_schunck_multiscale.png" /></p>
+<p>Notice that most arrows, which represent the optical flow, are concentrated on the moving car. However, you might also see that the arrow directions are not entirely accurate.</p>
+<h2 id="3-lucas-kanade-optical-flow">3. Lucas-Kanade Optical Flow</h2>
+<p>In the Horn-Schunck method, the energy function <script type="math/tex">E</script> is minimized globally over the entire image. This makes the problem severely under-determined, as there are two unknowns <script type="math/tex">u</script> and <script type="math/tex">v</script> for each pixel. To overcome this limitation, Lucas and Kanade proposed a local method that minimizes the energy function within a local window <script type="math/tex">W</script> around each pixel.</p>
+<h3 id="problem-formulation_1">Problem Formulation</h3>
+<p>Before introducing the window <script type="math/tex">W</script>, let's first take a closer look at the <strong>data term</strong> used in the Horn-Schunck method. It is based on the brightness constancy constraint: <script type="math/tex"> I(x,y,t) = I(x+u, y+v, t+1) </script>, which states that the intensity of a point in an image should remain constant over time. Here, we take some steps to derive the optical flow equation. This derivation is also covered by Professor Shree Nayar in his <a href="https://youtu.be/IjPLZ3hjU1A?si=vFxhDuyotewubWS6">lecture</a>.</p>
+<ol>
+<li>
+<p><strong>First-Order Taylor Series Expansion</strong>: We approximate the right-hand side of the equation around <script type="math/tex">(x, y, t)</script>:</p>
+<p>
+<script type="math/tex; mode=display">
+I(x+dx, y+dy, t+dt) \approx I(x, y, t) + \frac{\partial I}{\partial x} dx + \frac{\partial I}{\partial y} dy + \frac{\partial I}{\partial t} dt
+</script>
+</p>
+</li>
+<li>
+<p><strong>Combining Equations</strong>: Using the initial assumption <script type="math/tex">I(x, y, t) = I(x+dx, y+dy, t+dt)</script>, we get:</p>
+<p>
+<script type="math/tex; mode=display">
+I(x, y, t) + I_x dx + I_y dy + I_t dt = I(x, y, t)
+</script>
+</p>
+</li>
+<li>
+<p><strong>Simplification</strong>: We subtract <script type="math/tex">I(x, y, t)</script> from both sides:</p>
+<p>
+<script type="math/tex; mode=display">
+I_x dx + I_y dy + I_t dt = 0
+</script>
+</p>
+</li>
+<li>
+<p><strong>Optical Flow Variables</strong>: Finally, by dividing by <script type="math/tex">dt</script> and introducing <script type="math/tex">u = dx/dt</script> and <script type="math/tex">v = dy/dt</script>, we arrive at the familiar optical flow equation:</p>
+<p>
+<script type="math/tex; mode=display">
+I_x u + I_y v + I_t = 0
+</script>
+</p>
+</li>
+</ol>
+<h3 id="minimization-process_1">Minimization Process</h3>
+<p>The brightness constancy assumption, upon which the optical flow equation <script type="math/tex">I_x u + I_y v + I_t = 0</script> is based, may not hold true in all real-world scenarios. Therefore, it is unlikely that the equation will be exactly zero. Instead, we minimize the squared error term <script type="math/tex">E(u, v)</script> to find the best possible solution.</p>
+<p>As alluded to above, the equation provides only a single constraint for the two unknowns <script type="math/tex">u</script> and <script type="math/tex">v</script>, making the problem under-determined. Lucas-Kanade overcomes this limitation by applying this constraint within a local window <script type="math/tex">W</script> of pixels. We sum up the squared differences in brightness to form the error term <script type="math/tex">E(u, v)</script>, making the problem mathematically tractable by providing enough equations to solve for the unknowns. This also improves the robustness of the optical flow estimate by averaging out inconsistencies and noise in the local region.</p>
+<p>
+<script type="math/tex; mode=display">
+E(u, v) = \sum_{W} (I_x u + I_y v + I_t)^2
+</script>
+</p>
+<p>We can further expand the equation to:</p>
+<p>
+<script type="math/tex; mode=display">
+E(u, v) = \sum_{W} I_x^2 u^2 + 2 I_x I_y u v + I_y^2 v^2 + 2 I_x I_t u + 2 I_y I_t v + I_t^2
+</script>
+</p>
+<p>To minimize <script type="math/tex">E(u, v)</script>, we set its partial derivatives with respect to <script type="math/tex">u</script> and <script type="math/tex">v</script> to zero:</p>
+<p>
+<script type="math/tex; mode=display">
+\frac{\partial E}{\partial u} = 2 \sum_{W} (I_x^2 u + I_x I_y v + I_x I_t) = 0
+</script>
+<script type="math/tex; mode=display">
+\frac{\partial E}{\partial v} = 2 \sum_{W} (I_x I_y u + I_y^2 v + I_y I_t) = 0
+</script>
+</p>
+<p>Rewriting these equations in matrix form, we get:</p>
+<p>
+<script type="math/tex; mode=display">
+A \mathbf{V} = \mathbf{b}
+</script>
+</p>
+<p>Where:</p>
+<p>
+<script type="math/tex; mode=display">
+A = \begin{bmatrix}
+\sum_{W} I_x^2 & \sum_{W} I_x I_y \\
+\sum_{W} I_x I_y & \sum_{W} I_y^2
+\end{bmatrix}
+</script>
+</p>
+<p>
+<script type="math/tex; mode=display">
+\mathbf{V} = \begin{bmatrix}
+u \\
+v
+\end{bmatrix}
+</script>
+</p>
+<p>
+<script type="math/tex; mode=display">
+\mathbf{b} = \begin{bmatrix}
+-\sum_{W} I_x I_t \\
+-\sum_{W} I_y I_t
+\end{bmatrix}
+</script>
+</p>
+<p>To find the velocities <script type="math/tex">u</script> and <script type="math/tex">v</script>, we typically solve the equation <script type="math/tex">A \mathbf{V} = \mathbf{b}</script> by computing <script type="math/tex">\mathbf{V} = A^{-1} \mathbf{b}</script>. But wait, <script type="math/tex">A</script> is most likely non-square (and therefore non-invertible), so we can't compute its inverse. In such cases, we aim to find <script type="math/tex">\mathbf{V}</script> that minimizes the residual <script type="math/tex">||A \mathbf{V} - \mathbf{b}||^2</script>. This <em>least squares</em> technique is commonly used in optimization problems:</p>
+<p>
+<script type="math/tex; mode=display">
+A^T A \mathbf{V} = A^T \mathbf{b}
+</script>
+</p>
+<p>Here, <script type="math/tex">A^T</script> is the transpose of <script type="math/tex">A</script>, and <script type="math/tex">A^T A</script> becomes a square matrix, making it possible to find an exact solution. The resulting <script type="math/tex">\mathbf{V}</script> is the least squares solution to the original equation.</p>
+<h3 id="examples">Examples</h3>
+<p>Applying the Lucas-Kanade optical flow algorithm to the same two frames from the previous section, we get the following result:</p>
+<p><img alt="lucas_kanade" src="../results/08/lucas_kanade.png" /></p>
+<p>Here is another example:</p>
+<p><img alt="shuffleboard" src="../images/shuffleboard.gif" /></p>
+<p>And the result:</p>
+<p><img alt="lucas_kanade" src="../results/08/lucas_kanade_shuffleboard.png" /></p>
+<h2 id="4-lucas-kanade-optical-flow-with-eigenelement-analysis">4. Lucas-Kanade Optical Flow with Eigenelement Analysis</h2>
+<h3 id="why-eigenvalues">Why Eigenvalues?</h3>
+<p>Recall that in the <a href="../06_feature_extraction/#1-harris-stephens-corner-detector">Harris-Stephen corner detection</a> section, we introduced the concept of a structure tensor, denoted <script type="math/tex"> \textbf{M} </script>, to capture local image structures. Similarly, in the Lucas-Kanade method, we utilize another structure tensor <script type="math/tex">A^T A</script>. This <script type="math/tex">2 \times 2</script> matrix serves to encapsulate the local texture around a pixel.</p>
+<p>The eigenvalues of this structure tensor guide us in determining how to process each pixel. The following table outlines the actions based on different conditions:</p>
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Both eigenvalues <script type="math/tex"> \geq \tau_D </script>
+</td>
+<td>Compute the velocity using <script type="math/tex"> \text{localVelocity} = -A^T A \times A^T b </script>.</td>
+</tr>
+<tr>
+<td>One eigenvalue <script type="math/tex"> \geq \tau_D </script>
+</td>
+<td>Project the estimated velocity onto the direction corresponding to the large eigenvalue.</td>
+</tr>
+<tr>
+<td>Both eigenvalues <script type="math/tex"> < \tau_D </script>
+</td>
+<td>Ignore the pixel, as it is too smooth or noisy to provide reliable motion information.</td>
+</tr>
+</tbody>
+</table>
+<p>For a deeper dive into eigenvalue analysis, you can refer to Professor Shree Nayar's <a href="https://youtu.be/6wMoHgpVUn8?si=J_qQ42REAsAvxOdh&amp;t=243">lecture</a>.</p>
+<h3 id="examples_1">Examples</h3>
+<p>To demonstrate the benefits of incorporating eigenvalue analysis, let's apply the Lucas-Kanade optical flow algorithm to the same sets of frames we used in previous sections. Below are the results:</p>
+<p><img alt="lucas_kanade_eigen_driveby" src="../results/08/lucas_kanade_eigen_driveby.png" /></p>
+<p><img alt="lucas_kanade_eigen_shuffleboard" src="../results/08/lucas_kanade_eigen_shuffleboard.png" /></p>
+<p>You'll notice that the output is cleaner and more reliable compared to earlier methods.</p>
               
             </div>
           </div><footer>
