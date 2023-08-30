@@ -130,7 +130,7 @@ int main()
     // Draw and save the initial image
     unsigned char red[3] = {255, 0, 0};
     CImg<> inputImageBoxed = DrawRectangle(imageSequence[0], initialPosition, templateSize, red);
-    inputImageBoxed.normalize(0, 255).display();
+    // inputImageBoxed.normalize(0, 255).display();
     inputImageBoxed.normalize(0, 255).save_png(("./results/cross_correlation_" + image_name + "_input.png").c_str());
 
     CImg<> outputImage = TrackObjectByCrossCorrelation(imageSequence, initialPosition, templateSize, searchArea);

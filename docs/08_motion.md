@@ -258,4 +258,60 @@ And the tracking result:
 ![cross_correlation_shuffleboard_output](./results/08/cross_correlation_shuffleboard_output.png)
 
 
-##
+## 6. Object Tracking by Phase Correlation
+
+### Theoretical Background
+
+Assume that two images differ only by a translation:
+
+\[
+I_2(x,y) = I_1(x + \Delta x, y + \Delta y)
+\]
+
+This can be viewed as the convolution of the first image with a delta function:
+
+\[
+I_2(x,y) = I_1(x,y) \ast \delta(x + \Delta x, y + \Delta y)
+\]
+
+Applying the Fourier transform to both sides gives:
+
+\[
+F_2(f_x, f_y) = F_1(f_x, f_y) \times e^{-j2\pi(f_x \Delta x + f_y \Delta y)}
+\]
+
+This equation will be crucial for deriving \(\Delta x\) and \(\Delta y\), the translational offsets between the images. We will later see how to go from \(F_2(f_x, f_y)\) and \(F_1(f_x, f_y)\) to \(e^{-j2\pi(f_x \Delta x + f_y \Delta y)}\).
+
+### Algorithm Overview
+
+The phase correlation approach is similar to cross-correlation. It involves creating an object template in the initial frame and then locating this object in subsequent frames. Instead of using the cross-correlation function, the method employs frequency domain transformations:
+
+\[
+F_1(f_x, f_y) = \mathcal{F}(I_1(x,y)) \quad \text{and} \quad F_2(f_x, f_y) = \mathcal{F}(I_2(x,y))
+\]
+
+The cross-power spectrum is formulated as:
+
+\[
+\frac{F_1 \overline{F_2}}{|F_1 \overline{F_2}|}
+=
+\frac{F_1 \overline{F_1 \times  e^{-j2\pi(f_x \Delta x + f_y \Delta y)}}}{|F_1 \overline{F_1 \times  e^{-j2\pi(f_x \Delta x + f_y \Delta y)}}|}
+=\ldots =
+e^{-j2\pi(f_x \Delta x + f_y \Delta y)}
+\]
+
+The proof (see the book) show that this eventually simplifies to \(e^{-j2\pi(f_x \Delta x + f_y \Delta y)}\), which can be inverse Fourier transformed to get \(\delta(x + \Delta x, y + \Delta y)\). In the code, the real and imaginary parts of the cross-power spectrum are separately handled as follows:
+
+\[
+\frac{(F_{1real} F_{2real} + F_{1imag} F_{2imag}) + j(F_{1imag} F_{2real} - F_{1real} F_{2imag})}{|F_1 \overline{F_2}|}
+\]
+
+### Examples
+
+We apply the phase correlation algorithm to the same frame sets used previously. The results demonstrate that it effectively tracks moving objects. 
+
+![driveby_subplots](./results/08/phase_correlation_driveby_subplots.png)
+
+However, the method is less reliable when the object lacks a distinct texture. For example, phase correlation fails in the following example:
+
+![shuffleboard_subplots](./results/08/phase_correlation_shuffleboard_subplots.png)
