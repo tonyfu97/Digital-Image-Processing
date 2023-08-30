@@ -139,6 +139,24 @@
     </li>
         </ul>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#7-improve-object-tracking-with-linear-kalman-filter">7. Improve Object Tracking with Linear Kalman Filter</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#algorithm-overview_2">Algorithm Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#notations">Notations</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#kalman-filter-equations">Kalman Filter Equations</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#prediction">Prediction</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#updatecorrection">Update/Correction</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#examples_4">Examples</a>
+    </li>
+        </ul>
+    </li>
     </ul>
                 </li>
               </ul>
@@ -445,9 +463,11 @@ F_2(f_x, f_y) = F_1(f_x, f_y) \times e^{-j2\pi(f_x \Delta x + f_y \Delta y)}
 F_1(f_x, f_y) = \mathcal{F}(I_1(x,y)) \quad \text{and} \quad F_2(f_x, f_y) = \mathcal{F}(I_2(x,y))
 </script>
 </p>
-<p>The cross-power spectrum is formulated as:</p>
+<p>The cross-power spectrum (<script type="math/tex">CPS</script> is formulated as:</p>
 <p>
 <script type="math/tex; mode=display">
+CPS
+=
 \frac{F_1 \overline{F_2}}{|F_1 \overline{F_2}|}
 =
 \frac{F_1 \overline{F_1 \times  e^{-j2\pi(f_x \Delta x + f_y \Delta y)}}}{|F_1 \overline{F_1 \times  e^{-j2\pi(f_x \Delta x + f_y \Delta y)}}|}
@@ -458,14 +478,109 @@ e^{-j2\pi(f_x \Delta x + f_y \Delta y)}
 <p>The proof (see the book) show that this eventually simplifies to <script type="math/tex">e^{-j2\pi(f_x \Delta x + f_y \Delta y)}</script>, which can be inverse Fourier transformed to get <script type="math/tex">\delta(x + \Delta x, y + \Delta y)</script>. In the code, the real and imaginary parts of the cross-power spectrum are separately handled as follows:</p>
 <p>
 <script type="math/tex; mode=display">
-\frac{(F_{1real} F_{2real} + F_{1imag} F_{2imag}) + j(F_{1imag} F_{2real} - F_{1real} F_{2imag})}{|F_1 \overline{F_2}|}
+CPS_{real} = F_{1real} F_{2real} + F_{1imag} F_{2imag}\\
+CPS_{imag} = F_{1imag} F_{2real} - F_{1real} F_{2imag}
 </script>
 </p>
+<p>
+<script type="math/tex; mode=display">
+CPS = \frac{CPS_{real} + jCPS_{imag}}{|CPS_{real} + jCPS_{imag}| + \epsilon}
+</script>
+</p>
+<p>The <script type="math/tex">\epsilon</script> term is added to avoid division by zero.</p>
 <h3 id="examples_3">Examples</h3>
 <p>We apply the phase correlation algorithm to the same frame sets used previously. The results demonstrate that it effectively tracks moving objects. </p>
 <p><img alt="driveby_subplots" src="../results/08/phase_correlation_driveby_subplots.png" /></p>
 <p>However, the method is less reliable when the object lacks a distinct texture. For example, phase correlation fails in the following example:</p>
 <p><img alt="shuffleboard_subplots" src="../results/08/phase_correlation_shuffleboard_subplots.png" /></p>
+<h2 id="7-improve-object-tracking-with-linear-kalman-filter">7. Improve Object Tracking with Linear Kalman Filter</h2>
+<h3 id="algorithm-overview_2">Algorithm Overview</h3>
+<p>The idea of using phase correlation over spatial correlation comes from the fact that phase captures translation information across the entire region of interest. So why not extend this temporally? Instead of relying solely on the current frame to track an object, we could use previous frames to predict the object's location in the current one. This is the underlying concept of the Kalman filter.</p>
+<p>The Kalman filter is a recursive algorithm designed to estimate the state of a system using a series of noisy measurements. It's a staple in control systems where the objective is to predict the system's future state based on past measurements. In our case, the system is the moving object, and the measurements are the object's positions in each frame.</p>
+<p>Before diving deeper, let's first familiarize ourselves with the notations used in the Kalman filter:</p>
+<h3 id="notations">Notations</h3>
+<ul>
+<li>
+<p><strong>State <script type="math/tex">\mathbf{s_i}</script></strong>:
+    <script type="math/tex; mode=display">
+    \mathbf{s_i} = \begin{bmatrix} x_i, y_i, u_i, v_i \end{bmatrix}^T
+    </script>
+    Here, <script type="math/tex">x_i</script> and <script type="math/tex">y_i</script> represent the object's coordinates in the <script type="math/tex">i</script>-th frame, and <script type="math/tex">u_i</script> and <script type="math/tex">v_i</script> signify its velocities.</p>
+</li>
+<li>
+<p><strong>Estimated Position <script type="math/tex">\mathbf{z}_i</script></strong>: This is calculated using phase correlation and represents the object's estimated location in the <script type="math/tex">i</script>-th frame.</p>
+</li>
+<li>
+<p><strong>State Transition Model <script type="math/tex">\mathbf{D}_i</script></strong>: This matrix describes how the state evolves over time. In our implementation, it's a constant matrix <script type="math/tex"> \mathbf{D} </script>:
+    <script type="math/tex; mode=display">
+    \mathbf{D} = \begin{bmatrix}
+    1 & 0 & 1 & 0 \\
+    0 & 1 & 0 & 1 \\
+    0 & 0 & 1 & 0 \\
+    0 & 0 & 0 & 1
+    \end{bmatrix}
+    </script>
+</p>
+</li>
+<li>
+<p><strong>Observation Model <script type="math/tex">\mathbf{M}_i</script></strong>: It translates the state into position. Our observation model is simply the constant matrix <script type="math/tex"> \mathbf{M} </script>, meaning that it simply extracts <script type="math/tex">x_i</script> and <script type="math/tex">y_i</script> from \mathbf{s}_i:
+    <script type="math/tex; mode=display">
+    \mathbf{M} = \begin{bmatrix}
+    1 & 0 & 0 & 0\\
+    0 & 1 & 0 & 0
+    \end{bmatrix}
+    </script>
+</p>
+</li>
+<li>
+<p><strong>Model Covariance <script type="math/tex">\Sigma_{d, i}</script></strong> and <strong>Measurement Covariance <script type="math/tex">\Sigma_{m, i}</script></strong>: These signify the uncertainty in the model and the measurements, respectively.</p>
+<p>
+<script type="math/tex; mode=display">
+\Sigma_D = \begin{pmatrix}
+5 & 0 & 0 & 0 \\
+0 & 5 & 0 & 0 \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1
+\end{pmatrix}
+</script>
+<script type="math/tex; mode=display">
+\Sigma_M = \begin{pmatrix}
+50 & 0 \\
+0 & 50
+\end{pmatrix}
+</script>
+</p>
+<p>The values are set to represent our belief about the model and measurement noise. Essentially, larger values indicate greater uncertainty. They serve to balance the model prediction against new observations. </p>
+</li>
+<li>
+<p><strong>State Covariance <script type="math/tex">\Sigma_i</script></strong>: This measures the uncertainty in our state estimate.</p>
+</li>
+<li>
+<p><strong>Kalman Gain <script type="math/tex">\mathbf{K}_i</script></strong>: This weighting factor decides how much we should trust the new measurements relative to our model prediction.</p>
+</li>
+</ul>
+<h3 id="kalman-filter-equations">Kalman Filter Equations</h3>
+<h4 id="prediction">Prediction</h4>
+<p>Here we predict the state and its uncertainty.
+<script type="math/tex; mode=display">
+\mathbf{s}_i = \mathbf{D} \mathbf{s}_{i-1} \\
+\Sigma_i = \Sigma_{d, i} + \mathbf{D} \Sigma_{i-1} \mathbf{D}^T
+</script>
+</p>
+<h4 id="updatecorrection">Update/Correction</h4>
+<p>In this phase, we update the predicted state based on new measurements.
+<script type="math/tex; mode=display">
+\mathbf{K}_i = \Sigma_i \mathbf{M}^T (\mathbf{M} \Sigma_i \mathbf{M}^T + \Sigma_{m, i})^{-1} \\
+\mathbf{s}_i = \mathbf{s}_i + \mathbf{K}_i (\mathbf{z}_i - \mathbf{M} \mathbf{s}_i) \\
+\Sigma_i = (I - \mathbf{K}_i \mathbf{M}) \Sigma_i
+</script>
+</p>
+<p>Notice that the larger the <script type="math/tex">\Sigma_{m, i}</script>, the smaller the Kalman gain <script type="math/tex">\mathbf{K}_i</script>. This means that we trust the model more than the measurements. On the other hand, if the measurement noise is small, the Kalman gain will be large, and we will trust the measurements more than the model.</p>
+<h3 id="examples_4">Examples</h3>
+<p>When the Kalman filter is combined with phase correlation, tracking may initially seem sluggish but eventually catches up. This adaptation period is common as the Kalman filter attempts to balance noisy measurements from the phase correlation with its own predictions.</p>
+<p><img alt="kalman_driveby_subplots" src="../results/08/kalman_driveby_subplots.png" /></p>
+<p>As expected, when phase correlation fails in the shuffleboard example, the Kalman filter also fails to track the object.</p>
+<p><img alt="kalman_shuffleboard_subplots" src="../results/08/kalman_shuffleboard_subplots.png" /></p>
               
             </div>
           </div><footer>
