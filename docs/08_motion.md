@@ -1,4 +1,4 @@
-# Motion Estimation
+# Motion Estimation - Learning Reflection
 
 **Author**: Tony Fu  
 **Date**: August 27, 2023  
@@ -356,7 +356,7 @@ Before diving deeper, let's first familiarize ourselves with the notations used 
     \end{bmatrix}
     \]
 
-* **Observation Model \(\mathbf{M}_i\)**: It translates the state into position. Our observation model is simply the constant matrix \( \mathbf{M} \), meaning that it simply extracts \(x_i\) and \(y_i\) from \mathbf{s}_i:
+* **Observation Model \(\mathbf{M}_i\)**: It translates the state into position. Our observation model is simply the constant matrix \( \mathbf{M} \), meaning that it simply extracts \(x_i\) and \(y_i\) from \(\mathbf{s}_i\):
     \[
     \mathbf{M} = \begin{bmatrix}
     1 & 0 & 0 & 0\\

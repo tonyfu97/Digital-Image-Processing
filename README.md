@@ -28,7 +28,7 @@ Here are some key resources that guided this project:
 | 6 ![road_hough_thresholded_0.90](./docs/results/06/road_hough_thresholded_0.9.png)| [Feature Extraction](./06_feature_extraction/) | Harris-Stephens corner detection, Shi-Tomasi algorithm, Hough transform, texture spectrum, Tamura texture coefficients, Local Binary Patterns (LBP) |
 | 7 ![slic](./docs/results/07/slic.png)| [Segmentation](./07_segmentation/) | Active contours, Ostu's algorithm, Bernsen's algorithm, K-means clustering, Simple Linear Iterative Clustering (SLIC) |
 | 8 ![shuffleboard](./docs/images/shuffleboard.gif) | [Motion Estimation](./08_motion/) | Horn-Schunck optical flow, multiscale analysis, Lucas-Kanade optical flow, eigenelement analysis, cross-correlation, phase correlation, Kalman filter |
-| 9 | [Multispectral Imaging](./09_multispectral/) | |
+| 9 | [Multispectral Image Processing](./09_multispectral/) | Principal Component Analysis (PCA), median filtering in color images, color spaces |
 | 10 | [3D Visualization](./10_3d/) | |
 | Appendix 1| [Math Expressions in CImg's Fill Method](./appendix_1/) | How to write math expression for `CImg<>::fill()` |
 | Appendix 2| [JPEG Compression](./appendix_2/) | |
