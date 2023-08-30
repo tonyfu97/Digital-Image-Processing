@@ -1,7 +1,7 @@
 XX = g++
 CXXFLAGS = -I.. -lX11 -lpthread -lpng -std=c++11
 
-all: horn_schunck horn_schunck_multiscale lucas_kanade lucas_kanade_eigen cross_correlation phase_correlation
+all: horn_schunck horn_schunck_multiscale lucas_kanade lucas_kanade_eigen cross_correlation phase_correlation kalman
 
 horn_schunck: horn_schunck.cpp
 	$(XX) -o $@ $^ $(CXXFLAGS)
@@ -21,6 +21,9 @@ cross_correlation: cross_correlation.cpp
 phase_correlation: phase_correlation.cpp
 	$(XX) -o $@ $^ $(CXXFLAGS)
 
+kalman: kalman.cpp
+	$(XX) -o $@ $^ $(CXXFLAGS)
+
 clean:
 	rm -f horn_schunck
 	rm -f horn_schunck_multiscale
@@ -28,3 +31,4 @@ clean:
 	rm -f lucas_kanade_eigen
 	rm -f cross_correlation
 	rm -f phase_correlation
+	rm -f kalman

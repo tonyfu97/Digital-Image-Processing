@@ -7,8 +7,8 @@ imgName = "shuffleboard"
 fig, axs = plt.subplots(3, 5, figsize=(15, 9))
 
 # set background color
-fig.patch.set_facecolor('#E2D282')  # yellow
-# fig.patch.set_facecolor('#EE7272')  # red
+# fig.patch.set_facecolor('#E2D282')  # yellow
+fig.patch.set_facecolor('#EE7272')  # red
 
 # Remove axis labels and tickmarks
 for ax in axs.flatten():
@@ -16,7 +16,7 @@ for ax in axs.flatten():
 
 # Loop through images and plot them
 for i in range(1, 16):
-    img_path = f"phase_correlation_{imgName}_{i}.png"
+    img_path = f"kalman_{imgName}_{i}.png"
     img = Image.open(img_path)
     
     row = (i - 1) // 5
@@ -26,4 +26,4 @@ for i in range(1, 16):
     axs[row, col].set_title(f"Frame {i}")
 
 plt.tight_layout()
-plt.savefig(f"phase_correlation_{imgName}_subplots.png")
+plt.savefig(f"kalman_{imgName}_subplots.png")
