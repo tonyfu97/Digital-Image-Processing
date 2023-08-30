@@ -121,6 +121,24 @@
     </li>
         </ul>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#5-object-tracking-by-cross-correlation">5. Object Tracking by Cross-Correlation</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#algorithm-overview">Algorithm Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#examples_2">Examples</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#6-object-tracking-by-phase-correlation">6. Object Tracking by Phase Correlation</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#theoretical-background">Theoretical Background</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#algorithm-overview_1">Algorithm Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#examples_3">Examples</a>
+    </li>
+        </ul>
+    </li>
     </ul>
                 </li>
               </ul>
@@ -354,7 +372,7 @@ A^T A \mathbf{V} = A^T \mathbf{b}
 <p><img alt="lucas_kanade" src="../results/08/lucas_kanade_shuffleboard.png" /></p>
 <h2 id="4-lucas-kanade-optical-flow-with-eigenelement-analysis">4. Lucas-Kanade Optical Flow with Eigenelement Analysis</h2>
 <h3 id="why-eigenvalues">Why Eigenvalues?</h3>
-<p>Recall that in the <a href="../06_feature_extraction/#1-harris-stephens-corner-detector">Harris-Stephen corner detection</a> section, we introduced the concept of a structure tensor, denoted <script type="math/tex"> \textbf{M} </script>, to capture local image structures. Similarly, in the Lucas-Kanade method, we utilize another structure tensor <script type="math/tex">A^T A</script>. This <script type="math/tex">2 \times 2</script> matrix serves to encapsulate the local texture around a pixel.</p>
+<p>Recall that in the <a href="../06_feature_extraction/#1-harris-stephens-corner-detector">Harris-Stephen corner detection</a> section, we introduced the concept of a structure tensor, denoted <script type="math/tex"> M </script>, to capture local image structures. Similarly, in the Lucas-Kanade method, we utilize another structure tensor <script type="math/tex">A^T A</script>. This <script type="math/tex">2 \times 2</script> matrix serves to encapsulate the local texture around a pixel.</p>
 <p>The eigenvalues of this structure tensor guide us in determining how to process each pixel. The following table outlines the actions based on different conditions:</p>
 <table>
 <thead>
@@ -386,7 +404,68 @@ A^T A \mathbf{V} = A^T \mathbf{b}
 <p>To demonstrate the benefits of incorporating eigenvalue analysis, let's apply the Lucas-Kanade optical flow algorithm to the same sets of frames we used in previous sections. Below are the results:</p>
 <p><img alt="lucas_kanade_eigen_driveby" src="../results/08/lucas_kanade_eigen_driveby.png" /></p>
 <p><img alt="lucas_kanade_eigen_shuffleboard" src="../results/08/lucas_kanade_eigen_shuffleboard.png" /></p>
-<p>You'll notice that the output is cleaner and more reliable compared to earlier methods.</p>
+<p>I find the output to be cleaner compared to earlier methods.</p>
+<h2 id="5-object-tracking-by-cross-correlation">5. Object Tracking by Cross-Correlation</h2>
+<h3 id="algorithm-overview">Algorithm Overview</h3>
+<p>Object tracking in a sequence of images can be accomplished by first identifying the object in the initial frame and creating a "template" of it. In subsequent frames, we cross-correlate this template with a local neighborhood of pixels to find the location that yields the highest correlation. This newly identified location represents the object's new position. This method is considered a form of sparse motion estimation because it doesn't involve comparing the entire image, but rather a small localized area.</p>
+<h3 id="examples_2">Examples</h3>
+<p>In the following image, we first identify the object in motion and enclose it within a box to create a template:</p>
+<p><img alt="cross_correlation_driveby_input" src="../results/08/cross_correlation_driveby_input.png" /></p>
+<p>We then apply the cross-correlation algorithm to subsequent frames to track the object:</p>
+<p><img alt="cross_correlation_driveby_output" src="../results/08/cross_correlation_driveby_output.png" /></p>
+<p>Here's another example:</p>
+<p><img alt="cross_correlation_shuffleboard_input" src="../results/08/cross_correlation_shuffleboard_input.png" /></p>
+<p>And the tracking result:</p>
+<p><img alt="cross_correlation_shuffleboard_output" src="../results/08/cross_correlation_shuffleboard_output.png" /></p>
+<h2 id="6-object-tracking-by-phase-correlation">6. Object Tracking by Phase Correlation</h2>
+<h3 id="theoretical-background">Theoretical Background</h3>
+<p>Assume that two images differ only by a translation:</p>
+<p>
+<script type="math/tex; mode=display">
+I_2(x,y) = I_1(x + \Delta x, y + \Delta y)
+</script>
+</p>
+<p>This can be viewed as the convolution of the first image with a delta function:</p>
+<p>
+<script type="math/tex; mode=display">
+I_2(x,y) = I_1(x,y) \ast \delta(x + \Delta x, y + \Delta y)
+</script>
+</p>
+<p>Applying the Fourier transform to both sides gives:</p>
+<p>
+<script type="math/tex; mode=display">
+F_2(f_x, f_y) = F_1(f_x, f_y) \times e^{-j2\pi(f_x \Delta x + f_y \Delta y)}
+</script>
+</p>
+<p>This equation will be crucial for deriving <script type="math/tex">\Delta x</script> and <script type="math/tex">\Delta y</script>, the translational offsets between the images. We will later see how to go from <script type="math/tex">F_2(f_x, f_y)</script> and <script type="math/tex">F_1(f_x, f_y)</script> to <script type="math/tex">e^{-j2\pi(f_x \Delta x + f_y \Delta y)}</script>.</p>
+<h3 id="algorithm-overview_1">Algorithm Overview</h3>
+<p>The phase correlation approach is similar to cross-correlation. It involves creating an object template in the initial frame and then locating this object in subsequent frames. Instead of using the cross-correlation function, the method employs frequency domain transformations:</p>
+<p>
+<script type="math/tex; mode=display">
+F_1(f_x, f_y) = \mathcal{F}(I_1(x,y)) \quad \text{and} \quad F_2(f_x, f_y) = \mathcal{F}(I_2(x,y))
+</script>
+</p>
+<p>The cross-power spectrum is formulated as:</p>
+<p>
+<script type="math/tex; mode=display">
+\frac{F_1 \overline{F_2}}{|F_1 \overline{F_2}|}
+=
+\frac{F_1 \overline{F_1 \times  e^{-j2\pi(f_x \Delta x + f_y \Delta y)}}}{|F_1 \overline{F_1 \times  e^{-j2\pi(f_x \Delta x + f_y \Delta y)}}|}
+=\ldots =
+e^{-j2\pi(f_x \Delta x + f_y \Delta y)}
+</script>
+</p>
+<p>The proof (see the book) show that this eventually simplifies to <script type="math/tex">e^{-j2\pi(f_x \Delta x + f_y \Delta y)}</script>, which can be inverse Fourier transformed to get <script type="math/tex">\delta(x + \Delta x, y + \Delta y)</script>. In the code, the real and imaginary parts of the cross-power spectrum are separately handled as follows:</p>
+<p>
+<script type="math/tex; mode=display">
+\frac{(F_{1real} F_{2real} + F_{1imag} F_{2imag}) + j(F_{1imag} F_{2real} - F_{1real} F_{2imag})}{|F_1 \overline{F_2}|}
+</script>
+</p>
+<h3 id="examples_3">Examples</h3>
+<p>We apply the phase correlation algorithm to the same frame sets used previously. The results demonstrate that it effectively tracks moving objects. </p>
+<p><img alt="driveby_subplots" src="../results/08/phase_correlation_driveby_subplots.png" /></p>
+<p>However, the method is less reliable when the object lacks a distinct texture. For example, phase correlation fails in the following example:</p>
+<p><img alt="shuffleboard_subplots" src="../results/08/phase_correlation_shuffleboard_subplots.png" /></p>
               
             </div>
           </div><footer>
