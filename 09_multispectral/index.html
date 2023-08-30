@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/Digital-Image-Processing/09_multispectral/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>9. Multispectral Image Processing - Digital Image Processing Notes</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "9. Multispectral Image Processing";
+        var mkdocs_page_input_path = "09_multispectral.md";
+        var mkdocs_page_url = "/Digital-Image-Processing/09_multispectral/";
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/django.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-274394082"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-274394082');
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Digital Image Processing Notes
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../01_getting_started/">1. Getting Started</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../02_block_decomposition/">2. Block Decomposition</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../03_point_processing/">3. Point Processing Transformations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../04_morphology/">4. Morphology</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../05_filtering/">5. Filtering</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../06_feature_extraction/">6. Feature Extraction</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../07_segmentation/">7. Segmentation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../08_motion/">8. Motion Estimation</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">9. Multispectral Image Processing</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#1-principal-component-analysis-pca-for-reducing-color-channels">1. Principal Component Analysis (PCA) for Reducing Color Channels</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#algorithm-walkthrough">Algorithm Walkthrough</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#1-data-standardization">1. Data Standardization</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#2-calculate-the-correlation-matrix">2. Calculate the Correlation Matrix</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#3-compute-the-eigenvalues-and-eigenvectors">3. Compute the Eigenvalues and Eigenvectors</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#4-select-principal-components">4. Select Principal Components</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#5-transform-original-dataset">5. Transform Original Dataset</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#2-color-spaces">2. Color Spaces</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#3-median-filtering-for-color-images">3. Median Filtering for Color Images</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#algorithm-overview">Algorithm Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_1">Example</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../10_3d/">10. 3D Visualization</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../appendix_1/">Appendix 1 - Math Expressions in CImg's Fill Method</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../where_did_i_get_my_images/">Where Did I Get My Images?</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Digital Image Processing Notes</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
+      <li>9. Multispectral Image Processing</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tonyfu97/Digital-Image-Processing/blob/master/docs/09_multispectral.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="multispectral-image-processing-learning-reflection">Multispectral Image Processing - Learning Reflection</h1>
+<p><strong>Author</strong>: Tony Fu<br />
+<strong>Date</strong>: August 30, 2023<br />
+<strong>Device</strong>: MacBook Pro 16-inch, Late 2021 (M1 Pro)<br />
+<strong>Code</strong>: <a href="https://github.com/tonyfu97/Digital-Image-Processing/tree/main/09_multispectral">GitHub</a><br />
+<strong>Reference</strong>: Chapter 9 <a href="https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538"><em>Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library</em> by Tschumperlé, Tilmant, Barra</a></p>
+<h2 id="1-principal-component-analysis-pca-for-reducing-color-channels">1. Principal Component Analysis (PCA) for Reducing Color Channels</h2>
+<p>Principal Component Analysis (PCA) is a widely-used technique for dimensionality reduction. Here, the book introduces PCA in the context of reducing the number of color channels in images, but it is also frequently used in image processing tasks such as image compression and appearance-based object recognition (not covered). For a more in-depth understanding, please refer to these lectures: <a href="https://youtu.be/M6fBAzcw1Ps?si=zJfF_4zNEiaa8jnf">Lecture 1</a>, <a href="https://youtu.be/DcngAJXMoRo?si=3P7mRL9JUfmrVyh4">Lecture 2</a>.</p>
+<h3 id="algorithm-walkthrough">Algorithm Walkthrough</h3>
+<h4 id="1-data-standardization">1. Data Standardization</h4>
+<p>The first step is to standardize the data. This is accomplished by subtracting the mean and dividing by the standard deviation:</p>
+<p>
+<script type="math/tex; mode=display">
+\mathbf{Z} = \frac{\mathbf{X} - \bar{\mathbf{X}}}{\sigma}
+</script>
+</p>
+<p>Here, <script type="math/tex"> \mathbf{X} </script> is a column of the data matrix, <script type="math/tex"> \bar{\mathbf{X}} </script> is the mean of <script type="math/tex"> \mathbf{X} </script>, and <script type="math/tex"> \sigma </script> is the standard deviation of <script type="math/tex"> \mathbf{X} </script>.</p>
+<h4 id="2-calculate-the-correlation-matrix">2. Calculate the Correlation Matrix</h4>
+<p>Next, calculate the correlation matrix:</p>
+<p>
+<script type="math/tex; mode=display">
+\mathbf{R} = \mathbf{Z}^T \times \mathbf{Z}
+</script>
+</p>
+<p>Note that usually, the correlation matrix is further divided by the number of samples, but this is not done here.</p>
+<h4 id="3-compute-the-eigenvalues-and-eigenvectors">3. Compute the Eigenvalues and Eigenvectors</h4>
+<p>Using <code>CImg&lt;T&gt;::get_symmetric_eigen()</code>, we can obtain the eigenvalues and eigenvectors of the correlation matrix, sorted in descending order. Mathematically, this involves solving the following equation:</p>
+<p>
+<script type="math/tex; mode=display">
+\mathbf{R} \times \mathbf{v} = \lambda \times \mathbf{v}
+</script>
+</p>
+<p>Here, <script type="math/tex"> \mathbf{v} </script> is the eigenvector and <script type="math/tex"> \lambda </script> is the eigenvalue.</p>
+<h4 id="4-select-principal-components">4. Select Principal Components</h4>
+<p>This step involves selecting the top <script type="math/tex"> k </script> columns from <script type="math/tex">\mathbf{v}</script>. In the code, we use the principal component(s) that account for 90% of the variance in the data.</p>
+<h4 id="5-transform-original-dataset">5. Transform Original Dataset</h4>
+<p>Finally, transform the original dataset by multiplying it with the selected principal components:</p>
+<p>
+<script type="math/tex; mode=display">
+\mathbf{X}_{\text{pca}} = \mathbf{X} \times \mathbf{v}
+</script>
+</p>
+<h3 id="example">Example</h3>
+<p>Here we perform PCA on the following color image:</p>
+<p><img alt="cat" src="../images/cat.png" /></p>
+<p>The first principal component, which accounts for over 90% of the variation, is shown below. This appears to be a grayscale version of the original image:</p>
+<p><img alt="pca_0_cat" src="../results/09/pca_0_cat.png" /></p>
+<p>Interestingly, the second principal component highlights the cat toy in the background:</p>
+<p><img alt="pca_1_cat" src="../results/09/pca_1_cat.png" /></p>
+<p>And here is the third principal component:</p>
+<p><img alt="pca_2_cat" src="../results/09/pca_2_cat.png" /></p>
+<h2 id="2-color-spaces">2. Color Spaces</h2>
+<table>
+<thead>
+<tr>
+<th>Color Space</th>
+<th>Description</th>
+<th>Channels</th>
+<th>Applications</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RGB</td>
+<td>Red, Green, Blue</td>
+<td>3</td>
+<td>General-purpose, display, image &amp; video capture</td>
+</tr>
+<tr>
+<td>Grayscale</td>
+<td>Luminance</td>
+<td>1</td>
+<td>Image analysis, older video transmission</td>
+</tr>
+<tr>
+<td>HSV</td>
+<td>Hue, Saturation, Value</td>
+<td>3</td>
+<td>Image analysis, computer vision, graphics</td>
+</tr>
+<tr>
+<td>HSL</td>
+<td>Hue, Saturation, Lightness</td>
+<td>3</td>
+<td>Image analysis, computer vision, graphics</td>
+</tr>
+<tr>
+<td>YCbCr</td>
+<td>Luma, Blue-difference, Red-difference</td>
+<td>3</td>
+<td>Video compression, broadcast</td>
+</tr>
+<tr>
+<td>Lab</td>
+<td>Lightness, a (Green to Red), b (Blue to Yellow)</td>
+<td>3</td>
+<td>Color conversion, image analysis</td>
+</tr>
+<tr>
+<td>YUV</td>
+<td>Luminance, Chrominance U, Chrominance V</td>
+<td>3</td>
+<td>Video compression, broadcast</td>
+</tr>
+<tr>
+<td>CMYK</td>
+<td>Cyan, Magenta, Yellow, Black</td>
+<td>4</td>
+<td>Printing</td>
+</tr>
+<tr>
+<td>XYZ</td>
+<td>Standardized RGB</td>
+<td>3</td>
+<td>Color science, conversions</td>
+</tr>
+<tr>
+<td>sRGB</td>
+<td>Standard RGB</td>
+<td>3</td>
+<td>Web, general-purpose graphics</td>
+</tr>
+<tr>
+<td>L<em>a</em>b*</td>
+<td>Lightness, a<em>, b</em></td>
+<td>3</td>
+<td>Color analysis, computer vision</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-median-filtering-for-color-images">3. Median Filtering for Color Images</h2>
+<h3 id="algorithm-overview">Algorithm Overview</h3>
+<p>While we have explored median filtering <a href="../05_filtering/#2-median-filter">before</a>, it was specifically for black and white images. The concept gets more complicated when extended to color images. In this case, we start by converting the image from RGB to Lab color space. For each pixel, we consider a <script type="math/tex">5 \times 5 \times 2</script> neighborhood, <script type="math/tex"> \mathbf{V} </script>, around it in the format <script type="math/tex">x, y, c</script>.</p>
+<p>
+<script type="math/tex; mode=display">
+\mathbf{V} = \begin{pmatrix}
+\mathbf{v}_a \\
+\mathbf{v}_b
+\end{pmatrix}
+</script>
+</p>
+<p>Here, <script type="math/tex"> \mathbf{v}_a </script> and <script type="math/tex"> \mathbf{v}_b </script> are <script type="math/tex">5 \times 5</script> matrices corresponding to the <script type="math/tex"> a </script> and <script type="math/tex"> b </script> channels of the Lab color space. Note that although <script type="math/tex"> \mathbf{v}_L </script> exists, it's not used in the distance calculation for median filtering in this algorithm.</p>
+<p>The distance metric <script type="math/tex"> d </script> is calculated using the <script type="math/tex"> a </script> and <script type="math/tex"> b </script> components. Specifically, <script type="math/tex"> d </script> for each pixel <script type="math/tex"> i, j </script> in the <script type="math/tex"> 5 \times 5 </script> window is computed as the sum of Euclidean distances to the <script type="math/tex"> a </script> and <script type="math/tex"> b </script> values of all other pixels <script type="math/tex"> u, v </script> in the same window:</p>
+<p>
+<script type="math/tex; mode=display">
+d_{ij} = \sum_{u,v} \sqrt{(a_{ij} - a_{uv})^2 + (b_{ij} - b_{uv})^2}
+</script>
+</p>
+<p>Where <script type="math/tex"> a_{ij} </script> and <script type="math/tex"> b_{ij} </script> denote the <script type="math/tex"> a </script> and <script type="math/tex"> b </script> components at pixel <script type="math/tex"> i,j </script>, and <script type="math/tex"> a_{uv} </script> and <script type="math/tex"> b_{uv} </script> are the <script type="math/tex"> a </script> and <script type="math/tex"> b </script> components at pixel <script type="math/tex"> u,v </script>.</p>
+<p>The pixel with the minimum <script type="math/tex"> d </script> value is then selected as the median pixel and replaces the central pixel in the output image. This operation is repeated for each <script type="math/tex"> 5 \times 5 </script> window in the image.</p>
+<h3 id="example_1">Example</h3>
+<p>Consider a noisy image with large blocks of color:</p>
+<p><img alt="mondrian_noisy" src="../results/09/mondrian_noisy.png" /></p>
+<p>After applying the median filter, the noise is effectively reduced:</p>
+<p><img alt="median_color_mondrian" src="../results/09/median_color_mondrian.png" /></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../08_motion/" class="btn btn-neutral float-left" title="8. Motion Estimation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../10_3d/" class="btn btn-neutral float-right" title="10. 3D Visualization">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2023 Tony Fu</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tonyfu97/Digital-Image-Processing" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../08_motion/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../10_3d/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/Digital-Image-Processing/textures/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/Digital-Image-Processing/10_3d/" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Texture Images - Digital Image Processing Notes</title>
+    <title>10. 3D Visualization - Digital Image Processing Notes</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Texture Images";
-        var mkdocs_page_input_path = "textures/README.md";
-        var mkdocs_page_url = "/Digital-Image-Processing/textures/";
+        var mkdocs_page_name = "10. 3D Visualization";
+        var mkdocs_page_input_path = "10_3d.md";
+        var mkdocs_page_url = "/Digital-Image-Processing/10_3d/";
       </script>
     
     <script src="../js/jquery-3.6.0.min.js" defer></script>
@@ -90,8 +90,28 @@
                 <li class="toctree-l1"><a class="reference internal" href="../09_multispectral/">9. Multispectral Image Processing</a>
                 </li>
               </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../10_3d/">10. 3D Visualization</a>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">10. 3D Visualization</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#1-introduction">1. Introduction</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#11-3d-primitives-in-cimg">1.1 3D Primitives in CImg</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#12-define-your-own-3d-object">1.2 Define Your Own 3D Object</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#13-merging-objects">1.3 Merging Objects</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#14-translate-rotate-scale-shear">1.4 Translate, Rotate, Scale, Shear</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#15-displaying-objects">1.5 Displaying Objects</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#2">2.</a>
+    </li>
+    </ul>
                 </li>
               </ul>
               <ul>
@@ -116,9 +136,9 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
-      <li>Texture Images</li>
+      <li>10. 3D Visualization</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/tonyfu97/Digital-Image-Processing/blob/master/docs/textures/README.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/tonyfu97/Digital-Image-Processing/blob/master/docs/10_3d.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -126,11 +146,66 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="texture-images">Texture Images</h1>
-<h2 id="credit-describable-textures-dataset-dtd">Credit: <a href="https://www.kaggle.com/datasets/jmexpert/describable-textures-dataset-dtd">Describable Textures Dataset (DTD)</a></h2>
+                <h1 id="3d-visualization-learning-reflection">3D Visualization - Learning Reflection</h1>
+<p><strong>Author</strong>: Tony Fu<br />
+<strong>Date</strong>: August 30, 2023<br />
+<strong>Device</strong>: MacBook Pro 16-inch, Late 2021 (M1 Pro)<br />
+<strong>Code</strong>: <a href="https://github.com/tonyfu97/Digital-Image-Processing/tree/main/10_3d">GitHub</a><br />
+<strong>Reference</strong>: Chapter 10 <a href="https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538"><em>Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library</em> by Tschumperlé, Tilmant, Barra</a></p>
+<h2 id="1-introduction">1. Introduction</h2>
+<h3 id="11-3d-primitives-in-cimg">1.1 3D Primitives in CImg</h3>
+<p>CImg has functions to create several types of 3D primitives, including:</p>
+<ul>
+<li><code>sphere3d()</code>: Creates a sphere.</li>
+<li><code>torus3d()</code>: Creates a torus.</li>
+<li><code>cylinder3d()</code>: Creates a cylinder.</li>
+<li><code>box3d()</code>: Creates a box or parallelepiped.</li>
+</ul>
+<p>To use these, you generally create a <code>CImg&lt;&gt;</code> object for points and a <code>CImgList&lt;unsigned int&gt;</code> object for primitives, then fill them using these functions:</p>
+<pre><code class="language-cpp">CImg&lt;&gt; points;
+CImgList&lt;unsigned int&gt; primitives;
+points = CImg&lt;&gt;::sphere3d(primitives, radius);
+</code></pre>
+<h3 id="12-define-your-own-3d-object">1.2 Define Your Own 3D Object</h3>
+<p>You can define your own 3D object by providing the following four datasets:</p>
+<ol>
+<li><strong>Points (Vertices)</strong>: A <code>CImg&lt;&gt;</code> object that holds the 3D coordinates of each vertex.</li>
+<li><strong>Primitives</strong>: A <code>CImgList&lt;unsigned int&gt;</code> object that describes how points connect to form primitives like triangles or quadrangles.</li>
+<li><strong>Materials (Optional)</strong>: To specify colors or textures.</li>
+<li><strong>Opacities (Optional)</strong>: To specify the transparency level of each primitive.</li>
+</ol>
+<p>For a simple example, you could define a 3D triangle:</p>
+<pre><code class="language-cpp">CImg&lt;&gt; points(&quot;0,0,0  1,0,0  0,1,0&quot;);
+CImgList&lt;unsigned int&gt; primitives(&quot;3,0,1,2&quot;);  // A single triangle using points 0,1,2
+</code></pre>
+<h3 id="13-merging-objects">1.3 Merging Objects</h3>
+<p>You can use <code>append_object3d()</code> to merge two 3D objects:</p>
+<pre><code class="language-cpp">g_points.append_object3d(g_primitives, points, primitives);
+</code></pre>
+<h3 id="14-translate-rotate-scale-shear">1.4 Translate, Rotate, Scale, Shear</h3>
+<p>These transformations can be applied using methods like:</p>
+<ul>
+<li><code>shift_object3d(dx, dy, dz)</code>: Translates the object.</li>
+<li><code>rotate_object3d(ax, ay, az, angle)</code>: Rotates the object.</li>
+<li><code>resize_object3d(sx, sy, sz)</code>: Scales the object.</li>
+<li><code>shear_object3d(xy, xz, yx, yz, zx, zy)</code>: Shears the object.</li>
+</ul>
+<h3 id="15-displaying-objects">1.5 Displaying Objects</h3>
+<p>To display the 3D object, you can use the <code>display_object3d()</code> method:</p>
+<pre><code class="language-cpp">background.display_object3d(&quot;3D Object&quot;, points, primitives);
+</code></pre>
+<p>Here, <code>background</code> is a <code>CImg&lt;&gt;</code> object you can create as a background for rendering the 3D scene.</p>
+<h3 id="example">Example</h3>
+<p>The book's script <a href="https://github.com/tonyfu97/Digital-Image-Processing/tree/main/10_3d/simple_3d.cpp"><code>simple_3d.cpp</code></a> merge a few toruses and spheres to create a chain with a ball at the end:</p>
+<p><img alt="simple_3d" src="../results/10/simple_3d.gif" /></p>
+<h2 id="2">2.</h2>
               
             </div>
           </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../09_multispectral/" class="btn btn-neutral float-left" title="9. Multispectral Image Processing"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../appendix_1/" class="btn btn-neutral float-right" title="Appendix 1 - Math Expressions in CImg's Fill Method">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
 
   <hr/>
 
@@ -157,6 +232,10 @@
         </span>
     
     
+      <span><a href="../09_multispectral/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../appendix_1/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
