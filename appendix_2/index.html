@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/Digital-Image-Processing/appendix_2/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Appendix 2 - JPEG Compression - Digital Image Processing Notes</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Appendix 2 - JPEG Compression";
+        var mkdocs_page_input_path = "appendix_2.md";
+        var mkdocs_page_url = "/Digital-Image-Processing/appendix_2/";
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/languages/django.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-274394082"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-274394082');
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Digital Image Processing Notes
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../01_getting_started/">1. Getting Started</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../02_block_decomposition/">2. Block Decomposition</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../03_point_processing/">3. Point Processing Transformations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../04_morphology/">4. Morphology</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../05_filtering/">5. Filtering</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../06_feature_extraction/">6. Feature Extraction</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../07_segmentation/">7. Segmentation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../08_motion/">8. Motion Estimation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../09_multispectral/">9. Multispectral Image Processing</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../10_3d/">10. 3D Visualization</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../appendix_1/">Appendix 1 - Math Expressions in CImg's Fill Method</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Appendix 2 - JPEG Compression</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#algorithm-walkthrough">Algorithm Walkthrough</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-color-space-conversion">1. Color Space Conversion</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-pre-calculated-cosine-values">2. Pre-calculated Cosine Values</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-divide-image-into-blocks">3. Divide Image into Blocks</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#4-level-shift">4. Level Shift</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#5-discrete-cosine-transform-dct">5. Discrete Cosine Transform (DCT)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#6-quantization">6. Quantization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#7-zigzag-scanning">7. Zigzag Scanning</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#8-run-length-encoding-rle">8. Run-Length Encoding (RLE)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#9-huffman-encoding">9. Huffman Encoding</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#10-write-to-file">10. Write to File</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#final-result">Final Result</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../where_did_i_get_my_images/">Where Did I Get My Images?</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Digital Image Processing Notes</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
+      <li>Appendix 2 - JPEG Compression</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tonyfu97/Digital-Image-Processing/blob/master/docs/appendix_2.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="jpeg-compression-learning-reflection">JPEG Compression - Learning Reflection</h1>
+<p><strong>Author</strong>: Tony Fu<br />
+<strong>Date</strong>: August 30, 2023<br />
+<strong>Device</strong>: MacBook Pro 16-inch, Late 2021 (M1 Pro)<br />
+<strong>Code</strong>: <a href="https://github.com/tonyfu97/Digital-Image-Processing/tree/main/appendix_2">GitHub</a><br />
+<strong>Reference</strong>: Chapter 11.1 <a href="https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538"><em>Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library</em> by Tschumperlé, Tilmant, Barra</a></p>
+<h2 id="algorithm-walkthrough">Algorithm Walkthrough</h2>
+<p>I highly recommend Branch Education's <a href="https://youtu.be/Kv1Hiv3ox8I?si=48ut6ozN3T9cwUHR">video</a> on this topic. JPEG is a lossy compression algorithm that uses a series of clever steps to reduce the size of an image. The algorithm is as follows:</p>
+<h3 id="1-color-space-conversion">1. Color Space Conversion</h3>
+<p>The first step is to convert the image from RGB to YCbCr color space. The human eye is more sensitive to changes in luminance than chrominance. The YCbCr color space separates luminance (Y) from chrominance (Cb and Cr). Note that in the <a href="https://github.com/tonyfu97/Digital-Image-Processing/tree/main/appendix_2/jpeg.cpp">book's code</a>, the author uses the norm of the RGB values to calculate luminance, which is a simplified but effective approach for this example.</p>
+<p>Original image:</p>
+<p><img alt="street" src="../images/street.png" /></p>
+<p>Converted to luminance:</p>
+<p><img alt="street_input_image" src="../results/appendix_2/input_image.png" /></p>
+<h3 id="2-pre-calculated-cosine-values">2. Pre-calculated Cosine Values</h3>
+<p>The <code>genCosValues()</code> function generates a matrix of pre-calculated cosine values used in the DCT and IDCT functions. The formula for cosine values is:</p>
+<p>
+<script type="math/tex; mode=display">
+\mathbf{C}(x, f) = \cos \left( \frac{\pi}{2N} (2x + 1) f \right)
+</script>
+</p>
+<p>Here, <script type="math/tex">N = 8</script>.</p>
+<p><img alt="cos_values" src="../results/appendix_2/cos_values.png" /></p>
+<p>Each row corresponds to a frequency <script type="math/tex">f</script>.</p>
+<h3 id="3-divide-image-into-blocks">3. Divide Image into Blocks</h3>
+<p>The image is divided into blocks <script type="math/tex"> \mathbf{B} </script> of size <script type="math/tex"> N \times N </script>. Subsampling is commonly done here, but the book doesn't cover that aspect.</p>
+<h3 id="4-level-shift">4. Level Shift</h3>
+<p>The level shift operation subtracts 128 from each pixel value, centering them around 0. This improves numerical stability in the DCT and IDCT calculations.</p>
+<h3 id="5-discrete-cosine-transform-dct">5. Discrete Cosine Transform (DCT)</h3>
+<p>The <code>JPEG_DCT()</code> function calculates the Discrete Cosine Transform of a given image block using:</p>
+<p>
+<script type="math/tex; mode=display">
+\mathbf{DCT}(\mathbf{B}) = \mathbf{C} \mathbf{B} \mathbf{C}^T
+</script>
+</p>
+<p>Alternatively, using index notation:</p>
+<p>
+<script type="math/tex; mode=display">
+\mathbf{DCT}(\mathbf{B})_{f, g} = \sum_{x=0}^{N-1} \sum_{y=0}^{N-1} \mathbf{C}(x, f) \mathbf{B}(x, y) \mathbf{C}(y, g)
+</script>
+</p>
+<p>To normalize the transform and ensure it is unitary, the whole block is multiplied by <script type="math/tex"> \frac{2}{N} \cdot c(i) \cdot c(j) </script>, where:
+- <script type="math/tex"> c(i) = \frac{1}{\sqrt{2}} </script> if <script type="math/tex"> i = 0 </script>; otherwise <script type="math/tex"> c(i) = 1 </script>
+- <script type="math/tex"> c(j) = \frac{1}{\sqrt{2}} </script> if <script type="math/tex"> j = 0 </script>; otherwise <script type="math/tex"> c(j) = 1 </script>
+</p>
+<h3 id="6-quantization">6. Quantization</h3>
+<p>The quantization step is where most of the compression occurs. In <code>JPEGEncoder()</code>, the DCT coefficients are quantized using a standard Quantization matrix <script type="math/tex"> Q </script> scaled by a quality factor:</p>
+<p>
+<script type="math/tex; mode=display">
+\mathbf{DCT_{Q}} = \frac{\mathbf{DCT}}{Q \times \text{quality}}
+</script>
+</p>
+<h3 id="7-zigzag-scanning">7. Zigzag Scanning</h3>
+<p>Zigzag scanning is usually performed to create a 1D array of DCT coefficients, enabling more efficient encoding. The step isn't implemented in the book's code.</p>
+<h3 id="8-run-length-encoding-rle">8. Run-Length Encoding (RLE)</h3>
+<p>Run-Length Encoding is often used to represent repetitive sequences in a more compact form. This is not implemented in the book's code.</p>
+<h3 id="9-huffman-encoding">9. Huffman Encoding</h3>
+<p>Huffman encoding is a method for lossless data compression. It assigns shorter bit sequences to more common coefficients. This is not implemented in the book's code.</p>
+<h3 id="10-write-to-file">10. Write to File</h3>
+<p>The code doesn't manage JPEG-specific metadata or file headers, so it doesn't generate a standard JPEG file.</p>
+<h3 id="final-result">Final Result</h3>
+<p>Using a quality factor of 1, the final result is:</p>
+<p><img alt="jpeg_street_01" src="../results/appendix_2/jpeg_street_01.png" /></p>
+<p>With quality factors of 10, 50, and 90:</p>
+<p><img alt="jpeg_street_10" src="../results/appendix_2/jpeg_street_10.png" /></p>
+<p><img alt="jpeg_street_50" src="../results/appendix_2/jpeg_street_50.png" /></p>
+<p><img alt="jpeg_street_90" src="../results/appendix_2/jpeg_street_90.png" /></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../appendix_1/" class="btn btn-neutral float-left" title="Appendix 1 - Math Expressions in CImg's Fill Method"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../where_did_i_get_my_images/" class="btn btn-neutral float-right" title="Where Did I Get My Images?">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2023 Tony Fu</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tonyfu97/Digital-Image-Processing" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../appendix_1/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../where_did_i_get_my_images/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
