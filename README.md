@@ -29,6 +29,6 @@ Here are some key resources that guided this project:
 | 7 ![slic](./docs/results/07/slic.png)| [Segmentation](./07_segmentation/) | Active contours, Ostu's algorithm, Bernsen's algorithm, K-means clustering, Simple Linear Iterative Clustering (SLIC) |
 | 8 ![shuffleboard](./docs/images/shuffleboard.gif) | [Motion Estimation](./08_motion/) | Horn-Schunck optical flow, multiscale analysis, Lucas-Kanade optical flow, eigenelement analysis, cross-correlation, phase correlation, Kalman filter |
 | 9 ![cat_pca](./docs/results/09/cat_pca.png)| [Multispectral Image Processing](./09_multispectral/) | Principal Component Analysis (PCA), median filtering in color images, color spaces |
-| 10 | [3D Visualization](./10_3d/) | |
+| 10 ![simple_3d](./docs/results/10/simple_3d.gif)| [3D Visualization](./10_3d/) | Creating simple 3D shapes |
 | Appendix 1| [Math Expressions in CImg's Fill Method](./appendix_1/) | How to write math expression for `CImg<>::fill()` |
 | Appendix 2| [JPEG Compression](./appendix_2/) | |
