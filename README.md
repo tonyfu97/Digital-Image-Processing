@@ -3,6 +3,8 @@ I've set up this repo to dig deeper into image processing algorithms, using C++ 
 
 I'm using the book [*Digital Image Processing with C++: Implementing Reference Algorithms with the CImg Library* by Tschumperlé, Tilmant, Barra](https://www.amazon.com/Digital-Image-Processing-Implementing-Algorithms/dp/1032347538) as my primary reference.
 
+Each script in this repository is designed to run independently to maximize modularity. While this may not adhere to traditional software design principles, the focus here is on isolated, hands-on learning of individual image processing algorithms.
+
 ## Introduction
 I used to rely on OpenCV for image processing tasks. It's undoubtedly powerful, but getting it set up on a new computer was always a bit of a headache. Also, it has so many features that it was hard to keep track of everything.
 
@@ -31,4 +33,4 @@ Here are some key resources that guided this project:
 | 9 ![cat_pca](./docs/results/09/cat_pca.png)| [Multispectral Image Processing](./09_multispectral/) | Principal Component Analysis (PCA), median filtering in color images, color spaces |
 | 10 ![simple_3d](./docs/results/10/simple_3d.gif)| [3D Visualization](./10_3d/) | Creating simple 3D shapes |
 | Appendix 1| [Math Expressions in CImg's Fill Method](./appendix_1/) | How to write math expression for `CImg<>::fill()` |
-| Appendix 2| [JPEG Compression](./appendix_2/) | |
+| Appendix 2| [JPEG Compression](./appendix_2/) | JPEG algorithm |
